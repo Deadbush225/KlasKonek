@@ -32,9 +32,11 @@
   <table border="0" cellpadding="14" cellspacing="0" style="border-collapse: collapse; margin-top: 12px;">
     <tr>
       <td align="center" style="border: 1px solid #30363d; width: 220px;">
-        <img src="https://placehold.co/120x120?text=Marti" alt="Marti Kier Trance" width="120" height="120" style="object-fit: cover;"><br><br>
+        <img src="public/img/marti.jpeg" alt="Marti Kier Trance" width="120" height="120" style="object-fit: cover;"><br><br>
         <strong>Marti Kier Trance</strong><br>
-        <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+        <a href="https://www.linkedin.com/in/marti-kier-trance-125371370/">
+          <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+        </a>
       </td>
       <td align="center" style="border: 1px solid #30363d; width: 220px;">
         <img src="public/img/christine.jpeg" alt="Christine Rio" width="120" height="120" style="object-fit: cover;"><br><br>
