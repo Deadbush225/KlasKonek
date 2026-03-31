@@ -21,7 +21,10 @@
       </td>
       <td align="center" style="border: 1px solid #30363d; width: 220px;">
         <img src="public/img/adriel.jpg" alt="Adriel Magalona" width="120" height="120" style="object-fit: cover;"><br><br>
-        <strong>Adriel Magalona</strong>
+        <strong>Adriel Magalona</strong><br>
+        <a href="https://www.linkedin.com/in/adr1el/">
+          <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+        </a>
       </td>
     </tr>
   </table>
@@ -30,7 +33,8 @@
     <tr>
       <td align="center" style="border: 1px solid #30363d; width: 220px;">
         <img src="https://placehold.co/120x120?text=Marti" alt="Marti Kier Trance" width="120" height="120" style="object-fit: cover;"><br><br>
-        <strong>Marti Kier Trance</strong>
+        <strong>Marti Kier Trance</strong><br>
+        <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
       </td>
       <td align="center" style="border: 1px solid #30363d; width: 220px;">
         <img src="public/img/christine.jpeg" alt="Christine Rio" width="120" height="120" style="object-fit: cover;"><br><br>
