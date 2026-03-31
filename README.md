@@ -2,32 +2,43 @@
 
 ## BSCS 2-2 Group 5
 
-<table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
-  <tr>
-    <td align="center" width="33.33%">
-      <img src="public/img/janel.jpeg" alt="Janel Rose Trongcoso" style="border-radius: 50%; width: 120px; height: 120px; object-fit: cover;"><br>
-      <strong>Janel Rose Trongcoso</strong><br>
-      <a href="https://www.linkedin.com/in/janel-rose-trongcoso-24467b23a/">LinkedIn</a><br>
-    </td>
-    <td align="center" width="33.33%">
-      <img src="public/img/gem.jpeg" alt="Gem Christian Lazo" style="border-radius: 50%; width: 120px; height: 120px; object-fit: cover;"><br>
-      <strong>Gem Christian Lazo</strong><br>
-      <a href="https://www.linkedin.com/in/gemchristianolazo/">LinkedIn</a><br>
-    </td>
-    <td align="center" width="33.33%">
-      <img src="public/img/adriel.jpg" alt="Adriel Magalona" style="border-radius: 50%; width: 120px; height: 120px; object-fit: cover;"><br>
-      <strong>Adriel Magalona</strong><br>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img alt="Marti Kier Trance" style="border-radius: 50%; width: 120px; height: 120px; object-fit: cover;"><br>
-      <strong>Marti Kier Trance</strong><br>
-    </td>
-    <td align="center" width="50%">
-      <img src="public/img/christine.jpeg" alt="Christine Rio" style="border-radius: 50%; width: 120px; height: 120px; object-fit: cover;"><br>
-      <strong>Christine Rio</strong><br>
-      <a href="https://www.linkedin.com/in/riochristine/">LinkedIn</a><br>
-    </td>
-  </tr>
-</table>
+<div align="center">
+  <table border="0" cellpadding="14" cellspacing="0" style="border-collapse: collapse;">
+    <tr>
+      <td align="center" style="border: 1px solid #30363d; width: 220px;">
+        <img src="public/img/janel.jpeg" alt="Janel Rose Trongcoso" width="120" height="120" style="object-fit: cover;"><br><br>
+        <strong>Janel Rose Trongcoso</strong><br>
+        <a href="https://www.linkedin.com/in/janel-rose-trongcoso-24467b23a/">
+          <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+        </a>
+      </td>
+      <td align="center" style="border: 1px solid #30363d; width: 220px;">
+        <img src="public/img/gem.jpeg" alt="Gem Christian Lazo" width="120" height="120" style="object-fit: cover;"><br><br>
+        <strong>Gem Christian Lazo</strong><br>
+        <a href="https://www.linkedin.com/in/gemchristianolazo/">
+          <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+        </a>
+      </td>
+      <td align="center" style="border: 1px solid #30363d; width: 220px;">
+        <img src="public/img/adriel.jpg" alt="Adriel Magalona" width="120" height="120" style="object-fit: cover;"><br><br>
+        <strong>Adriel Magalona</strong>
+      </td>
+    </tr>
+  </table>
+
+  <table border="0" cellpadding="14" cellspacing="0" style="border-collapse: collapse; margin-top: 12px;">
+    <tr>
+      <td align="center" style="border: 1px solid #30363d; width: 220px;">
+        <img src="https://placehold.co/120x120?text=Marti" alt="Marti Kier Trance" width="120" height="120" style="object-fit: cover;"><br><br>
+        <strong>Marti Kier Trance</strong>
+      </td>
+      <td align="center" style="border: 1px solid #30363d; width: 220px;">
+        <img src="public/img/christine.jpeg" alt="Christine Rio" width="120" height="120" style="object-fit: cover;"><br><br>
+        <strong>Christine Rio</strong><br>
+        <a href="https://www.linkedin.com/in/riochristine/">
+          <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
