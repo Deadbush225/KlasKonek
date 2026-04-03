@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { signOutAction } from '../actions/auth';
 import Link from 'next/link';
 import Image from 'next/image';
+import ProfileEditForm from '@/components/ProfileEditForm';
 
 function getAvatarByName(name: string) {
   const normalized = name.toLowerCase();
@@ -81,6 +82,19 @@ export default async function ProfilePage() {
           <div className={profileStyles.infoItem}>
             <span>Years of Experience</span>
             <strong>{profile.years_of_experience} Years</strong>
+          </div>
+
+          <div className={profileStyles.editSection}>
+            <h4>Edit Profile</h4>
+            <ProfileEditForm
+              initial={{
+                fullName: profile.full_name,
+                region: profile.region,
+                school: profile.school,
+                subjectsTaught: profile.subjects_taught ?? [],
+                yearsOfExperience: profile.years_of_experience,
+              }}
+            />
           </div>
         </section>
 

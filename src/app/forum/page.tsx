@@ -2,6 +2,7 @@ import forumStyles from './forum.module.css';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getForumTopics } from '@/lib/community';
+import { PHILIPPINE_REGIONS_SHORT } from '@/lib/constants';
 
 function getAvatarByName(name: string) {
   const normalized = name.toLowerCase();
@@ -64,11 +65,9 @@ export default async function ForumPage() {
             <h3 className={forumStyles.sidebarTitle}>Regions</h3>
             <ul className={forumStyles.navLinks}>
               <li><Link href="#" className={forumStyles.active}>All Regions</Link></li>
-              <li><Link href="#">Region I</Link></li>
-              <li><Link href="#">Region III</Link></li>
-              <li><Link href="#">CAR</Link></li>
-              <li><Link href="#">BARMM</Link></li>
-              <li><Link href="#">Region VIII</Link></li>
+              {PHILIPPINE_REGIONS_SHORT.map((region) => (
+                <li key={region}><Link href="#">{region}</Link></li>
+              ))}
             </ul>
           </div>
         </aside>

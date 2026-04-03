@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import repoStyles from './repository.module.css';
 import { getResources } from '@/lib/community';
+import { PHILIPPINE_REGIONS_SHORT } from '@/lib/constants';
 
 function getAvatarByName(name: string) {
   const normalized = name.toLowerCase();
@@ -37,10 +38,9 @@ export default async function RepositoryPage() {
           <option value="" disabled>
             Filter by Region
           </option>
-          <option value="Region III">Region III</option>
-          <option value="Region I">Region I</option>
-          <option value="CAR">CAR</option>
-          <option value="BARMM">BARMM</option>
+          {PHILIPPINE_REGIONS_SHORT.map((region) => (
+            <option key={region} value={region}>{region}</option>
+          ))}
         </select>
 
         <select className={repoStyles.filterSelect} defaultValue="">

@@ -192,3 +192,46 @@ export async function signOutUser() {
 
   cookieStore.delete(SESSION_COOKIE);
 }
+
+export async function updateCurrentUserProfile(input: {
+  fullName: string;
+  region: string;
+  school: string;
+  subjectsTaught: string[];
+  yearsOfExperience: number;
+}) {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    throw new Error('You must be signed in to update your profile.');
+  }
+
+  const rows = (await db`
+    update profiles
+    set
+      full_name = ${input.fullName.trim()},
+      region = ${input.region.trim()},
+      school = ${input.school.trim()},
+      subjects_taught = ${input.subjectsTaught},
+      years_of_experience = ${input.yearsOfExperience}
+    where id = ${currentUser.id}
+    returning
+      id,
+      full_name,
+      email,
+      region,
+      school,
+      subjects_taught,
+      years_of_experience,
+      role,
+      created_at
+  `) as Profile[];
+
+  const updated = rows[0];
+
+  if (!updated) {
+    throw new Error('Unable to update your profile at this time.');
+  }
+
+  return updated;
+}

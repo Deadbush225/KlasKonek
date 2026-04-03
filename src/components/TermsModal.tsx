@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 
 interface TermsModalProps {
@@ -9,13 +9,6 @@ interface TermsModalProps {
 
 export default function TermsModal({ onAccept }: TermsModalProps) {
   const [agreed, setAgreed] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
 
   return (
     <div style={{
