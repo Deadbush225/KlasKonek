@@ -25,7 +25,7 @@ export async function loginAction(_state: AuthActionState, formData: FormData) {
     return { error: toMessage(error) } satisfies AuthActionState;
   }
 
-  redirect('/profile');
+  redirect('/hub');
 }
 
 export async function registerAction(_state: AuthActionState, formData: FormData) {
@@ -49,7 +49,7 @@ export async function registerAction(_state: AuthActionState, formData: FormData
     return { error: toMessage(error) } satisfies AuthActionState;
   }
 
-  redirect('/profile');
+  redirect('/hub');
 }
 
 export async function signOutAction() {

@@ -37,93 +37,221 @@ for (const statement of schemaStatements) {
   await pool.query(statement);
 }
 
-const { rows: profileRows } = await pool.query('select count(*)::int as count from profiles');
-const profileCount = profileRows[0]?.count ?? 0;
+const passwordHash = await bcrypt.hash('Password123!', 10);
 
-if (profileCount === 0) {
-  const teacherId = crypto.randomUUID();
-  const adminId = crypto.randomUUID();
-  const passwordHash = await bcrypt.hash('Password123!', 10);
-
-  await pool.query(
+async function upsertProfile(profile) {
+  const { rows } = await pool.query(
     `insert into profiles (id, full_name, email, password_hash, region, school, subjects_taught, years_of_experience, role)
-     values
-     ($1, $2, $3, $4, $5, $6, $7, $8, $9),
-     ($10, $11, $12, $13, $14, $15, $16, $17, $18)`,
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     on conflict (email)
+     do update set
+       full_name = excluded.full_name,
+       region = excluded.region,
+       school = excluded.school,
+       subjects_taught = excluded.subjects_taught,
+       years_of_experience = excluded.years_of_experience,
+       role = excluded.role
+     returning id`,
     [
-      teacherId,
-      'Janel Rose Trongcoso',
-      'janel@example.org',
+      crypto.randomUUID(),
+      profile.fullName,
+      profile.email,
       passwordHash,
-      'Region III',
-      'San Miguel National High School',
-      ['Physics', 'Research'],
-      8,
-      'teacher',
-      adminId,
-      'System Admin',
-      'admin@starlink.local',
-      passwordHash,
-      'NCR',
-      'STAR-LINK HQ',
-      ['Administration'],
-      12,
-      'admin',
+      profile.region,
+      profile.school,
+      profile.subjects,
+      profile.years,
+      profile.role,
     ]
   );
 
-  await pool.query(
-    `insert into forum_posts (id, title, content, region, category, author_id)
-     values
-     ($1, $2, $3, $4, $5, $6),
-     ($7, $8, $9, $10, $11, $12),
-     ($13, $14, $15, $16, $17, $18)`,
-    [
-      crypto.randomUUID(),
-      'Implementing Project-Based Learning in Off-grid Areas',
-      'Looking for practical ways to run project-based science learning when internet access is limited and lab materials are scarce.',
-      'CAR',
-      'Pedagogy',
-      teacherId,
-      crypto.randomUUID(),
-      'Looking for shared microscopes or alternatives',
-      'Our division is short on microscopes. What low-cost alternatives are schools using for microscopy lessons?',
-      'Region III',
-      'Resources',
-      adminId,
-      crypto.randomUUID(),
-      'Need advice: Teaching Advanced Physics with limited lab gear',
-      'I am trying to cover wave phenomena and vectors with very few lab instruments. Any proven activity designs?',
-      'Region I',
-      'Mentorship',
-      teacherId,
-    ]
-  );
-
-  await pool.query(
-    `insert into resources (id, title, description, file_name, mime_type, file_size, file_data, author_id)
-     values
-     ($1, $2, $3, $4, $5, $6, $7, $8),
-     ($9, $10, $11, $12, $13, $14, $15, $16)`,
-    [
-      crypto.randomUUID(),
-      'Gamified Approach to Grade 8 Physics',
-      'Starter paper on points-based engagement in Grade 8 physics modules.',
-      'gamified-physics.txt',
-      'text/plain',
-      Buffer.byteLength('Gamified Grade 8 Physics starter document.'),
-      Buffer.from('Gamified Grade 8 Physics starter document.'),
-      teacherId,
-      crypto.randomUUID(),
-      'Sustainable Community Science Fair',
-      'Starter extension project brief for low-cost science fair rollouts.',
-      'science-fair-brief.txt',
-      'text/plain',
-      Buffer.byteLength('Community science fair starter brief.'),
-      Buffer.from('Community science fair starter brief.'),
-      adminId,
-    ]
-  );
+  return rows[0].id;
 }
+
+async function insertForumPostIfMissing(post) {
+  const existing = await pool.query('select id from forum_posts where title = $1 limit 1', [post.title]);
+
+  if (existing.rowCount === 0) {
+    await pool.query(
+      `insert into forum_posts (id, title, content, region, category, author_id)
+       values ($1, $2, $3, $4, $5, $6)`,
+      [crypto.randomUUID(), post.title, post.content, post.region, post.category, post.authorId]
+    );
+  }
+}
+
+async function insertResourceIfMissing(resource) {
+  const existing = await pool.query('select id from resources where title = $1 limit 1', [resource.title]);
+
+  if (existing.rowCount === 0) {
+    await pool.query(
+      `insert into resources (id, title, description, file_name, mime_type, file_size, file_data, author_id)
+       values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        crypto.randomUUID(),
+        resource.title,
+        resource.description,
+        resource.fileName,
+        'text/plain',
+        Buffer.byteLength(resource.fileData),
+        Buffer.from(resource.fileData),
+        resource.authorId,
+      ]
+    );
+  }
+}
+
+const adrielId = await upsertProfile({
+  fullName: 'Adriel Magalona',
+  email: 'adriel@example.org',
+  region: 'NCR',
+  school: 'Quezon City Science High School',
+  subjects: ['Computer Science', 'STEM Research'],
+  years: 6,
+  role: 'teacher',
+});
+
+const janelId = await upsertProfile({
+  fullName: 'Janel Rose Trongcoso',
+  email: 'janel@example.org',
+  region: 'Region III',
+  school: 'San Miguel National High School',
+  subjects: ['Physics', 'Research'],
+  years: 8,
+  role: 'teacher',
+});
+
+const gemId = await upsertProfile({
+  fullName: 'Gem Christian Lazo',
+  email: 'gem@example.org',
+  region: 'Region IV-A',
+  school: 'Laguna Senior High School',
+  subjects: ['Mathematics', 'Data Science'],
+  years: 7,
+  role: 'teacher',
+});
+
+const martiId = await upsertProfile({
+  fullName: 'Marti Kier Trance',
+  email: 'marti@example.org',
+  region: 'Region I',
+  school: 'Ilocos Norte National High School',
+  subjects: ['Biology', 'Environmental Science'],
+  years: 5,
+  role: 'teacher',
+});
+
+const christineId = await upsertProfile({
+  fullName: 'Christine Rio',
+  email: 'christine@example.org',
+  region: 'CAR',
+  school: 'Baguio City National High School',
+  subjects: ['General Science', 'Extension Work'],
+  years: 9,
+  role: 'teacher',
+});
+
+const adminId = await upsertProfile({
+  fullName: 'System Admin',
+  email: 'admin@starlink.local',
+  region: 'NCR',
+  school: 'STAR-LINK HQ',
+  subjects: ['Administration'],
+  years: 12,
+  role: 'admin',
+});
+
+await insertForumPostIfMissing({
+  title: 'Implementing Project-Based Learning in Off-grid Areas',
+  content:
+    'Looking for practical ways to run project-based science learning when internet access is limited and lab materials are scarce.',
+  region: 'CAR',
+  category: 'Pedagogy',
+  authorId: janelId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Integrating AI tools in senior high STEM classes',
+  content:
+    'Has anyone piloted AI-assisted lesson planning for STEM electives? Sharing rubrics and guardrails would help.',
+  region: 'NCR',
+  category: 'Resources',
+  authorId: adrielId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Low-cost math modeling activities for large classes',
+  content:
+    'Need strategies for running modeling activities with 50+ learners and limited devices.',
+  region: 'Region IV-A',
+  category: 'Pedagogy',
+  authorId: gemId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Need ideas for biodiversity fieldwork alternatives',
+  content:
+    'Weather disruptions are frequent in our area. What classroom alternatives can preserve inquiry quality?',
+  region: 'Region I',
+  category: 'Mentorship',
+  authorId: martiId,
+});
+
+await insertForumPostIfMissing({
+  title: 'How to scale extension projects across districts',
+  content:
+    'Looking for a framework to replicate science outreach projects in neighboring districts without losing quality.',
+  region: 'CAR',
+  category: 'General',
+  authorId: christineId,
+});
+
+await insertResourceIfMissing({
+  title: 'Gamified Approach to Grade 8 Physics',
+  description: 'Starter paper on points-based engagement in Grade 8 physics modules.',
+  fileName: 'gamified-physics.txt',
+  fileData: 'Gamified Grade 8 Physics starter document.',
+  authorId: janelId,
+});
+
+await insertResourceIfMissing({
+  title: 'Sustainable Community Science Fair',
+  description: 'Starter extension project brief for low-cost science fair rollouts.',
+  fileName: 'science-fair-brief.txt',
+  fileData: 'Community science fair starter brief.',
+  authorId: adminId,
+});
+
+await insertResourceIfMissing({
+  title: 'AI Literacy Guide for STEM Teachers',
+  description: 'Practical checklist for introducing safe and responsible AI usage in class.',
+  fileName: 'ai-literacy-guide.txt',
+  fileData: 'AI literacy starter guide for STEM educators.',
+  authorId: adrielId,
+});
+
+await insertResourceIfMissing({
+  title: 'Mathematical Modeling Pack for Grade 10',
+  description: 'Activity sheets and facilitation notes for collaborative problem solving.',
+  fileName: 'math-modeling-pack.txt',
+  fileData: 'Math modeling activity pack.',
+  authorId: gemId,
+});
+
+await insertResourceIfMissing({
+  title: 'Community Biodiversity Monitoring Toolkit',
+  description: 'Low-cost toolkit for student-led biodiversity observations.',
+  fileName: 'biodiversity-toolkit.txt',
+  fileData: 'Biodiversity monitoring toolkit.',
+  authorId: martiId,
+});
+
+await insertResourceIfMissing({
+  title: 'District Extension Program Playbook',
+  description: 'Operations playbook for scaling extension activities across schools.',
+  fileName: 'extension-playbook.txt',
+  fileData: 'District extension program playbook.',
+  authorId: christineId,
+});
 
 await pool.end();

@@ -118,6 +118,28 @@ Even though the current e-STAR.ph portal is not publicly accessible, STAR-LINK w
   - Teacher
   - Admin
 
+## 4.5 Current Tech Stack (Implemented)
+
+- Framework: Next.js 16 (App Router)
+- UI Library: React 19
+- Language: TypeScript
+- Styling: CSS Modules + global CSS
+- Authentication: Custom email/password auth + session cookies
+- Password Hashing: bcryptjs
+- Database: Neon Postgres (PostgreSQL)
+- Query Layer: `@neondatabase/serverless` + `drizzle-orm`
+- File Storage:
+  - Binary documents in PostgreSQL (`bytea`) for current uploads
+  - `@vercel/blob` available for blob storage integration
+- Maps and Geospatial UI: Leaflet + React Leaflet
+- Optional Auth Integration Available: NextAuth v5 beta (installed)
+- Optional Backend Integration Available: Supabase JS SDK (installed)
+- Tooling:
+  - ESLint 9 + `eslint-config-next`
+  - TypeScript 5
+  - Drizzle Kit (schema/migration tooling)
+  - npm scripts: `dev`, `build`, `start`, `lint`, `seed`
+
 ## 5. Success Metrics
 
 ### 5.1 Adoption

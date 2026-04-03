@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import Link from 'next/link';
 import regStyles from './register.module.css';
 import { registerAction, type AuthActionState } from '../actions/auth';
+import { PHILIPPINE_REGIONS_SHORT } from '@/lib/constants';
 
 const initialState: AuthActionState = {
   error: null,
@@ -63,12 +64,9 @@ export default function RegisterPage() {
                 <option value="" disabled>
                   Select Region
                 </option>
-                <option value="NCR">NCR</option>
-                <option value="Region I">Region I</option>
-                <option value="Region III">Region III</option>
-                <option value="Region VIII">Region VIII</option>
-                <option value="CAR">CAR</option>
-                <option value="BARMM">BARMM</option>
+                {PHILIPPINE_REGIONS_SHORT.map((region) => (
+                  <option key={region} value={region}>{region}</option>
+                ))}
               </select>
             </div>
             <div className={regStyles.inputGroup}>

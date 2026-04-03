@@ -3,7 +3,6 @@
 import { useActionState } from 'react';
 import forumStyles from '@/app/forum/forum.module.css';
 import { createTopicAction, type CommunityActionState } from '@/app/actions/community';
-
 import { PHILIPPINE_REGIONS_SHORT } from '@/lib/constants';
 
 const initialState: CommunityActionState = {

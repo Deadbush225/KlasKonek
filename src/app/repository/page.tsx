@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import repoStyles from './repository.module.css';
-import DocumentUploadForm from '@/components/DocumentUploadForm';
 import { getResources } from '@/lib/community';
 
 function getAvatarByName(name: string) {
@@ -28,7 +27,7 @@ export default async function RepositoryPage() {
             Upload a document to Neon and browse the latest shared research and extension materials.
           </p>
         </div>
-        <a href="#upload" className="btn btn-primary" style={{ height: 'fit-content' }}>
+        <a href="/repository/upload" className="btn btn-primary" style={{ height: 'fit-content' }}>
           + Upload Document
         </a>
       </div>
@@ -58,11 +57,6 @@ export default async function RepositoryPage() {
           placeholder="Search keywords, authors, or topics..."
           className={repoStyles.searchInput}
         />
-      </div>
-
-      <div id="upload" className="card" style={{ marginBottom: '2rem' }}>
-        <h2 style={{ marginBottom: '1rem' }}>Upload a document</h2>
-        <DocumentUploadForm />
       </div>
 
       <div className={repoStyles.grid}>
