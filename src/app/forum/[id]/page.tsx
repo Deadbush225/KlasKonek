@@ -38,6 +38,20 @@ function getAvatarByName(name: string) {
   return null;
 }
 
+function getNameInitials(name: string) {
+  const parts = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (parts.length === 0) {
+    return 'U';
+  }
+
+  const initials = parts.slice(0, 2).map((part) => part[0]?.toUpperCase() ?? '').join('');
+  return initials || 'U';
+}
+
 type PageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ commented?: string; removedComment?: string }>;
@@ -76,7 +90,7 @@ export default async function ForumTopicPage({ params, searchParams }: PageProps
       <article className={`${forumStyles.topicCard} card`} style={{ marginBottom: '2rem' }}>
         <div className={forumStyles.topicHeader}>
           <span className={forumStyles.category}>{topic.category}</span>
-          <span className={forumStyles.regionBadge}>{topic.region}</span>
+          <span className={forumStyles.regionBadge}>{topic.region} • {topic.division}</span>
         </div>
 
         <h1 className={forumStyles.title} style={{ marginBottom: '0.5rem' }}>{topic.title}</h1>
@@ -136,13 +150,44 @@ export default async function ForumTopicPage({ params, searchParams }: PageProps
           ) : (
             comments.map((comment) => {
               const imageDataUrl = toCommentImageDataUrl(comment.image_data, comment.image_mime_type);
+              const commentAvatar = getAvatarByName(comment.author_name);
+              const profileSummary = [
+                comment.author_occupation,
+                comment.author_region,
+                comment.author_qualification_level,
+              ].filter((value) => value && value.trim().length > 0);
 
               return (
                 <article key={comment.id} className={forumStyles.commentItem}>
                   <div className={forumStyles.commentHeader}>
-                    <Link href={`/profile/${comment.author_id}`} className={forumStyles.authorProfileLink}>
-                      <strong>{comment.author_name}</strong>
-                    </Link>
+                    <div className={forumStyles.commentProfile}>
+                      <div className={`${forumStyles.avatarMini} ${forumStyles.commentAvatar}`}>
+                        {commentAvatar ? (
+                          <Image
+                            src={commentAvatar}
+                            alt={comment.author_name}
+                            fill
+                            sizes="32px"
+                            style={{ objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <span className={forumStyles.avatarInitial}>{getNameInitials(comment.author_name)}</span>
+                        )}
+                      </div>
+
+                      <div className={forumStyles.commentProfileDetails}>
+                        <Link href={`/profile/${comment.author_id}`} className={forumStyles.authorProfileLink}>
+                          <strong>{comment.author_name}</strong>
+                        </Link>
+                        {profileSummary.length > 0 ? (
+                          <p className={forumStyles.commentProfileMeta}>{profileSummary.join(' • ')}</p>
+                        ) : null}
+                        {comment.author_school ? (
+                          <p className={forumStyles.commentProfileMeta}>{comment.author_school}</p>
+                        ) : null}
+                      </div>
+                    </div>
+
                     <span>{formatDateTimeNoSeconds(comment.created_at)}</span>
                   </div>
                   {comment.content ? <p className={forumStyles.commentBody}>{comment.content}</p> : null}

@@ -133,7 +133,6 @@ Even though the current e-STAR.ph portal is not publicly accessible, STAR-LINK w
   - `@vercel/blob` available for blob storage integration
 - Maps and Geospatial UI: Leaflet + React Leaflet
 - Optional Auth Integration Available: NextAuth v5 beta (installed)
-- Optional Backend Integration Available: Supabase JS SDK (installed)
 - Tooling:
   - ESLint 9 + `eslint-config-next`
   - TypeScript 5
@@ -199,7 +198,6 @@ Even though the current e-STAR.ph portal is not publicly accessible, STAR-LINK w
 
 - Use `.env.example` as the baseline for required deployment variables.
 - `DATABASE_URL` is required.
-- Supabase public env vars are required in production.
 
 ### 7.3 Operational Health and Deploy Checks
 

@@ -1,7 +1,15 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { loginUser, registerUser, signOutUser, updateCurrentUserProfile } from '@/lib/auth';
+import {
+  acceptCurrentUserTerms,
+  hasAcceptedLatestTerms,
+  loginUser,
+  registerUser,
+  signOutUser,
+  TERMS_VERSION,
+  updateCurrentUserProfile,
+} from '@/lib/auth';
 import {
   PHILIPPINE_REGIONS_SHORT,
   REGISTRATION_AGE_BRACKETS,
@@ -58,7 +66,11 @@ export async function loginAction(_state: AuthActionState, formData: FormData) {
   }
 
   try {
-    await loginUser({ email, password });
+    const user = await loginUser({ email, password });
+
+    if (hasAcceptedLatestTerms(user)) {
+      redirect('/profile');
+    }
   } catch {
     return {
       error: 'Invalid email or password.',
@@ -251,6 +263,19 @@ export async function registerAction(_state: AuthActionState, formData: FormData
 export async function signOutAction() {
   await signOutUser();
   redirect('/');
+}
+
+export async function acceptTermsAction(formData: FormData) {
+  const returnToRaw = String(formData.get('returnTo') ?? '').trim();
+  const returnTo = returnToRaw.startsWith('/') ? returnToRaw : '/profile';
+
+  await acceptCurrentUserTerms(TERMS_VERSION);
+  redirect(returnTo);
+}
+
+export async function declineTermsAction() {
+  await signOutUser();
+  redirect('/login');
 }
 
 export async function updateProfileAction(_state: AuthActionState, formData: FormData) {

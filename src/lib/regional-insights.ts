@@ -137,6 +137,32 @@ export type RegionProfileDetails = {
   teachers: RegionTeacherDirectoryEntry[];
 };
 
+export type SchoolActivitySnapshot = {
+  region: string;
+  school: string;
+  teacherCount: number;
+  forumTopicCount: number;
+  forumCommentCount: number;
+  resourceShareCount: number;
+  activityScore: number;
+  activityPerTeacher: number;
+  isIsolated: boolean;
+  interventionPriority: number;
+  lastActivityAt: string | null;
+};
+
+export type TwinningRecommendation = {
+  region: string;
+  targetSchool: string;
+  mentorSchool: string | null;
+  targetTeacherCount: number;
+  mentorTeacherCount: number;
+  targetActivityScore: number;
+  mentorActivityScore: number;
+  priorityScore: number;
+  rationale: string;
+};
+
 const STEM_KEYWORDS = [
   'science',
   'math',
@@ -171,6 +197,172 @@ function hasStemSpecialization(subjects: string[]) {
 function round(value: number, decimals = 2) {
   const factor = 10 ** decimals;
   return Math.round(value * factor) / factor;
+}
+
+type SchoolTeacherRow = {
+  region: string;
+  school: string;
+  teacher_count: number;
+};
+
+type SchoolActivityCountRow = {
+  region: string;
+  school: string;
+  count: number;
+  last_activity_at: string | null;
+};
+
+async function buildSchoolActivityAndTwinningInsights() {
+  const [teacherRowsRaw, topicRowsRaw, commentRowsRaw, resourceRowsRaw] = await Promise.all([
+    db`
+      select
+        region,
+        school,
+        count(*)::int as teacher_count
+      from profiles
+      where role = 'teacher'
+        and consent_data_processing = true
+      group by region, school
+    `,
+    db`
+      select
+        p.region,
+        p.school,
+        count(*)::int as count,
+        max(fp.created_at)::text as last_activity_at
+      from forum_posts fp
+      inner join profiles p on p.id = fp.author_id
+      where fp.moderation_status = 'approved'
+        and p.role = 'teacher'
+      group by p.region, p.school
+    `,
+    db`
+      select
+        p.region,
+        p.school,
+        count(*)::int as count,
+        max(fc.created_at)::text as last_activity_at
+      from forum_comments fc
+      inner join profiles p on p.id = fc.author_id
+      inner join forum_posts fp on fp.id = fc.topic_id
+      where fp.moderation_status = 'approved'
+        and p.role = 'teacher'
+      group by p.region, p.school
+    `,
+    db`
+      select
+        p.region,
+        p.school,
+        count(*)::int as count,
+        max(r.created_at)::text as last_activity_at
+      from resources r
+      inner join profiles p on p.id = r.author_id
+      where r.moderation_status = 'approved'
+        and p.role = 'teacher'
+      group by p.region, p.school
+    `,
+  ]);
+
+  const teacherRows = teacherRowsRaw as SchoolTeacherRow[];
+  const topicRows = topicRowsRaw as SchoolActivityCountRow[];
+  const commentRows = commentRowsRaw as SchoolActivityCountRow[];
+  const resourceRows = resourceRowsRaw as SchoolActivityCountRow[];
+
+  const topicMap = new Map(topicRows.map((row) => [`${row.region}::${row.school}`, row]));
+  const commentMap = new Map(commentRows.map((row) => [`${row.region}::${row.school}`, row]));
+  const resourceMap = new Map(resourceRows.map((row) => [`${row.region}::${row.school}`, row]));
+
+  const schoolActivity: SchoolActivitySnapshot[] = teacherRows.map((teacherRow) => {
+    const key = `${teacherRow.region}::${teacherRow.school}`;
+    const topicCount = topicMap.get(key)?.count ?? 0;
+    const commentCount = commentMap.get(key)?.count ?? 0;
+    const resourceCount = resourceMap.get(key)?.count ?? 0;
+    const activityScore = (topicCount * 3) + (commentCount * 2) + (resourceCount * 2);
+    const activityPerTeacher = round(activityScore / Math.max(teacherRow.teacher_count, 1));
+    const noInteractionSignals = topicCount === 0 && commentCount === 0 && resourceCount === 0;
+    const isIsolated = noInteractionSignals || activityPerTeacher < 0.9;
+
+    const priorityRaw =
+      (isIsolated ? 35 : 0)
+      + Math.max(0, (1.4 - activityPerTeacher) * 20)
+      + Math.min(25, teacherRow.teacher_count * 2.5)
+      + (noInteractionSignals ? 15 : 0);
+
+    const timestamps = [
+      topicMap.get(key)?.last_activity_at,
+      commentMap.get(key)?.last_activity_at,
+      resourceMap.get(key)?.last_activity_at,
+    ].filter(Boolean) as string[];
+
+    const lastActivityAt = timestamps.length > 0
+      ? timestamps.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0]
+      : null;
+
+    return {
+      region: teacherRow.region,
+      school: teacherRow.school,
+      teacherCount: teacherRow.teacher_count,
+      forumTopicCount: topicCount,
+      forumCommentCount: commentCount,
+      resourceShareCount: resourceCount,
+      activityScore,
+      activityPerTeacher,
+      isIsolated,
+      interventionPriority: round(Math.min(100, Math.max(0, priorityRaw))),
+      lastActivityAt,
+    } satisfies SchoolActivitySnapshot;
+  });
+
+  const schoolsByRegion = new Map<string, SchoolActivitySnapshot[]>();
+  for (const school of schoolActivity) {
+    const bucket = schoolsByRegion.get(school.region) ?? [];
+    bucket.push(school);
+    schoolsByRegion.set(school.region, bucket);
+  }
+
+  const allMentors = [...schoolActivity]
+    .filter((school) => school.activityPerTeacher >= 1.6 && school.activityScore >= 6)
+    .sort((a, b) => b.activityPerTeacher - a.activityPerTeacher || b.activityScore - a.activityScore);
+
+  const twinningTargets: TwinningRecommendation[] = [];
+
+  for (const region of REGISTRATION_REGIONS) {
+    const regionSchools = schoolsByRegion.get(region) ?? [];
+    const regionMentors = [...regionSchools]
+      .filter((school) => school.activityPerTeacher >= 1.6 && school.activityScore >= 6)
+      .sort((a, b) => b.activityPerTeacher - a.activityPerTeacher || b.activityScore - a.activityScore);
+
+    const regionTargets = [...regionSchools]
+      .filter((school) => school.isIsolated)
+      .sort((a, b) => b.interventionPriority - a.interventionPriority || b.teacherCount - a.teacherCount);
+
+    for (const target of regionTargets) {
+      const inRegionMentor = regionMentors.find((mentor) => mentor.school !== target.school);
+      const fallbackMentor = allMentors.find((mentor) => mentor.school !== target.school);
+      const mentor = inRegionMentor ?? fallbackMentor ?? null;
+
+      const rationale = mentor
+        ? `Low collaboration activity detected. Pair ${target.school} with ${mentor.school} for structured peer mentoring and resource co-development.`
+        : `Low collaboration activity detected. No high-activity mentor school is currently available; prioritize regional onboarding and facilitation support.`;
+
+      twinningTargets.push({
+        region,
+        targetSchool: target.school,
+        mentorSchool: mentor?.school ?? null,
+        targetTeacherCount: target.teacherCount,
+        mentorTeacherCount: mentor?.teacherCount ?? 0,
+        targetActivityScore: target.activityScore,
+        mentorActivityScore: mentor?.activityScore ?? 0,
+        priorityScore: round(Math.min(100, target.interventionPriority + (mentor ? 0 : 8))),
+        rationale,
+      });
+    }
+  }
+
+  return {
+    schoolActivity: schoolActivity.sort((a, b) => b.interventionPriority - a.interventionPriority),
+    twinningTargets: twinningTargets.sort((a, b) => b.priorityScore - a.priorityScore),
+  };
 }
 
 export async function getRegionalInsightsDashboard() {
@@ -212,6 +404,8 @@ export async function getRegionalInsightsDashboard() {
       coverageGaps,
       topPriorityRegions: [] as PriorityRegionInsight[],
       programRecommendations: [] as ProgramRecommendationCard[],
+      schoolActivity: [] as SchoolActivitySnapshot[],
+      twinningTargets: [] as TwinningRecommendation[],
       anonymizedResearchSummary: {
         totalConsentedTeachers: 0,
         anonymizedDatasetRows: 0,
@@ -566,6 +760,7 @@ export async function getRegionalInsightsDashboard() {
 
   topPriorityRegions.sort((a, b) => b.priorityScore - a.priorityScore || a.teacherCount - b.teacherCount);
   programRecommendations.sort((a, b) => b.priorityScore - a.priorityScore || a.teacherCount - b.teacherCount);
+  const { schoolActivity, twinningTargets } = await buildSchoolActivityAndTwinningInsights();
 
   return {
     divisionSnapshots,
@@ -575,6 +770,8 @@ export async function getRegionalInsightsDashboard() {
     coverageGaps,
     topPriorityRegions,
     programRecommendations,
+    schoolActivity,
+    twinningTargets,
     anonymizedResearchSummary: {
       totalConsentedTeachers: rows.filter((row) => row.consent_research).length,
       anonymizedDatasetRows,

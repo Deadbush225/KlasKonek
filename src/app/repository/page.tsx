@@ -166,24 +166,26 @@ export default async function RepositoryPage({ searchParams }: PageProps) {
                     <span>{project.file_name}</span>
                   </div>
                 </div>
-                <Link href={`/api/documents/${project.id}`} className="btn btn-primary" style={{ fontSize: '0.85rem' }}>
-                  Download
-                </Link>
-                {user?.role === 'admin' ? (
-                  <form action={deleteResourceAction}>
-                    <input type="hidden" name="resourceId" value={project.id} />
-                    <input
-                      type="hidden"
-                      name="returnTo"
-                      value={`/repository?${new URLSearchParams({
-                        ...(selectedRegion ? { region: selectedRegion } : {}),
-                        ...(selectedSubject ? { subject: selectedSubject } : {}),
-                        ...(q ? { q: String(q) } : {}),
-                      }).toString()}`}
-                    />
-                    <button type="submit" className="btn btn-secondary" style={{ fontSize: '0.85rem' }}>Remove</button>
-                  </form>
-                ) : null}
+                <div className={repoStyles.cardActions}>
+                  <Link href={`/api/documents/${project.id}`} className={`btn btn-primary ${repoStyles.cardActionBtn}`}>
+                    Download
+                  </Link>
+                  {user?.role === 'admin' ? (
+                    <form action={deleteResourceAction} className={repoStyles.inlineActionForm}>
+                      <input type="hidden" name="resourceId" value={project.id} />
+                      <input
+                        type="hidden"
+                        name="returnTo"
+                        value={`/repository?${new URLSearchParams({
+                          ...(selectedRegion ? { region: selectedRegion } : {}),
+                          ...(selectedSubject ? { subject: selectedSubject } : {}),
+                          ...(q ? { q: String(q) } : {}),
+                        }).toString()}`}
+                      />
+                      <button type="submit" className={`btn btn-secondary ${repoStyles.cardActionBtn}`}>Remove</button>
+                    </form>
+                  ) : null}
+                </div>
               </div>
             </div>
           ))

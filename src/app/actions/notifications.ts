@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, hasAcceptedLatestTerms } from '@/lib/auth';
 import { markAllNotificationsAsRead } from '@/lib/notifications';
 
 export async function markAllNotificationsReadAction(formData: FormData) {
@@ -9,6 +9,10 @@ export async function markAllNotificationsReadAction(formData: FormData) {
 
   if (!user) {
     redirect('/login');
+  }
+
+  if (!hasAcceptedLatestTerms(user)) {
+    redirect('/hub');
   }
 
   await markAllNotificationsAsRead(user.id);

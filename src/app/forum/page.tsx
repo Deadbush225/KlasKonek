@@ -4,11 +4,11 @@ import Image from 'next/image';
 import { getCurrentUser } from '@/lib/auth';
 import { deleteTopicAction, toggleTopicUpvoteAction } from '@/app/actions/community';
 import { getForumTopics, getUserForumTopicVoteMap } from '@/lib/community';
-import { PHILIPPINE_REGIONS_SHORT } from '@/lib/constants';
+import { PHILIPPINE_REGIONS_SHORT, REGION_DISPLAY_NAMES, REGION_DIVISIONS_BY_REGION } from '@/lib/constants';
 import { formatDateTimeNoSeconds } from '@/lib/date-format';
 
 type PageProps = {
-  searchParams: Promise<{ submitted?: string; region?: string; sort?: string; removedTopic?: string }>;
+  searchParams: Promise<{ submitted?: string; region?: string; division?: string; sort?: string; q?: string; removedTopic?: string }>;
 };
 
 function getAvatarByName(name: string) {
@@ -50,16 +50,41 @@ function ClockIcon() {
 }
 
 export default async function ForumPage({ searchParams }: PageProps) {
-  const { submitted, region, sort, removedTopic } = await searchParams;
+  const { submitted, region, division, sort, q, removedTopic } = await searchParams;
   const [topics, user] = await Promise.all([getForumTopics(), getCurrentUser()]);
   const activeRegion = PHILIPPINE_REGIONS_SHORT.includes(region ?? '') ? (region as string) : null;
+  const activeRegionDivisions = activeRegion ? (REGION_DIVISIONS_BY_REGION[activeRegion] ?? []) : [];
+  const activeDivision = activeRegionDivisions.includes(division ?? '') ? (division as string) : null;
   const activeSort = sort === 'most_comments' || sort === 'most_upvotes' ? sort : 'recent';
+  const normalizedQuery = String(q ?? '').trim();
+  const normalizedQueryLower = normalizedQuery.toLowerCase();
 
-  const filteredTopicsBase = activeRegion
+  const filteredTopicsByRegion = activeRegion
     ? topics.filter((topic) => topic.region === activeRegion)
     : topics;
 
-  const filteredTopics = [...filteredTopicsBase].sort((a, b) => {
+  const filteredTopicsBase = activeDivision
+    ? filteredTopicsByRegion.filter((topic) => topic.division === activeDivision)
+    : filteredTopicsByRegion;
+
+  const filteredTopicsByQuery = normalizedQueryLower
+    ? filteredTopicsBase.filter((topic) => {
+      const searchableText = [
+        topic.title,
+        topic.content,
+        topic.category,
+        topic.author_name,
+        topic.region,
+        topic.division,
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      return searchableText.includes(normalizedQueryLower);
+    })
+    : filteredTopicsBase;
+
+  const filteredTopics = [...filteredTopicsByQuery].sort((a, b) => {
     if (activeSort === 'most_comments') {
       if (b.comment_count !== a.comment_count) return b.comment_count - a.comment_count;
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -79,8 +104,34 @@ export default async function ForumPage({ searchParams }: PageProps) {
 
   const returnToParams = new URLSearchParams();
   if (activeRegion) returnToParams.set('region', activeRegion);
+  if (activeDivision) returnToParams.set('division', activeDivision);
   if (activeSort !== 'recent') returnToParams.set('sort', activeSort);
+  if (normalizedQuery) returnToParams.set('q', normalizedQuery);
   const returnTo = `/forum${returnToParams.toString() ? `?${returnToParams.toString()}` : ''}`;
+
+  const buildForumHref = (nextRegion: string | null, nextDivision: string | null = null) => {
+    const params = new URLSearchParams();
+
+    if (nextRegion) {
+      params.set('region', nextRegion);
+    }
+
+    const nextRegionDivisions = nextRegion ? (REGION_DIVISIONS_BY_REGION[nextRegion] ?? []) : [];
+    if (nextRegion && nextDivision && nextRegionDivisions.includes(nextDivision)) {
+      params.set('division', nextDivision);
+    }
+
+    if (activeSort !== 'recent') {
+      params.set('sort', activeSort);
+    }
+
+    if (normalizedQuery) {
+      params.set('q', normalizedQuery);
+    }
+
+    const query = params.toString();
+    return `/forum${query ? `?${query}` : ''}`;
+  };
 
   return (
     <div className={forumStyles.pageContainer}>
@@ -103,24 +154,50 @@ export default async function ForumPage({ searchParams }: PageProps) {
             <ul className={forumStyles.navLinks}>
               <li>
                 <Link
-                  href="/forum"
+                  href={buildForumHref(null)}
                   className={`${forumStyles.navLink} ${!activeRegion ? forumStyles.navLinkActive : ''}`.trim()}
                 >
                   All Regions
                 </Link>
               </li>
-              {PHILIPPINE_REGIONS_SHORT.map((region) => (
-                <li key={region}>
+              {PHILIPPINE_REGIONS_SHORT.map((regionCode) => (
+                <li key={regionCode}>
                   <Link
-                    href={`/forum?region=${encodeURIComponent(region)}`}
-                    className={`${forumStyles.navLink} ${activeRegion === region ? forumStyles.navLinkActive : ''}`.trim()}
+                    href={buildForumHref(regionCode, null)}
+                    className={`${forumStyles.navLink} ${activeRegion === regionCode ? forumStyles.navLinkActive : ''}`.trim()}
                   >
-                    {region}
+                    {REGION_DISPLAY_NAMES[regionCode] ?? regionCode}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
+
+          {activeRegion ? (
+            <div className={`${forumStyles.sidebarCard} card`}>
+              <h3 className={forumStyles.sidebarTitle}>Divisions</h3>
+              <ul className={forumStyles.navLinks}>
+                <li>
+                  <Link
+                    href={buildForumHref(activeRegion, null)}
+                    className={`${forumStyles.navLink} ${!activeDivision ? forumStyles.navLinkActive : ''}`.trim()}
+                  >
+                    All Divisions
+                  </Link>
+                </li>
+                {activeRegionDivisions.map((divisionName) => (
+                  <li key={divisionName}>
+                    <Link
+                      href={buildForumHref(activeRegion, divisionName)}
+                      className={`${forumStyles.navLink} ${activeDivision === divisionName ? forumStyles.navLinkActive : ''}`.trim()}
+                    >
+                      {divisionName}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </aside>
 
         <main className={forumStyles.feed}>
@@ -142,28 +219,50 @@ export default async function ForumPage({ searchParams }: PageProps) {
 
           {activeRegion ? (
             <div className={`${forumStyles.activeRegionBanner} card`}>
-              <strong>Viewing Region:</strong> {activeRegion}
+              <strong>Viewing:</strong> {activeDivision ? `${activeRegion} - ${activeDivision}` : activeRegion}
             </div>
           ) : null}
 
           <form method="get" className={forumStyles.sortBar}>
             {activeRegion ? <input type="hidden" name="region" value={activeRegion} /> : null}
+            {activeDivision ? <input type="hidden" name="division" value={activeDivision} /> : null}
             <label htmlFor="sort" className={forumStyles.sortLabel}>Sort by</label>
             <select id="sort" name="sort" defaultValue={activeSort} className={forumStyles.sortSelect}>
               <option value="recent">Most Recent</option>
               <option value="most_comments">Most Comments</option>
               <option value="most_upvotes">Most Upvotes</option>
             </select>
+            <label htmlFor="q" className={forumStyles.sortLabel}>Keyword</label>
+            <input
+              id="q"
+              type="search"
+              name="q"
+              defaultValue={normalizedQuery}
+              placeholder="Search by title, content, or author"
+              className={forumStyles.searchInput}
+            />
             <button type="submit" className="btn btn-secondary">Apply</button>
           </form>
 
           {filteredTopics.length === 0 ? (
             <div className="card">
-              <h3>{activeRegion ? `No topics yet for ${activeRegion}` : 'No topics yet'}</h3>
+              <h3>
+                {normalizedQuery
+                  ? `No topics found${activeDivision ? ` in ${activeDivision}` : activeRegion ? ` in ${activeRegion}` : ''}`
+                  : activeDivision
+                    ? `No topics yet for ${activeDivision}`
+                    : activeRegion
+                      ? `No topics yet for ${activeRegion}`
+                    : 'No topics yet'}
+              </h3>
               <p>
-                {activeRegion
-                  ? 'No approved topics match this region yet. Try another region or start a new topic.'
-                  : 'Be the first to start a discussion in the community hub.'}
+                {normalizedQuery
+                  ? 'Try a different keyword, clear one of the filters, or start a new topic.'
+                  : activeDivision
+                    ? 'No approved topics match this division yet. Try another division or start a new topic.'
+                    : activeRegion
+                      ? 'No approved topics match this region yet. Try another region or start a new topic.'
+                    : 'Be the first to start a discussion in the community hub.'}
               </p>
             </div>
           ) : (
@@ -173,7 +272,7 @@ export default async function ForumPage({ searchParams }: PageProps) {
                   <span className={forumStyles.category}>{topic.category}</span>
                   <span className={forumStyles.regionBadge}>
                     <PinIcon />
-                    {topic.region}
+                    {topic.region} • {topic.division}
                   </span>
                 </div>
 

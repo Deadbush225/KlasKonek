@@ -24,6 +24,10 @@ export async function ensureModerationSchema() {
         alter table forum_posts
         add column if not exists upvote_count integer not null default 0
       `;
+      await db`
+        alter table forum_posts
+        add column if not exists division text not null default 'Not specified'
+      `;
 
       await db`
         alter table resources
@@ -41,6 +45,10 @@ export async function ensureModerationSchema() {
       await db`
         create index if not exists forum_posts_moderation_status_idx
         on forum_posts(moderation_status)
+      `;
+      await db`
+        create index if not exists forum_posts_region_division_idx
+        on forum_posts(region, division)
       `;
       await db`
         create index if not exists resources_moderation_status_idx
@@ -129,6 +137,7 @@ export type ForumTopic = {
   title: string;
   content: string;
   region: string;
+  division: string;
   category: string;
   comment_count: number;
   upvote_count: number;
@@ -168,6 +177,10 @@ export type ForumComment = {
   image_file_name: string | null;
   author_id: string;
   author_name: string;
+  author_occupation: string;
+  author_region: string;
+  author_school: string | null;
+  author_qualification_level: string;
   created_at: string;
 };
 
@@ -209,6 +222,7 @@ export async function getForumTopics() {
       p.title,
       p.content,
       p.region,
+      p.division,
       p.category,
       coalesce(fc.comment_count, 0) as comment_count,
       coalesce(p.upvote_count, 0) as upvote_count,
@@ -237,6 +251,7 @@ export async function getForumTopics() {
       p.title,
       p.content,
       p.region,
+      p.division,
       p.category,
       coalesce(fc.comment_count, 0) as comment_count,
       coalesce(p.upvote_count, 0) as upvote_count,
@@ -268,6 +283,7 @@ export async function getForumTopicById(id: string) {
       p.title,
       p.content,
       p.region,
+      p.division,
       p.category,
       coalesce(fc.comment_count, 0) as comment_count,
       coalesce(p.upvote_count, 0) as upvote_count,
@@ -297,6 +313,7 @@ export async function getForumTopicById(id: string) {
       p.title,
       p.content,
       p.region,
+      p.division,
       p.category,
       coalesce(fc.comment_count, 0) as comment_count,
       coalesce(p.upvote_count, 0) as upvote_count,
@@ -333,6 +350,10 @@ export async function getForumCommentsByTopic(topicId: string) {
       c.image_file_name,
       c.author_id,
       coalesce(u.full_name, 'Unknown Author') as author_name,
+      coalesce(u.occupation, 'Teacher') as author_occupation,
+      coalesce(u.region, 'Unspecified') as author_region,
+      u.school as author_school,
+      coalesce(u.qualification_level, 'Not specified') as author_qualification_level,
       c.created_at
     from forum_comments c
     left join profiles u on u.id = c.author_id
@@ -409,6 +430,7 @@ export async function getPendingForumTopics() {
       p.title,
       p.content,
       p.region,
+      p.division,
       p.category,
       coalesce(fc.comment_count, 0) as comment_count,
       coalesce(p.upvote_count, 0) as upvote_count,
@@ -468,6 +490,7 @@ export async function getApprovedForumTopicsByAuthor(authorId: string) {
       p.title,
       p.content,
       p.region,
+      p.division,
       p.category,
       coalesce(fc.comment_count, 0) as comment_count,
       coalesce(p.upvote_count, 0) as upvote_count,
@@ -524,14 +547,15 @@ export async function createForumTopic(input: {
   title: string;
   content: string;
   region: string;
+  division: string;
   category: string;
   authorId: string;
 }) {
   await ensureModerationSchema();
 
   const rows = (await db`
-    insert into forum_posts (title, content, region, category, moderation_status, author_id)
-    values (${input.title}, ${input.content}, ${input.region}, ${input.category}, ${'pending'}, ${input.authorId})
+    insert into forum_posts (title, content, region, division, category, moderation_status, author_id)
+    values (${input.title}, ${input.content}, ${input.region}, ${input.division}, ${input.category}, ${'pending'}, ${input.authorId})
     returning id
   `) as { id: string }[];
 

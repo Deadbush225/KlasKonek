@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, hasAcceptedLatestTerms } from '@/lib/auth';
 import {
   createForumComment,
   createForumTopic,
@@ -18,6 +18,7 @@ import { checkRateLimit } from '@/lib/rate-limit';
 import { logAuditEvent } from '@/lib/audit';
 import { createNotification, createNotificationsForAdmins } from '@/lib/notifications';
 import {
+  REGION_DIVISIONS_BY_REGION,
   REGISTRATION_REGIONS,
   RESOURCE_GRADE_LEVELS,
   RESOURCE_SUBJECT_AREAS,
@@ -59,9 +60,14 @@ export async function createTopicAction(_state: CommunityActionState, formData: 
     return { error: 'You need to sign in before posting a topic.' } satisfies CommunityActionState;
   }
 
+  if (!hasAcceptedLatestTerms(user)) {
+    return { error: 'Please accept the Terms and Conditions in the Hub before posting.' } satisfies CommunityActionState;
+  }
+
   const title = String(formData.get('title') ?? '').trim();
   const content = String(formData.get('content') ?? '').trim();
   const region = String(formData.get('region') ?? '').trim();
+  const division = String(formData.get('division') ?? '').trim();
   const category = String(formData.get('category') ?? '').trim();
 
   const fingerprint = await getRequestFingerprint(`topic:${user.id}`);
@@ -77,8 +83,17 @@ export async function createTopicAction(_state: CommunityActionState, formData: 
     } satisfies CommunityActionState;
   }
 
-  if (!title || !content || !region || !category) {
+  if (!title || !content || !region || !division || !category) {
     return { error: 'All topic fields are required.' } satisfies CommunityActionState;
+  }
+
+  if (!REGISTRATION_REGIONS.includes(region as (typeof REGISTRATION_REGIONS)[number])) {
+    return { error: 'Please select a valid region.' } satisfies CommunityActionState;
+  }
+
+  const divisionsForRegion = REGION_DIVISIONS_BY_REGION[region] ?? [];
+  if (!divisionsForRegion.includes(division)) {
+    return { error: 'Please select a valid division for the selected region.' } satisfies CommunityActionState;
   }
 
   if (title.length > MAX_TOPIC_TITLE || content.length > MAX_TOPIC_CONTENT) {
@@ -92,6 +107,7 @@ export async function createTopicAction(_state: CommunityActionState, formData: 
       title,
       content,
       region,
+      division,
       category,
       authorId: user.id,
     });
@@ -105,6 +121,7 @@ export async function createTopicAction(_state: CommunityActionState, formData: 
         changedFields: {
           title,
           region,
+          division,
           category,
           moderation_status: 'pending',
         },
@@ -113,7 +130,7 @@ export async function createTopicAction(_state: CommunityActionState, formData: 
       await createNotificationsForAdmins({
         type: 'moderation',
         title: 'New forum topic awaiting moderation',
-        message: `${user.full_name} submitted "${title}" in ${region}.`,
+        message: `${user.full_name} submitted "${title}" in ${region} - ${division}.`,
         linkUrl: '/admin',
         metadata: {
           topicId,
@@ -133,6 +150,10 @@ export async function createCommentAction(_state: CommunityActionState, formData
 
   if (!user) {
     return { error: 'You need to sign in before posting a comment.' } satisfies CommunityActionState;
+  }
+
+  if (!hasAcceptedLatestTerms(user)) {
+    return { error: 'Please accept the Terms and Conditions in the Hub before commenting.' } satisfies CommunityActionState;
   }
 
   const topicId = String(formData.get('topicId') ?? '').trim();
@@ -217,6 +238,10 @@ export async function uploadDocumentAction(_state: CommunityActionState, formDat
 
   if (!user) {
     return { error: 'You need to sign in before uploading documents.' } satisfies CommunityActionState;
+  }
+
+  if (!hasAcceptedLatestTerms(user)) {
+    return { error: 'Please accept the Terms and Conditions in the Hub before uploading.' } satisfies CommunityActionState;
   }
 
   const title = String(formData.get('title') ?? '').trim();
@@ -345,6 +370,10 @@ async function requireAdminUser() {
 
   if (!user) {
     redirect('/login');
+  }
+
+  if (!hasAcceptedLatestTerms(user)) {
+    redirect('/hub');
   }
 
   if (user.role !== 'admin') {
@@ -552,6 +581,10 @@ export async function toggleTopicUpvoteAction(formData: FormData) {
 
   if (!user) {
     redirect('/login');
+  }
+
+  if (!hasAcceptedLatestTerms(user)) {
+    redirect('/hub');
   }
 
   const topicId = String(formData.get('topicId') ?? '').trim();

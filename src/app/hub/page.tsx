@@ -1,17 +1,17 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import TermsModal from '@/components/TermsModal';
+import { getCurrentUser, hasAcceptedLatestTerms } from '@/lib/auth';
 
-export default function HubPage() {
-  const router = useRouter();
+export default async function HubPage() {
+  const user = await getCurrentUser();
 
-  const handleAcceptTerms = () => {
-    // Redirect to profile/main hub after accepting terms
-    router.push('/profile');
-  };
+  if (!user) {
+    redirect('/login');
+  }
 
-  return (
-    <TermsModal onAccept={handleAcceptTerms} />
-  );
+  if (hasAcceptedLatestTerms(user)) {
+    redirect('/profile');
+  }
+
+  return <TermsModal />;
 }

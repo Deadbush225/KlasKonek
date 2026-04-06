@@ -1,12 +1,40 @@
 // This component must be dynamically imported with ssr: false
 'use client';
 
-import { MapContainer, TileLayer, Popup, CircleMarker } from 'react-leaflet';
+import { useEffect, useMemo, useState } from 'react';
+import { MapContainer, TileLayer, Popup, Polygon, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { LatLngBoundsExpression } from 'leaflet';
 import mapStyles from '@/app/map/map.module.css';
+import {
+  geometryToLeafletPositions,
+  shapeNameToRegionCode,
+  type GeoBoundaryFeatureCollection,
+  type LeafletPolygonPositions,
+} from '@/lib/map-boundaries';
 
 type Severity = 'low' | 'medium' | 'high' | 'critical';
+
+type ChoroplethMetric = 'teacherDensity' | 'averageExperience' | 'underservedScore';
+
+type RegionMapPoint = {
+  region: string;
+  displayName: string;
+  teacherCount: number;
+  teacherDensity: number;
+  averageExperience: number;
+  underservedScore: number;
+  expectedDivisions: number;
+  divisionCoverageRate: number;
+  severity: Severity;
+  highlights: string[];
+};
+
+type MapWrapperProps = {
+  regions: RegionMapPoint[];
+  activeMetric: ChoroplethMetric;
+  activeTimeLabel: string;
+};
 
 function WarningIcon() {
   return (
@@ -18,33 +46,109 @@ function WarningIcon() {
   );
 }
 
-// Mock regional data points based on Challenge Statement
-const regionsData = [
-  { id: 1, name: 'Region I', position: [16.037, 120.334] as [number, number], teachers: 120, avgExperience: 8, severity: 'low' },
-  { id: 2, name: 'CAR', position: [17.351, 121.171] as [number, number], teachers: 45, avgExperience: 5, severity: 'high' },
-  { id: 3, name: 'Region III', position: [15.485, 120.712] as [number, number], teachers: 210, avgExperience: 10, severity: 'low' },
-  { id: 4, name: 'BARMM', position: [7.213, 124.246] as [number, number], teachers: 20, avgExperience: 3, severity: 'critical' },
-  { id: 5, name: 'Region VIII', position: [11.968, 125.043] as [number, number], teachers: 60, avgExperience: 6, severity: 'medium' },
-] as const;
-
 const PHILIPPINES_BOUNDS: LatLngBoundsExpression = [
-  [4.3, 117.0],
-  [21.4, 126.95],
+  [3.6, 116.5],
+  [22.3, 127.4],
 ];
 
-const severityColors: Record<Severity, string> = {
-  low: '#15803d',
-  medium: '#f59e0b',
-  high: '#ef4444',
-  critical: '#7f1d1d',
-};
+function getMetricValue(region: RegionMapPoint, metric: ChoroplethMetric) {
+  if (metric === 'teacherDensity') {
+    return region.teacherDensity;
+  }
 
-export default function MapWrapper() {
+  if (metric === 'averageExperience') {
+    return region.averageExperience;
+  }
+
+  return region.underservedScore;
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getChoroplethColor(metric: ChoroplethMetric, normalizedValue: number) {
+  const value = clamp(normalizedValue, 0, 1);
+
+  if (metric === 'underservedScore') {
+    if (value >= 0.85) return '#8b0000';
+    if (value >= 0.65) return '#c62828';
+    if (value >= 0.45) return '#ef6c00';
+    if (value >= 0.25) return '#f9a825';
+    return '#2e7d32';
+  }
+
+  if (value >= 0.85) return '#1b5e20';
+  if (value >= 0.65) return '#2e7d32';
+  if (value >= 0.45) return '#f9a825';
+  if (value >= 0.25) return '#ef6c00';
+  return '#b71c1c';
+}
+
+export default function MapWrapper({ regions, activeMetric, activeTimeLabel }: MapWrapperProps) {
+  const [boundaryByRegion, setBoundaryByRegion] = useState<Record<string, LeafletPolygonPositions>>({});
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadBoundaries() {
+      try {
+        const response = await fetch('/data/philippines-adm1.geojson', { cache: 'force-cache' });
+
+        if (!response.ok) {
+          throw new Error('Unable to load Philippine regional boundaries.');
+        }
+
+        const data = (await response.json()) as GeoBoundaryFeatureCollection;
+        const nextBoundaryByRegion: Record<string, LeafletPolygonPositions> = {};
+
+        for (const feature of data.features ?? []) {
+          const regionCode = shapeNameToRegionCode(feature.properties?.shapeName ?? '');
+
+          if (!regionCode) {
+            continue;
+          }
+
+          const positions = geometryToLeafletPositions(feature.geometry);
+
+          if (!positions) {
+            continue;
+          }
+
+          nextBoundaryByRegion[regionCode] = positions;
+        }
+
+        if (isActive) {
+          setBoundaryByRegion(nextBoundaryByRegion);
+        }
+      } catch {
+        if (isActive) {
+          setBoundaryByRegion({});
+        }
+      }
+    }
+
+    loadBoundaries();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  const metricValues = regions.map((item) => getMetricValue(item, activeMetric));
+  const metricMin = metricValues.length > 0 ? Math.min(...metricValues) : 0;
+  const metricMax = metricValues.length > 0 ? Math.max(...metricValues) : 1;
+  const metricRange = Math.max(0.0001, metricMax - metricMin);
+  const regionsWithBoundaries = useMemo(() => {
+    return regions.filter((region) => Boolean(boundaryByRegion[region.region]));
+  }, [regions, boundaryByRegion]);
+
   return (
     <MapContainer
       bounds={PHILIPPINES_BOUNDS}
+      boundsOptions={{ padding: [12, 12] }}
       maxBounds={PHILIPPINES_BOUNDS}
-      maxBoundsViscosity={1}
+      maxBoundsViscosity={0.85}
       minZoom={5}
       maxZoom={10}
       zoomSnap={0.5}
@@ -57,45 +161,66 @@ export default function MapWrapper() {
         url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         noWrap
       />
-      
-      {regionsData.map(region => {
-        const color = severityColors[region.severity];
-        
-        // Radius based on teacher count
-        const radius = Math.max(10, Math.min(region.teachers / 5, 40));
+
+      {regionsWithBoundaries.map((region) => {
+        const positions = boundaryByRegion[region.region];
+
+        if (!positions) {
+          return null;
+        }
+
+        const metricValue = getMetricValue(region, activeMetric);
+        const normalizedValue = (metricValue - metricMin) / metricRange;
+        const borderColor = getChoroplethColor(activeMetric, normalizedValue);
+        const borderWeight = region.severity === 'critical'
+          ? 2.8
+          : region.severity === 'high'
+            ? 2.4
+            : 1.9;
 
         return (
-          <CircleMarker
-            key={region.id}
-            center={region.position}
+          <Polygon
+            key={region.region}
+            positions={positions}
             pathOptions={{
-              color,
-              fillColor: color,
-              fillOpacity: 0.56,
-              weight: 2,
+              color: borderColor,
+              fillColor: borderColor,
+              fillOpacity: 0.08,
+              weight: borderWeight,
+              opacity: 0.95,
             }}
-            radius={radius}
           >
+            <Tooltip permanent direction="center" className={mapStyles.regionLabel}>
+              {region.region}
+            </Tooltip>
             <Popup className={mapStyles.regionPopup}>
               <div className={mapStyles.popupContent}>
-                <h3 className={mapStyles.popupTitle}>{region.name} Area</h3>
-                <p className={mapStyles.popupMetric}><strong>Registered STEM Teachers:</strong> {region.teachers}</p>
-                <p className={mapStyles.popupMetric}><strong>Avg. Qualification Exp:</strong> {region.avgExperience} yrs</p>
-                {region.severity === 'critical' ? (
+                <h3 className={mapStyles.popupTitle}>{region.displayName}</h3>
+                <p className={mapStyles.popupMetric}><strong>Time Slice:</strong> {activeTimeLabel}</p>
+                <p className={mapStyles.popupMetric}><strong>Registered STEM Teachers:</strong> {region.teacherCount}</p>
+                <p className={mapStyles.popupMetric}><strong>Teacher Density:</strong> {region.teacherDensity} teachers/division</p>
+                <p className={mapStyles.popupMetric}><strong>Avg. Teaching Experience:</strong> {region.averageExperience} yrs</p>
+                <p className={mapStyles.popupMetric}><strong>Underserved Score:</strong> {region.underservedScore}</p>
+                <p className={mapStyles.popupMetric}><strong>Division Coverage:</strong> {region.divisionCoverageRate}%</p>
+                {region.highlights.length > 0 ? (
+                  <p className={mapStyles.popupMetric}><strong>Signals:</strong> {region.highlights.slice(0, 2).join('; ')}</p>
+                ) : null}
+                {region.severity === 'critical' || region.severity === 'high' ? (
                   <p className={`${mapStyles.popupTag} ${mapStyles.tagCritical}`}>
                     <WarningIcon />
-                    Highly Underserved Area (Target for STAR program)
+                    Priority intervention area
                   </p>
                 ) : (
                   <p className={`${mapStyles.popupTag} ${mapStyles.tagStable}`}>
-                    Stable participation
+                    Monitor and sustain support
                   </p>
                 )}
               </div>
             </Popup>
-          </CircleMarker>
+          </Polygon>
         );
       })}
+
     </MapContainer>
   );
 }

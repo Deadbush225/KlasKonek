@@ -1,5 +1,5 @@
 import profileStyles from './profile.module.css';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, hasAcceptedLatestTerms } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { signOutAction } from '../actions/auth';
 import Link from 'next/link';
@@ -28,6 +28,10 @@ export default async function ProfilePage() {
 
   if (!profile) {
     redirect('/login');
+  }
+
+  if (!hasAcceptedLatestTerms(profile)) {
+    redirect('/hub');
   }
 
   const [notifications, unreadNotifications] = await Promise.all([

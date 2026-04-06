@@ -22,6 +22,8 @@ create table if not exists profiles (
   consent_research boolean not null default false,
   consent_version text not null default 'v1.0',
   consented_at timestamptz,
+  terms_version text not null default 'v1.0',
+  terms_accepted_at timestamptz,
   anonymization_opt_out boolean not null default false,
   profile_last_updated_at timestamptz not null default timezone('utc'::text, now()),
   years_of_experience integer not null default 0,
@@ -58,6 +60,8 @@ alter table profiles add column if not exists consent_data_processing boolean no
 alter table profiles add column if not exists consent_research boolean not null default false;
 alter table profiles add column if not exists consent_version text not null default 'v1.0';
 alter table profiles add column if not exists consented_at timestamptz;
+alter table profiles add column if not exists terms_version text not null default 'v1.0';
+alter table profiles add column if not exists terms_accepted_at timestamptz;
 alter table profiles add column if not exists anonymization_opt_out boolean not null default false;
 alter table profiles add column if not exists profile_last_updated_at timestamptz not null default timezone('utc'::text, now());
 alter table profiles add column if not exists data_quality_score integer not null default 0;
@@ -113,6 +117,7 @@ create table if not exists forum_posts (
   title text not null,
   content text not null,
   region text not null,
+  division text not null default 'Not specified',
   category text not null,
   moderation_status text not null default 'pending' check (moderation_status in ('pending', 'approved', 'rejected')),
   moderated_by uuid references profiles(id) on delete set null,
@@ -123,6 +128,7 @@ create table if not exists forum_posts (
 
 create index if not exists forum_posts_created_at_idx on forum_posts(created_at desc);
 create index if not exists forum_posts_moderation_status_idx on forum_posts(moderation_status);
+create index if not exists forum_posts_region_division_idx on forum_posts(region, division);
 
 create table if not exists forum_comments (
   id uuid primary key default gen_random_uuid(),
@@ -163,6 +169,7 @@ create index if not exists resources_moderation_status_idx on resources(moderati
 alter table forum_posts add column if not exists moderation_status text not null default 'pending';
 alter table forum_posts add column if not exists moderated_by uuid references profiles(id) on delete set null;
 alter table forum_posts add column if not exists moderated_at timestamptz;
+alter table forum_posts add column if not exists division text not null default 'Not specified';
 
 alter table resources add column if not exists moderation_status text not null default 'pending';
 alter table resources add column if not exists moderated_by uuid references profiles(id) on delete set null;
@@ -176,3 +183,24 @@ alter table resources add column if not exists keywords text[] not null default 
 alter table forum_comments add column if not exists image_mime_type text;
 alter table forum_comments add column if not exists image_data bytea;
 alter table forum_comments add column if not exists image_file_name text;
+
+create table if not exists map_region_snapshots (
+  id uuid primary key default gen_random_uuid(),
+  snapshot_month date not null,
+  region text not null,
+  teacher_count integer not null default 0,
+  teacher_density numeric(10,2) not null default 0,
+  average_experience numeric(10,2) not null default 0,
+  underserved_score numeric(10,2) not null default 100,
+  expected_divisions integer not null default 1,
+  division_coverage_rate numeric(10,2) not null default 0,
+  generated_from text not null default 'backfill',
+  created_at timestamptz not null default timezone('utc'::text, now()),
+  unique(snapshot_month, region)
+);
+
+create index if not exists map_region_snapshots_month_idx
+on map_region_snapshots(snapshot_month asc);
+
+create index if not exists map_region_snapshots_region_month_idx
+on map_region_snapshots(region, snapshot_month asc);

@@ -24,6 +24,8 @@ export type Profile = {
   consent_research: boolean;
   consent_version: string;
   consented_at: string | null;
+  terms_version: string;
+  terms_accepted_at: string | null;
   anonymization_opt_out: boolean;
   profile_last_updated_at: string;
   years_of_experience: number;
@@ -52,6 +54,34 @@ export type PublicProfile = {
 
 const SESSION_COOKIE = 'starlink_session';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
+export const TERMS_VERSION = 'v1.0';
+
+let termsSchemaReady: Promise<void> | null = null;
+
+async function ensureTermsSchema() {
+  if (!termsSchemaReady) {
+    termsSchemaReady = (async () => {
+      await db`
+        alter table profiles
+        add column if not exists terms_version text not null default 'v1.0'
+      `;
+      await db`
+        alter table profiles
+        add column if not exists terms_accepted_at timestamptz
+      `;
+      await db`
+        update profiles
+        set terms_version = ${TERMS_VERSION}
+        where terms_version is null
+      `;
+    })().catch((error) => {
+      termsSchemaReady = null;
+      throw error;
+    });
+  }
+
+  await termsSchemaReady;
+}
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -82,6 +112,8 @@ async function createSession(userId: string) {
 }
 
 export async function getCurrentUser(): Promise<Profile | null> {
+  await ensureTermsSchema();
+
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
 
@@ -109,6 +141,8 @@ export async function getCurrentUser(): Promise<Profile | null> {
       p.consent_research,
       p.consent_version,
       p.consented_at,
+      p.terms_version,
+      p.terms_accepted_at,
       p.anonymization_opt_out,
       p.profile_last_updated_at,
       p.years_of_experience,
@@ -146,6 +180,8 @@ export async function registerUser(input: {
   consentVersion: string;
   dataQualityScore: number;
 }) {
+  await ensureTermsSchema();
+
   const email = normalizeEmail(input.email);
   const existing = (await db`
     select id
@@ -193,6 +229,8 @@ export async function registerUser(input: {
       consent_research,
       consent_version,
       consented_at,
+      terms_version,
+      terms_accepted_at,
       anonymization_opt_out,
       profile_last_updated_at,
       years_of_experience,
@@ -217,6 +255,8 @@ export async function registerUser(input: {
       ${input.consentResearch},
       ${input.consentVersion.trim()},
       ${input.consentDataProcessing ? new Date().toISOString() : null},
+      ${TERMS_VERSION},
+      ${null},
       ${input.anonymizationOptOut},
       now(),
       ${input.yearsOfExperience},
@@ -242,6 +282,8 @@ export async function registerUser(input: {
       consent_research,
       consent_version,
       consented_at,
+      terms_version,
+      terms_accepted_at,
       anonymization_opt_out,
       profile_last_updated_at,
       years_of_experience,
@@ -261,6 +303,8 @@ export async function registerUser(input: {
 }
 
 export async function loginUser(input: { email: string; password: string }) {
+  await ensureTermsSchema();
+
   const email = normalizeEmail(input.email);
   const rows = (await db`
     select
@@ -282,6 +326,8 @@ export async function loginUser(input: { email: string; password: string }) {
       consent_research,
       consent_version,
       consented_at,
+      terms_version,
+      terms_accepted_at,
       anonymization_opt_out,
       profile_last_updated_at,
       years_of_experience,
@@ -346,6 +392,8 @@ export async function updateCurrentUserProfile(input: {
   yearsOfExperience: number;
   dataQualityScore: number;
 }) {
+  await ensureTermsSchema();
+
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
@@ -394,6 +442,8 @@ export async function updateCurrentUserProfile(input: {
       consent_research,
       consent_version,
       consented_at,
+      terms_version,
+      terms_accepted_at,
       anonymization_opt_out,
       profile_last_updated_at,
       years_of_experience,
@@ -435,4 +485,34 @@ export async function getPublicProfileById(id: string): Promise<PublicProfile | 
   `) as PublicProfile[];
 
   return rows[0] ?? null;
+}
+
+export function hasAcceptedLatestTerms(
+  profile: Pick<Profile, 'terms_accepted_at' | 'terms_version'> | null,
+  requiredVersion = TERMS_VERSION,
+) {
+  if (!profile) {
+    return false;
+  }
+
+  return Boolean(profile.terms_accepted_at) && profile.terms_version === requiredVersion;
+}
+
+export async function acceptCurrentUserTerms(version = TERMS_VERSION) {
+  await ensureTermsSchema();
+
+  const user = await getCurrentUser();
+
+  if (!user) {
+    throw new Error('You must be signed in to accept terms.');
+  }
+
+  await db`
+    update profiles
+    set
+      terms_version = ${version},
+      terms_accepted_at = now(),
+      profile_last_updated_at = now()
+    where id = ${user.id}
+  `;
 }

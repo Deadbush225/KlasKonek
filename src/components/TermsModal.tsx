@@ -2,12 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { acceptTermsAction, declineTermsAction } from '@/app/actions/auth';
 
-interface TermsModalProps {
-  onAccept: () => void;
-}
-
-export default function TermsModal({ onAccept }: TermsModalProps) {
+export default function TermsModal() {
   const [agreed, setAgreed] = useState(false);
 
   return (
@@ -96,33 +93,37 @@ export default function TermsModal({ onAccept }: TermsModalProps) {
           gap: '1rem',
           justifyContent: 'flex-end',
         }}>
-          <button
-            type="button"
-            onClick={() => window.location.href = '/login'}
-            className="btn"
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              color: 'var(--foreground)',
-              cursor: 'pointer',
-            }}
-          >
-            Decline
-          </button>
-          <button
-            type="button"
-            onClick={onAccept}
-            disabled={!agreed}
-            className="btn btn-primary"
-            style={{
-              padding: '0.75rem 1.5rem',
-              opacity: !agreed ? 0.5 : 1,
-              cursor: !agreed ? 'not-allowed' : 'pointer',
-            }}
-          >
-            Accept and Continue
-          </button>
+          <form action={declineTermsAction}>
+            <button
+              type="submit"
+              className="btn"
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                color: 'var(--foreground)',
+                cursor: 'pointer',
+              }}
+            >
+              Decline
+            </button>
+          </form>
+
+          <form action={acceptTermsAction}>
+            <input type="hidden" name="returnTo" value="/profile" />
+            <button
+              type="submit"
+              disabled={!agreed}
+              className="btn btn-primary"
+              style={{
+                padding: '0.75rem 1.5rem',
+                opacity: !agreed ? 0.5 : 1,
+                cursor: !agreed ? 'not-allowed' : 'pointer',
+              }}
+            >
+              Accept and Continue
+            </button>
+          </form>
         </div>
       </div>
     </div>

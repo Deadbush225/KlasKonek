@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import regionStyles from './region.module.css';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, hasAcceptedLatestTerms } from '@/lib/auth';
 import { REGION_DISPLAY_NAMES, REGISTRATION_REGIONS } from '@/lib/constants';
 import { getRegionProfileDetails } from '@/lib/regional-insights';
 import { formatDateTimeNoSeconds } from '@/lib/date-format';
@@ -16,6 +16,10 @@ export default async function AdminRegionProfilePage({ params, searchParams }: P
 
   if (!user) {
     redirect('/login');
+  }
+
+  if (!hasAcceptedLatestTerms(user)) {
+    redirect('/hub');
   }
 
   if (user.role !== 'admin') {

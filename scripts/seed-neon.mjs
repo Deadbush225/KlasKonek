@@ -39,6 +39,328 @@ for (const statement of schemaStatements) {
 
 const passwordHash = await bcrypt.hash('Password123!', 10);
 
+const REGION_DIVISION_POOL = {
+  'CAR': ['Abra', 'Benguet', 'Baguio City'],
+  'Region I': ['Ilocos Norte', 'Ilocos Sur', 'Pangasinan I'],
+  'Region II': ['Cagayan Province', 'Isabela', 'Nueva Vizcaya'],
+  'Region III': ['Bulacan', 'Pampanga', 'Nueva Ecija'],
+  'NCR': ['Quezon City', 'Manila', 'Taguig City-Pateros'],
+  'Region IV-A': ['Laguna', 'Cavite', 'Batangas'],
+  'Region IV-B': ['Palawan', 'Oriental Mindoro', 'Romblon'],
+  'Region V': ['Albay', 'Camarines Sur', 'Sorsogon'],
+  'Region VI': ['Iloilo', 'Negros Occidental', 'Capiz'],
+  'Region VII': ['Cebu', 'Bohol', 'Negros Oriental'],
+  'Region VIII': ['Leyte', 'Samar (Western Samar)', 'Eastern Samar'],
+  'Region IX': ['Zamboanga Del Sur', 'Zamboanga Del Norte', 'Zamboanga City'],
+  'Region X': ['Bukidnon', 'Misamis Oriental', 'Lanao Del Norte'],
+  'Region XI': ['Davao City', 'Davao del Norte', 'Davao Del Sur'],
+  'Region XII': ['South Cotabato', 'Cotabato', 'Sultan Kudarat'],
+  'Region XIII': ['Agusan Del Norte', 'Agusan Del Sur', 'Surigao Del Norte'],
+  'BARMM': ['Maguindanao II', 'Lanao del Sur I', 'Sulu'],
+};
+
+const REGION_WEIGHT_MODEL = {
+  NCR: 12,
+  'Region IV-A': 11,
+  'Region III': 10,
+  'Region VI': 8,
+  'Region VII': 8,
+  'Region XI': 7,
+  'Region I': 6,
+  'Region V': 6,
+  'Region II': 5,
+  'Region VIII': 5,
+  'Region X': 5,
+  'Region IX': 4,
+  'Region XII': 4,
+  'Region XIII': 4,
+  CAR: 3,
+  'Region IV-B': 3,
+  BARMM: 2,
+};
+
+const SCHOOL_TYPE_DISTRIBUTION_BY_REGION = {
+  NCR: { urban: 0.88, rural: 0.04, coastal: 0.02, mountain: 0.06 },
+  CAR: { urban: 0.25, rural: 0.2, coastal: 0.0, mountain: 0.55 },
+  BARMM: { urban: 0.18, rural: 0.48, coastal: 0.24, mountain: 0.1 },
+  'Region IV-B': { urban: 0.24, rural: 0.34, coastal: 0.37, mountain: 0.05 },
+  'Region VIII': { urban: 0.32, rural: 0.38, coastal: 0.25, mountain: 0.05 },
+  'Region IX': { urban: 0.35, rural: 0.33, coastal: 0.22, mountain: 0.1 },
+  'Region XIII': { urban: 0.33, rural: 0.3, coastal: 0.12, mountain: 0.25 },
+  default: { urban: 0.44, rural: 0.34, coastal: 0.15, mountain: 0.07 },
+};
+
+const SCHOOL_NAME_TEMPLATES = {
+  urban: [
+    'Science High School',
+    'City STEM Academy',
+    'Metropolitan Integrated School',
+    'Central National High School',
+  ],
+  rural: [
+    'National High School',
+    'Community Integrated School',
+    'District STEM Learning Center',
+    'Municipal Secondary School',
+  ],
+  coastal: [
+    'Coastal Integrated High School',
+    'Maritime Science Academy',
+    'Island National High School',
+    'Seaside STEM Institute',
+  ],
+  mountain: [
+    'Highland National High School',
+    'Mountain Province STEM School',
+    'Upland Integrated Academy',
+    'Cordillera Science School',
+  ],
+};
+
+const SUBJECT_BIAS_BY_SCHOOL_TYPE = {
+  urban: ['Mathematics', 'Computer Science', 'Data Science', 'Physics', 'STEM Research'],
+  rural: ['General Science', 'Biology', 'Integrated Science', 'Mathematics', 'Research Methods'],
+  coastal: ['Biology', 'Earth and Environmental Science', 'General Science', 'Integrated Science', 'Chemistry'],
+  mountain: ['Earth and Environmental Science', 'General Science', 'Biology', 'Physics', 'Integrated Science'],
+};
+
+const FIRST_NAMES = [
+  'Maria', 'Juan', 'Jose', 'Ana', 'Mark', 'Grace', 'Paolo', 'Liza', 'Carlo', 'Irene',
+  'Ramon', 'Leah', 'Noel', 'Patricia', 'Victor', 'Nina', 'Arnold', 'Mae', 'Dennis', 'Riza',
+  'Ricardo', 'Catherine', 'Jerome', 'Elaine', 'Gilbert', 'Sharon', 'Miguel', 'Teresa', 'Adrian', 'Melanie',
+  'Christian', 'Rose', 'Aldrin', 'Joy', 'Emmanuel', 'Faith', 'Ronald', 'Clarisse', 'Kenneth', 'Janine',
+  'Albert', 'Diana', 'Franco', 'Noreen', 'Harold', 'Mika', 'Edgar', 'Trisha', 'Samuel', 'Camille',
+];
+
+const LAST_NAMES = [
+  'Santos', 'Reyes', 'Cruz', 'Garcia', 'Mendoza', 'Ramos', 'Torres', 'Flores', 'Aquino', 'Gutierrez',
+  'Morales', 'Navarro', 'Castillo', 'Rivera', 'Villanueva', 'Delos Reyes', 'Manalo', 'Domingo', 'Salazar', 'Fernandez',
+  'Bautista', 'Lim', 'Tan', 'Dela Cruz', 'Panganiban', 'Lopez', 'Soriano', 'Valdez', 'Abad', 'Pascual',
+  'Padilla', 'Cortez', 'Alvarez', 'Serrano', 'Barrera', 'Agustin', 'Santiago', 'Rosales', 'Palma', 'De Guzman',
+];
+
+const SUBJECT_POOL = [
+  'General Science',
+  'Biology',
+  'Chemistry',
+  'Physics',
+  'Earth and Environmental Science',
+  'Integrated Science',
+  'Mathematics',
+  'Algebra',
+  'Geometry',
+  'Trigonometry',
+  'Statistics and Probability',
+  'Calculus',
+  'STEM Research',
+  'Computer Science',
+  'Data Science',
+  'Research Methods',
+];
+
+const TRAINING_POOL = [
+  'STEM Pedagogy Bootcamp',
+  'Action Research Workshop',
+  'Math Content Deepening Program',
+  'Science Lab Safety and Inquiry Training',
+  'Digital Learning and LMS Integration',
+  'Assessment Design for STEM Classrooms',
+  'Regional STAR Mentor Training',
+  'Project-Based Learning Facilitation',
+  'Inclusive STEM Teaching Strategies',
+  'Data-Driven School Improvement Seminar',
+];
+
+function pickOne(values) {
+  return values[Math.floor(Math.random() * values.length)];
+}
+
+function pickWeighted(entries) {
+  const totalWeight = entries.reduce((sum, entry) => sum + Math.max(0, entry.weight), 0);
+  if (totalWeight <= 0) {
+    return entries[0]?.value;
+  }
+
+  let threshold = Math.random() * totalWeight;
+
+  for (const entry of entries) {
+    threshold -= Math.max(0, entry.weight);
+    if (threshold <= 0) {
+      return entry.value;
+    }
+  }
+
+  return entries[entries.length - 1]?.value;
+}
+
+function pickManyUnique(values, minCount, maxCount) {
+  const targetCount = minCount + Math.floor(Math.random() * (maxCount - minCount + 1));
+  const shuffled = [...values];
+
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled.slice(0, targetCount);
+}
+
+function chooseOccupation(years) {
+  if (years >= 16) return pickOne(['Head Teacher', 'School Principal', 'Master Teacher II']);
+  if (years >= 11) return pickOne(['Master Teacher I', 'Master Teacher II', 'Teacher III']);
+  if (years >= 6) return pickOne(['Teacher II', 'Teacher III']);
+  return pickOne(['Teacher I', 'Teacher II']);
+}
+
+function chooseQualification(years) {
+  if (years >= 18) return pickOne(['Doctoral Units', 'Doctoral Degree', "Master's Degree"]);
+  if (years >= 10) return pickOne(["Master's Degree", "Bachelor's Degree with Units in MA/MS"]);
+  if (years >= 4) return pickOne(["Bachelor's Degree with Units in MA/MS", "Master's Degree", "Bachelor's Degree"]);
+  return pickOne(["Bachelor's Degree", "Bachelor's Degree with Units in MA/MS"]);
+}
+
+function chooseParticipationStatus(years) {
+  if (years >= 14) return pickOne(['Alumni', 'Active Participant']);
+  if (years >= 7) return pickOne(['Active Participant', 'Applied', 'Alumni']);
+  if (years >= 3) return pickOne(['Applied', 'Active Participant', 'Interested']);
+  return pickOne(['Interested', 'Applied', 'Not Yet Participated']);
+}
+
+function chooseRegion() {
+  const entries = Object.entries(REGION_WEIGHT_MODEL).map(([region, weight]) => ({
+    value: region,
+    weight,
+  }));
+
+  return pickWeighted(entries) ?? 'NCR';
+}
+
+function chooseDivision(region) {
+  const divisions = REGION_DIVISION_POOL[region] ?? ['Not specified'];
+  const entries = divisions.map((division, index) => {
+    let weight = 1;
+
+    if (/city/i.test(division)) {
+      weight += 1.8;
+    }
+
+    if (index === 0) {
+      weight += 0.5;
+    }
+
+    return {
+      value: division,
+      weight,
+    };
+  });
+
+  return pickWeighted(entries) ?? divisions[0] ?? 'Not specified';
+}
+
+function chooseSchoolType(region) {
+  const profile = SCHOOL_TYPE_DISTRIBUTION_BY_REGION[region] ?? SCHOOL_TYPE_DISTRIBUTION_BY_REGION.default;
+
+  return pickWeighted([
+    { value: 'urban', weight: profile.urban },
+    { value: 'rural', weight: profile.rural },
+    { value: 'coastal', weight: profile.coastal },
+    { value: 'mountain', weight: profile.mountain },
+  ]) ?? 'urban';
+}
+
+function chooseYearsBySchoolType(schoolType) {
+  if (schoolType === 'urban') {
+    return Math.floor(Math.random() * 27);
+  }
+
+  if (schoolType === 'coastal') {
+    return Math.floor(Math.random() * 24);
+  }
+
+  if (schoolType === 'mountain') {
+    return Math.floor(Math.random() * 22);
+  }
+
+  return Math.floor(Math.random() * 25);
+}
+
+function chooseSubjectsBySchoolType(schoolType) {
+  const preferred = SUBJECT_BIAS_BY_SCHOOL_TYPE[schoolType] ?? SUBJECT_POOL;
+  const lead = pickOne(preferred);
+  const additionalCandidates = SUBJECT_POOL.filter((subject) => subject !== lead);
+  const additional = pickManyUnique(additionalCandidates, 0, 2);
+  return [lead, ...additional];
+}
+
+function toSchoolTypeLabel(schoolType) {
+  return schoolType.charAt(0).toUpperCase() + schoolType.slice(1);
+}
+
+function buildSchoolName({ division, schoolType, ordinal }) {
+  const template = pickOne(SCHOOL_NAME_TEMPLATES[schoolType] ?? SCHOOL_NAME_TEMPLATES.urban);
+  return `${division} ${template} (${toSchoolTypeLabel(schoolType)}) ${ordinal}`;
+}
+
+async function seedMockTeacherProfiles(totalCount = 1000) {
+  const regionCount = new Map(Object.keys(REGION_DIVISION_POOL).map((region) => [region, 0]));
+  const schoolTypeCount = new Map([
+    ['urban', 0],
+    ['rural', 0],
+    ['coastal', 0],
+    ['mountain', 0],
+  ]);
+
+  for (let index = 0; index < totalCount; index += 1) {
+    const region = chooseRegion();
+    const division = chooseDivision(region);
+    const schoolType = chooseSchoolType(region);
+    const years = chooseYearsBySchoolType(schoolType);
+    const subjects = chooseSubjectsBySchoolType(schoolType);
+    const trainingHistory = pickManyUnique(TRAINING_POOL, 0, 3).map((item) => {
+      const year = 2021 + Math.floor(Math.random() * 6);
+      return `${year} ${item}`;
+    });
+
+    const consentDataProcessing = true;
+    const consentResearch = Math.random() < 0.85;
+    const anonymizationOptOut = consentResearch ? Math.random() < 0.08 : false;
+    const dataQualityScore = 65 + Math.floor(Math.random() * 34);
+    const ordinal = String(index + 1).padStart(4, '0');
+
+    await upsertProfile({
+      fullName: `${pickOne(FIRST_NAMES)} ${pickOne(LAST_NAMES)}`,
+      email: `teacher${ordinal}@mock.starlink.local`,
+      occupation: chooseOccupation(years),
+      region,
+      division,
+      school: buildSchoolName({ division, schoolType, ordinal }),
+      qualificationLevel: chooseQualification(years),
+      gender: pickOne(['Female', 'Male']),
+      ageBracket: pickOne(['25-34', '35-44', '45-54']),
+      subjects,
+      trainingHistory,
+      starParticipationStatus: chooseParticipationStatus(years),
+      consentDataProcessing,
+      consentResearch,
+      anonymizationOptOut,
+      consentVersion: 'v1.0',
+      dataQualityScore,
+      years,
+      role: 'teacher',
+    });
+
+    regionCount.set(region, (regionCount.get(region) ?? 0) + 1);
+    schoolTypeCount.set(schoolType, (schoolTypeCount.get(schoolType) ?? 0) + 1);
+
+    if ((index + 1) % 200 === 0) {
+      console.log(`Seeded ${index + 1}/${totalCount} mock teacher profiles`);
+    }
+  }
+
+  console.log('Region distribution sample:', Object.fromEntries(regionCount.entries()));
+  console.log('School type distribution sample:', Object.fromEntries(schoolTypeCount.entries()));
+}
+
 async function upsertProfile(profile) {
   const occupation = profile.occupation ?? 'Teacher I';
   const division = profile.division ?? 'Not specified';
@@ -274,6 +596,11 @@ const adminId = await upsertProfile({
   years: 12,
   role: 'admin',
 });
+
+const MOCK_PROFILE_COUNT = Number.parseInt(process.env.MOCK_PROFILE_COUNT ?? '1000', 10);
+if (!Number.isNaN(MOCK_PROFILE_COUNT) && MOCK_PROFILE_COUNT > 0) {
+  await seedMockTeacherProfiles(MOCK_PROFILE_COUNT);
+}
 
 await insertForumPostIfMissing({
   title: 'Implementing Project-Based Learning in Off-grid Areas',

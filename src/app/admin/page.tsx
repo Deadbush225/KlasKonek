@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import adminStyles from './admin.module.css';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, hasAcceptedLatestTerms } from '@/lib/auth';
 import { getPendingForumTopics, getPendingResources } from '@/lib/community';
 import { getRegionalInsightsDashboard } from '@/lib/regional-insights';
 import { getRecentAuditLogs } from '@/lib/audit';
@@ -23,6 +23,7 @@ type PageProps = {
 
 type AdminTabId =
   | 'regional'
+  | 'twinning'
   | 'notifications'
   | 'privacy'
   | 'freshness'
@@ -38,6 +39,10 @@ export default async function AdminPage({ searchParams }: PageProps) {
 
   if (!user) {
     redirect('/login');
+  }
+
+  if (!hasAcceptedLatestTerms(user)) {
+    redirect('/hub');
   }
 
   if (user.role !== 'admin') {
@@ -59,6 +64,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
 
   const tabs: Array<{ id: AdminTabId; label: string }> = [
     { id: 'regional', label: 'Regional Dashboard' },
+    { id: 'twinning', label: `Twinning Targets (${insights.twinningTargets.length})` },
     { id: 'notifications', label: `Notifications (${unreadNotifications})` },
     { id: 'privacy', label: 'Privacy & Consent' },
     { id: 'freshness', label: 'Data Freshness' },
@@ -81,9 +87,14 @@ export default async function AdminPage({ searchParams }: PageProps) {
             Approve or reject pending document uploads and community forum topics before they go public.
           </p>
         </div>
-        <Link href="/profile" className="btn btn-secondary" style={{ height: 'fit-content' }}>
-          Back to Profile
-        </Link>
+        <div className={adminStyles.exportActions}>
+          <a href="/api/admin/reports?type=annual-planning" className="btn btn-primary">Export Annual Planning CSV</a>
+          <a href="/api/admin/reports?type=twinning-targets" className="btn btn-secondary">Export Twinning Targets CSV</a>
+          <a href="/api/admin/reports?type=school-activity" className="btn btn-secondary">Export School Activity CSV</a>
+          <Link href="/profile" className="btn btn-secondary" style={{ height: 'fit-content' }}>
+            Back to Profile
+          </Link>
+        </div>
       </header>
 
       {moderated === '1' ? (
@@ -135,6 +146,64 @@ export default async function AdminPage({ searchParams }: PageProps) {
                 {item.link_url ? (
                   <Link href={item.link_url} className={adminStyles.inlineLink}>Open related page</Link>
                 ) : null}
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+      ) : null}
+
+      {activeTab === 'twinning' ? (
+      <section className={adminStyles.section}>
+        <h2 className={adminStyles.sectionTitle}>Isolated-School Twinning Intervention</h2>
+        <p className={adminStyles.meta} style={{ marginBottom: '0.8rem' }}>
+          Workflow uses approved forum topics, approved resource sharing, and forum comment activity to detect low-collaboration schools
+          and match them with higher-activity mentor schools.
+        </p>
+
+        {insights.twinningTargets.length === 0 ? (
+          <div className="card">
+            <p className={adminStyles.empty}>No twinning targets detected yet. Continue collecting school-level collaboration activity.</p>
+          </div>
+        ) : (
+          <div className={adminStyles.queue}>
+            {insights.twinningTargets.slice(0, 20).map((target) => (
+              <article key={`${target.region}:${target.targetSchool}`} className="card">
+                <div className={adminStyles.itemHeader}>
+                  <h3>{REGION_DISPLAY_NAMES[target.region] ?? target.region}</h3>
+                  <span className={adminStyles.riskBadge}>Priority {target.priorityScore}</span>
+                </div>
+                <p className={adminStyles.meta}>Target School: {target.targetSchool}</p>
+                <p className={adminStyles.meta}>Target Activity Score: {target.targetActivityScore} • Teachers: {target.targetTeacherCount}</p>
+                <p className={adminStyles.meta}>
+                  Mentor School: {target.mentorSchool ?? 'No high-activity mentor school yet'}
+                  {target.mentorSchool ? ` • Mentor Activity Score: ${target.mentorActivityScore}` : ''}
+                </p>
+                <p className={adminStyles.description}>{target.rationale}</p>
+              </article>
+            ))}
+          </div>
+        )}
+
+        <h3 className={adminStyles.subSectionTitle}>School Activity Snapshots</h3>
+        {insights.schoolActivity.length === 0 ? (
+          <div className="card">
+            <p className={adminStyles.empty}>No school activity snapshots available yet.</p>
+          </div>
+        ) : (
+          <div className={adminStyles.analyticsGrid}>
+            {insights.schoolActivity.slice(0, 24).map((school) => (
+              <article key={`${school.region}:${school.school}`} className="card">
+                <div className={adminStyles.itemHeader}>
+                  <h3>{school.school}</h3>
+                  <span className={school.isIsolated ? adminStyles.riskBadge : adminStyles.metricBadge}>
+                    {school.isIsolated ? 'ISOLATED' : 'ACTIVE'}
+                  </span>
+                </div>
+                <p className={adminStyles.meta}>Region: {REGION_DISPLAY_NAMES[school.region] ?? school.region}</p>
+                <p className={adminStyles.meta}>Teachers: {school.teacherCount}</p>
+                <p className={adminStyles.meta}>Topics: {school.forumTopicCount} • Comments: {school.forumCommentCount} • Shared Resources: {school.resourceShareCount}</p>
+                <p className={adminStyles.meta}>Activity Score: {school.activityScore} • Per Teacher: {school.activityPerTeacher}</p>
               </article>
             ))}
           </div>
@@ -431,7 +500,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
                   <span className={adminStyles.badge}>Pending</span>
                 </div>
                 <p className={adminStyles.meta}>
-                  Posted by {topic.author_name} • {topic.region} • {topic.category}
+                  Posted by {topic.author_name} • {topic.region} - {topic.division} • {topic.category}
                 </p>
                 <p className={adminStyles.description}>{topic.content}</p>
                 <div className={adminStyles.actions}>
