@@ -8,8 +8,20 @@ import { PHILIPPINE_REGIONS_SHORT, REGION_DISPLAY_NAMES, REGION_DIVISIONS_BY_REG
 import { formatDateTimeNoSeconds } from '@/lib/date-format';
 
 type PageProps = {
-  searchParams: Promise<{ submitted?: string; region?: string; division?: string; sort?: string; q?: string; removedTopic?: string }>;
+  searchParams: Promise<{ submitted?: string; region?: string; division?: string; sort?: string; q?: string; removedTopic?: string; category?: string }>;
 };
+
+const FORUM_CATEGORIES = [
+  'Curriculum',
+  'Lab & Field Work',
+  'Professional Development',
+  'Technology',
+  'Assessment',
+  'Community',
+  'Career Growth',
+  'Policy & Advocacy',
+  'General',
+];
 
 function getAvatarByName(name: string) {
   const normalized = name.toLowerCase();
@@ -50,12 +62,13 @@ function ClockIcon() {
 }
 
 export default async function ForumPage({ searchParams }: PageProps) {
-  const { submitted, region, division, sort, q, removedTopic } = await searchParams;
+  const { submitted, region, division, sort, q, removedTopic, category } = await searchParams;
   const [topics, user] = await Promise.all([getForumTopics(), getCurrentUser()]);
   const activeRegion = PHILIPPINE_REGIONS_SHORT.includes(region ?? '') ? (region as string) : null;
   const activeRegionDivisions = activeRegion ? (REGION_DIVISIONS_BY_REGION[activeRegion] ?? []) : [];
   const activeDivision = activeRegionDivisions.includes(division ?? '') ? (division as string) : null;
   const activeSort = sort === 'most_comments' || sort === 'most_upvotes' ? sort : 'recent';
+  const activeCategory = FORUM_CATEGORIES.includes(category ?? '') ? (category as string) : null;
   const normalizedQuery = String(q ?? '').trim();
   const normalizedQueryLower = normalizedQuery.toLowerCase();
 
@@ -84,7 +97,11 @@ export default async function ForumPage({ searchParams }: PageProps) {
     })
     : filteredTopicsBase;
 
-  const filteredTopics = [...filteredTopicsByQuery].sort((a, b) => {
+  const filteredTopicsByCategory = activeCategory
+    ? filteredTopicsByQuery.filter((topic) => topic.category === activeCategory)
+    : filteredTopicsByQuery;
+
+  const filteredTopics = [...filteredTopicsByCategory].sort((a, b) => {
     if (activeSort === 'most_comments') {
       if (b.comment_count !== a.comment_count) return b.comment_count - a.comment_count;
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -106,6 +123,7 @@ export default async function ForumPage({ searchParams }: PageProps) {
   if (activeRegion) returnToParams.set('region', activeRegion);
   if (activeDivision) returnToParams.set('division', activeDivision);
   if (activeSort !== 'recent') returnToParams.set('sort', activeSort);
+  if (activeCategory) returnToParams.set('category', activeCategory);
   if (normalizedQuery) returnToParams.set('q', normalizedQuery);
   const returnTo = `/forum${returnToParams.toString() ? `?${returnToParams.toString()}` : ''}`;
 
@@ -123,6 +141,10 @@ export default async function ForumPage({ searchParams }: PageProps) {
 
     if (activeSort !== 'recent') {
       params.set('sort', activeSort);
+    }
+
+    if (activeCategory) {
+      params.set('category', activeCategory);
     }
 
     if (normalizedQuery) {
@@ -231,6 +253,13 @@ export default async function ForumPage({ searchParams }: PageProps) {
               <option value="recent">Most Recent</option>
               <option value="most_comments">Most Comments</option>
               <option value="most_upvotes">Most Upvotes</option>
+            </select>
+            <label htmlFor="category" className={forumStyles.sortLabel}>Category</label>
+            <select id="category" name="category" defaultValue={activeCategory ?? ''} className={forumStyles.sortSelect}>
+              <option value="">All Categories</option>
+              {FORUM_CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
             </select>
             <label htmlFor="q" className={forumStyles.sortLabel}>Keyword</label>
             <input

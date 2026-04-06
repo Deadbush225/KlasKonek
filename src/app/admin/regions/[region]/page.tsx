@@ -8,7 +8,7 @@ import { formatDateTimeNoSeconds } from '@/lib/date-format';
 
 type PageProps = {
   params: Promise<{ region: string }>;
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; division?: string }>;
 };
 
 export default async function AdminRegionProfilePage({ params, searchParams }: PageProps) {
@@ -34,16 +34,30 @@ export default async function AdminRegionProfilePage({ params, searchParams }: P
   }
 
   const details = await getRegionProfileDetails(region);
-  const { q } = await searchParams;
+  const { q, division } = await searchParams;
   const teacherQuery = q?.trim() ?? '';
   const normalizedTeacherQuery = teacherQuery.toLowerCase();
+  const selectedDivision = division?.trim() ?? '';
 
-  const filteredTeachers = normalizedTeacherQuery
-    ? details.teachers.filter((teacher) => (
+  // Get unique divisions for filter
+  const allDivisions = [...new Set(details.teachers.map((t) => t.division).filter(Boolean))].sort();
+
+  // Filter teachers
+  let filteredTeachers = details.teachers;
+
+  if (selectedDivision) {
+    filteredTeachers = filteredTeachers.filter((teacher) => teacher.division === selectedDivision);
+  }
+
+  if (normalizedTeacherQuery) {
+    filteredTeachers = filteredTeachers.filter((teacher) => (
       teacher.fullName.toLowerCase().includes(normalizedTeacherQuery)
       || teacher.starId.toLowerCase().includes(normalizedTeacherQuery)
-    ))
-    : details.teachers;
+    ));
+  }
+
+  // Sort alphabetically
+  filteredTeachers = [...filteredTeachers].sort((a, b) => a.fullName.localeCompare(b.fullName));
 
   return (
     <div className={regionStyles.pageContainer}>
@@ -51,7 +65,7 @@ export default async function AdminRegionProfilePage({ params, searchParams }: P
         <div>
           <h1>{REGION_DISPLAY_NAMES[region] ?? region}</h1>
           <p>
-            Regional profile deep dive with teacher directory, qualification coverage, participation, consent, and data quality indicators.
+            Regional profile with teacher directory, qualification coverage, participation, and data quality indicators.
           </p>
         </div>
         <Link href="/admin" className="btn btn-secondary">Back to Admin Dashboard</Link>
@@ -135,22 +149,33 @@ export default async function AdminRegionProfilePage({ params, searchParams }: P
         <h2 className={regionStyles.sectionTitle}>Teacher Directory</h2>
         <div className={`${regionStyles.searchBar} card`}>
           <form method="get" className={regionStyles.searchForm}>
-            <label htmlFor="teacher-search" className={regionStyles.searchLabel}>Search by teacher name or STAR ID</label>
             <div className={regionStyles.searchControls}>
+              <select name="division" defaultValue={selectedDivision} className={regionStyles.divisionSelect}>
+                <option value="">All Divisions</option>
+                {allDivisions.map((div) => (
+                  <option key={div} value={div}>{div}</option>
+                ))}
+              </select>
               <input
                 id="teacher-search"
                 name="q"
                 type="search"
-                placeholder="e.g. Juana Cruz or STAR-2024-001"
+                placeholder="Search by name or STAR ID…"
                 defaultValue={teacherQuery}
               />
-              <button type="submit" className="btn btn-secondary">Search</button>
-              {teacherQuery ? (
+              <button type="submit" className="btn btn-primary">Search</button>
+              {(teacherQuery || selectedDivision) ? (
                 <Link href={`/admin/regions/${encodeURIComponent(region)}`} className="btn btn-secondary">Reset</Link>
               ) : null}
             </div>
           </form>
         </div>
+
+        <p className={regionStyles.resultCount}>
+          Showing {filteredTeachers.length} of {details.teachers.length} teachers
+          {selectedDivision ? ` in ${selectedDivision}` : ''}
+          {teacherQuery ? ` matching "${teacherQuery}"` : ''}
+        </p>
 
         {details.teachers.length === 0 ? (
           <div className="card">
@@ -158,32 +183,31 @@ export default async function AdminRegionProfilePage({ params, searchParams }: P
           </div>
         ) : filteredTeachers.length === 0 ? (
           <div className="card">
-            <p className={regionStyles.empty}>No teachers match &quot;{teacherQuery}&quot; in this region.</p>
+            <p className={regionStyles.empty}>No teachers match your current filters.</p>
           </div>
         ) : (
-          <div className={regionStyles.teacherGrid}>
+          <div className={regionStyles.teacherList}>
+            <div className={regionStyles.teacherListHeader}>
+              <span className={regionStyles.colName}>Name</span>
+              <span className={regionStyles.colStarId}>STAR ID</span>
+              <span className={regionStyles.colOccupation}>Occupation</span>
+              <span className={regionStyles.colSchool}>School</span>
+              <span className={regionStyles.colAction}></span>
+            </div>
             {filteredTeachers.map((teacher) => (
-              <article key={teacher.id} className="card">
-                <div className={regionStyles.teacherHeader}>
-                  <h3>{teacher.fullName}</h3>
-                  <span className={regionStyles.qualityBadge}>DQ {teacher.dataQualityScore}</span>
-                </div>
-                <p className={regionStyles.meta}><strong>STAR ID:</strong> {teacher.starId}</p>
-                <p className={regionStyles.meta}><strong>Occupation:</strong> {teacher.occupation}</p>
-                <p className={regionStyles.meta}><strong>Division:</strong> {teacher.division}</p>
-                <p className={regionStyles.meta}><strong>School:</strong> {teacher.school}</p>
-                <p className={regionStyles.meta}><strong>Qualification:</strong> {teacher.qualificationLevel}</p>
-                <p className={regionStyles.meta}><strong>Experience:</strong> {teacher.yearsOfExperience} years</p>
-                <p className={regionStyles.meta}><strong>Participation:</strong> {teacher.starParticipationStatus}</p>
-                <p className={regionStyles.meta}>
-                  <strong>Consent:</strong> Processing {teacher.consentDataProcessing ? 'Yes' : 'No'} | Research {teacher.consentResearch ? 'Yes' : 'No'} | Opt-out {teacher.anonymizationOptOut ? 'Yes' : 'No'}
-                </p>
-                <p className={regionStyles.meta}><strong>Updated:</strong> {formatDateTimeNoSeconds(teacher.profileLastUpdatedAt)}</p>
-                <p className={regionStyles.meta}>
-                  <strong>Subjects:</strong> {teacher.subjectsTaught.length > 0 ? teacher.subjectsTaught.join(', ') : 'Not specified'}
-                </p>
-                <Link href={`/profile/${teacher.id}`} className={regionStyles.profileLink}>Open profile</Link>
-              </article>
+              <div key={teacher.id} className={regionStyles.teacherRow}>
+                <span className={regionStyles.colName}>
+                  <strong>{teacher.fullName}</strong>
+                </span>
+                <span className={regionStyles.colStarId}>{teacher.starId}</span>
+                <span className={regionStyles.colOccupation}>{teacher.occupation}</span>
+                <span className={regionStyles.colSchool}>{teacher.school}</span>
+                <span className={regionStyles.colAction}>
+                  <Link href={`/profile/${teacher.id}`} className={regionStyles.profileLink}>
+                    Open Profile
+                  </Link>
+                </span>
+              </div>
             ))}
           </div>
         )}

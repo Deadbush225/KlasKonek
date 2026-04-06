@@ -16,12 +16,15 @@
     "@vercel/blob": "^2.3.3",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7",
     "leaflet": "^1.9.4",
     "next": "16.2.2",
     "next-auth": "^5.0.0-beta.30",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-leaflet": "^5.0.0"
+    "react-leaflet": "^5.0.0",
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

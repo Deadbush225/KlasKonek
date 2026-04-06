@@ -279,6 +279,43 @@
   background: var(--secondary-accent-hover);
 }
 
+.fileDropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1.5rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  text-align: center;
+}
+
+.fileDropzone:hover {
+  border-color: var(--primary-blue);
+  background: var(--secondary-accent);
+}
+
+.fileDropzoneActive {
+  border-color: var(--primary-blue);
+  background: var(--secondary-accent);
+}
+
+.fileDropzoneLabel {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.fileDropzoneHint {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+
 .formRow input:focus,
 .formRow textarea:focus,
 .formGrid input:focus,
@@ -317,5 +354,17 @@
   .cardActions {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .title {
+    font-size: 1.65rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  .filterSelect {
+    width: 100%;
   }
 }

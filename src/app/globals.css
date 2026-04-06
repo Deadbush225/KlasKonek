@@ -295,3 +295,19 @@ button {
     text-align: center;
   }
 }
+
+/* Custom Scrollbar for Dark/Light Mode Adaptability */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

@@ -1,0 +1,360 @@
+/* ── KPI Row ─────────────────────────────────── */
+
+.kpiRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpiCard {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 1.4rem 1rem !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.kpiCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 1.5rem 1.5rem 0 0;
+  background: var(--primary-blue);
+}
+
+.kpiIcon {
+  font-size: 1.5rem;
+  margin-bottom: 0.15rem;
+}
+
+.kpiValue {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--foreground);
+}
+
+.kpiLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Chart Grid ──────────────────────────────── */
+
+.chartGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.chartCard {
+  padding: 1.25rem !important;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chartCardWide {
+  grid-column: 1 / -1;
+  padding: 1.25rem !important;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chartTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 0.15rem;
+}
+
+.chartSubtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.chartBody {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+/* ── Alerts Section ──────────────────────────── */
+
+.alertsSection {
+  margin-top: 1.5rem;
+}
+
+.alertsTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.alertGrid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.alertCard {
+  padding: 1rem 1.25rem !important;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border-left: 3px solid transparent;
+}
+
+.alertCritical {
+  border-left-color: #b91c1c;
+}
+
+.alertWarning {
+  border-left-color: #b8860b;
+}
+
+.alertHealthy {
+  border-left-color: #22c55e;
+}
+
+.alertIcon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.alertBody {
+  flex: 1;
+}
+
+.alertRegion {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--foreground);
+}
+
+.alertDetail {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.alertMeta {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ── Comparison View ─────────────────────────── */
+
+.compareControls {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.compareField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.compareFieldLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.compareSelect {
+  padding: 0.55rem 0.8rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.compareMetrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.compareSummaryCard {
+  padding: 1.25rem !important;
+}
+
+.compareSummaryTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.compareSummaryTitleA {
+  border-bottom-color: var(--primary-blue);
+}
+
+.compareSummaryTitleB {
+  border-bottom-color: #b8860b;
+}
+
+.compareStatRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.08);
+}
+
+.compareStatLabel {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.compareStatValue {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.compareEmpty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+}
+
+.compareEmptyIcon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.compareEmptyText {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.compareEmptyHint {
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+
+/* ── Comparison Table ────────────────────────── */
+
+.comparisonTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.comparisonTable th {
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  padding: 0.6rem 0.75rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.comparisonTable td {
+  font-size: 0.88rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.08);
+  color: var(--foreground);
+}
+
+.comparisonTable tr:last-child td {
+  border-bottom: none;
+}
+
+.deltaPositive {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.deltaNegative {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.deltaNeutral {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ── Recharts Tooltip Override ────────────────── */
+
+.tooltipBox {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.5rem 0.75rem !important;
+  box-shadow: var(--shadow-md) !important;
+  font-size: 0.82rem !important;
+}
+
+/* ── Responsive ──────────────────────────────── */
+
+@media (max-width: 900px) {
+  .chartGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .chartCardWide {
+    grid-column: 1;
+  }
+
+  .compareMetrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .kpiRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .compareControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .compareField {
+    min-width: 0;
+  }
+}

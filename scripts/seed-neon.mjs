@@ -301,6 +301,41 @@ function buildSchoolName({ division, schoolType, ordinal }) {
   return `${division} ${template} (${toSchoolTypeLabel(schoolType)}) ${ordinal}`;
 }
 
+// Regions that should have lower STAR participation and more data gaps
+const LOW_ACCESS_REGIONS = new Set(['BARMM', 'CAR', 'Region IV-B', 'Region IX', 'Region XIII']);
+const MODERATE_GAP_REGIONS = new Set(['Region VIII', 'Region V', 'Region XII']);
+
+function chooseParticipationStatusForRegion(years, region) {
+  // Low-access regions: many teachers haven't participated
+  if (LOW_ACCESS_REGIONS.has(region)) {
+    if (years >= 14) return pickOne(['Alumni', 'Active Participant', 'Applied', 'Not Yet Participated']);
+    if (years >= 7) return pickOne(['Applied', 'Not Yet Participated', 'Interested', 'Active Participant']);
+    return pickOne(['Not Yet Participated', 'Interested', 'Not Yet Participated']);
+  }
+  if (MODERATE_GAP_REGIONS.has(region)) {
+    if (years >= 10) return pickOne(['Active Participant', 'Alumni', 'Applied']);
+    if (years >= 4) return pickOne(['Applied', 'Interested', 'Active Participant']);
+    return pickOne(['Interested', 'Not Yet Participated', 'Applied']);
+  }
+  return chooseParticipationStatus(years);
+}
+
+// Return a realistic profile_last_updated_at with temporal variety
+function chooseProfileUpdatedAt(region) {
+  const now = new Date();
+  // Low-access regions have stale profiles
+  if (LOW_ACCESS_REGIONS.has(region)) {
+    const daysAgo = 60 + Math.floor(Math.random() * 300);
+    return new Date(now.getTime() - daysAgo * 86400000).toISOString();
+  }
+  if (MODERATE_GAP_REGIONS.has(region)) {
+    const daysAgo = 14 + Math.floor(Math.random() * 120);
+    return new Date(now.getTime() - daysAgo * 86400000).toISOString();
+  }
+  const daysAgo = Math.floor(Math.random() * 45);
+  return new Date(now.getTime() - daysAgo * 86400000).toISOString();
+}
+
 async function seedMockTeacherProfiles(totalCount = 1000) {
   const regionCount = new Map(Object.keys(REGION_DIVISION_POOL).map((region) => [region, 0]));
   const schoolTypeCount = new Map([
@@ -321,39 +356,76 @@ async function seedMockTeacherProfiles(totalCount = 1000) {
       return `${year} ${item}`;
     });
 
-    const consentDataProcessing = true;
-    const consentResearch = Math.random() < 0.85;
-    const anonymizationOptOut = consentResearch ? Math.random() < 0.08 : false;
-    const dataQualityScore = 65 + Math.floor(Math.random() * 34);
     const ordinal = String(index + 1).padStart(4, '0');
+
+    // --- Introduce realistic data gaps ---
+    const isLowAccess = LOW_ACCESS_REGIONS.has(region);
+    const isModerateGap = MODERATE_GAP_REGIONS.has(region);
+    const gapRoll = Math.random();
+
+    // ~45% of low-access, ~25% of moderate, ~8% of others have incomplete profiles
+    const hasGap = isLowAccess ? gapRoll < 0.45 : isModerateGap ? gapRoll < 0.25 : gapRoll < 0.08;
+
+    let finalDivision = division;
+    let finalQualification = chooseQualification(years);
+    let finalSubjects = subjects;
+    let finalConsentDataProcessing = true;
+    let finalConsentResearch = Math.random() < 0.85;
+    let finalProfileUpdatedAt = chooseProfileUpdatedAt(region);
+
+    if (hasGap) {
+      // Apply MULTIPLE gaps per profile for realistic incompleteness
+      if (Math.random() < 0.4) {
+        finalDivision = '';
+      }
+      if (Math.random() < 0.35) {
+        finalQualification = 'Not Specified';
+      }
+      if (Math.random() < 0.3) {
+        finalSubjects = [];
+      }
+      if (Math.random() < 0.25) {
+        finalConsentDataProcessing = false;
+        finalProfileUpdatedAt = null;
+      }
+      if (Math.random() < 0.2) {
+        finalConsentResearch = false;
+      }
+    }
+
+    const anonymizationOptOut = finalConsentResearch ? Math.random() < 0.08 : false;
+    const dataQualityScore = hasGap
+      ? (35 + Math.floor(Math.random() * 40))
+      : (65 + Math.floor(Math.random() * 34));
 
     await upsertProfile({
       fullName: `${pickOne(FIRST_NAMES)} ${pickOne(LAST_NAMES)}`,
-      email: `teacher${ordinal}@mock.starlink.local`,
+      email: `teacher${ordinal}@starlink.edu.ph`,
       occupation: chooseOccupation(years),
       region,
-      division,
-      school: buildSchoolName({ division, schoolType, ordinal }),
-      qualificationLevel: chooseQualification(years),
+      division: finalDivision,
+      school: buildSchoolName({ division: division || region, schoolType, ordinal }),
+      qualificationLevel: finalQualification,
       gender: pickOne(['Female', 'Male']),
       ageBracket: pickOne(['25-34', '35-44', '45-54']),
-      subjects,
+      subjects: finalSubjects,
       trainingHistory,
-      starParticipationStatus: chooseParticipationStatus(years),
-      consentDataProcessing,
-      consentResearch,
+      starParticipationStatus: chooseParticipationStatusForRegion(years, region),
+      consentDataProcessing: finalConsentDataProcessing,
+      consentResearch: finalConsentResearch,
       anonymizationOptOut,
       consentVersion: 'v1.0',
       dataQualityScore,
       years,
       role: 'teacher',
+      profileUpdatedAt: finalProfileUpdatedAt,
     });
 
     regionCount.set(region, (regionCount.get(region) ?? 0) + 1);
     schoolTypeCount.set(schoolType, (schoolTypeCount.get(schoolType) ?? 0) + 1);
 
     if ((index + 1) % 200 === 0) {
-      console.log(`Seeded ${index + 1}/${totalCount} mock teacher profiles`);
+      console.log(`Seeded ${index + 1}/${totalCount} teacher profiles`);
     }
   }
 
@@ -445,7 +517,7 @@ async function upsertProfile(profile) {
       consentVersion,
       consentDataProcessing ? new Date().toISOString() : null,
       anonymizationOptOut,
-      new Date().toISOString(),
+      profile.profileUpdatedAt ?? new Date().toISOString(),
       profile.years,
       dataQualityScore,
       profile.role,
@@ -460,9 +532,9 @@ async function insertForumPostIfMissing(post) {
 
   if (existing.rowCount === 0) {
     await pool.query(
-      `insert into forum_posts (id, title, content, region, category, moderation_status, author_id)
-       values ($1, $2, $3, $4, $5, $6, $7)`,
-      [crypto.randomUUID(), post.title, post.content, post.region, post.category, 'approved', post.authorId]
+      `insert into forum_posts (id, title, content, region, division, category, moderation_status, author_id)
+       values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [crypto.randomUUID(), post.title, post.content, post.region, post.division ?? 'Not specified', post.category, 'approved', post.authorId]
     );
   }
 }
@@ -602,48 +674,155 @@ if (!Number.isNaN(MOCK_PROFILE_COUNT) && MOCK_PROFILE_COUNT > 0) {
   await seedMockTeacherProfiles(MOCK_PROFILE_COUNT);
 }
 
+// ── Forum Posts: Diverse, realistic, with division info ──────────────
+
 await insertForumPostIfMissing({
-  title: 'Implementing Project-Based Learning in Off-grid Areas',
+  title: 'Setting up a low-cost science lab for mountainous schools',
   content:
-    'Looking for practical ways to run project-based science learning when internet access is limited and lab materials are scarce.',
+    'Our schools in upland Benguet have very limited resources for lab experiments. We\'ve been improvising with local materials—bamboo test tube racks, boiled vinegar for acid-base tests, etc. Would love to hear how other highland schools manage to maintain quality hands-on science instruction.',
   region: 'CAR',
-  category: 'Pedagogy',
-  authorId: janelId,
+  division: 'Benguet',
+  category: 'Lab & Field Work',
+  authorId: christineId,
 });
 
 await insertForumPostIfMissing({
-  title: 'Integrating AI tools in senior high STEM classes',
+  title: 'Bridging the gap: Math remediation strategies for senior high',
   content:
-    'Has anyone piloted AI-assisted lesson planning for STEM electives? Sharing rubrics and guardrails would help.',
+    'Many of our Grade 11 learners in Quezon City are entering STEM track with weak algebra foundations. We\'ve tried peer tutoring programs but turnout is inconsistent. Has anyone successfully implemented a structured remediation module that actually works for large class sizes?',
   region: 'NCR',
-  category: 'Resources',
+  division: 'Quezon City',
+  category: 'Curriculum',
   authorId: adrielId,
 });
 
 await insertForumPostIfMissing({
-  title: 'Low-cost math modeling activities for large classes',
+  title: 'AI-powered lesson plan generators: Are they worth it?',
   content:
-    'Need strategies for running modeling activities with 50+ learners and limited devices.',
+    'I\'ve been experimenting with ChatGPT and Gemini to generate differentiated lesson plans for my Biology classes. The outputs are decent but often miss the DepEd competency alignment. Are there any purpose-built tools for Philippine teachers? Sharing my rubric for evaluating AI-generated content.',
+  region: 'NCR',
+  division: 'Quezon City',
+  category: 'Technology',
+  authorId: adrielId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Effective mentorship models for new STEM teachers',
+  content:
+    'We recently onboarded 8 new Teacher I hires in our district, all fresh from pre-service. Our veteran teachers are willing to mentor, but we lack a structured framework. Looking for successful buddy-system or co-teaching models that have worked in other divisions.',
   region: 'Region IV-A',
-  category: 'Pedagogy',
+  division: 'Laguna',
+  category: 'Professional Development',
   authorId: gemId,
 });
 
 await insertForumPostIfMissing({
-  title: 'Need ideas for biodiversity fieldwork alternatives',
+  title: 'Using localized data projects to teach Statistics',
   content:
-    'Weather disruptions are frequent in our area. What classroom alternatives can preserve inquiry quality?',
+    'Instead of textbook datasets, I have my students collect real municipal data—rice yields, rainfall, population growth—for our Statistics and Probability class. It\'s been great for engagement. Happy to share our activity sheets and assessment rubrics for anyone who wants to try this approach.',
+  region: 'Region IV-A',
+  division: 'Laguna',
+  category: 'Curriculum',
+  authorId: gemId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Biodiversity mapping as an alternative to traditional lab work',
+  content:
+    'Frequent typhoons in Ilocos Norte make it nearly impossible to schedule outdoor fieldwork consistently. We\'ve shifted to a semester-long biodiversity mapping project where students document species in their barangays during clear weather windows. It preserves inquiry quality while being flexible.',
   region: 'Region I',
-  category: 'Mentorship',
+  division: 'Ilocos Norte',
+  category: 'Lab & Field Work',
   authorId: martiId,
 });
 
 await insertForumPostIfMissing({
-  title: 'How to scale extension projects across districts',
+  title: 'How do you handle assessment for large STEM classes?',
   content:
-    'Looking for a framework to replicate science outreach projects in neighboring districts without losing quality.',
+    'With 55+ learners per section, traditional lab practicals and individual assessments are a logistical nightmare. I\'ve been shifting to portfolio-based assessment with group lab reports. Looking for advice on rubric design that ensures individual accountability within group work.',
+  region: 'Region I',
+  division: 'Ilocos Norte',
+  category: 'Assessment',
+  authorId: martiId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Scaling STAR-trained teacher practices to neighboring districts',
+  content:
+    'After completing the STAR Mentor Training, I\'ve been trying to cascade what I learned to schools in Abra and Benguet. The challenge is that each district has different resource levels. Has anyone developed a flexible cascade framework that adapts to varying school contexts?',
   region: 'CAR',
-  category: 'General',
+  division: 'Baguio City',
+  category: 'Professional Development',
+  authorId: christineId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Career pathways for science teachers: From T1 to Master Teacher',
+  content:
+    'I\'m a Teacher II looking to understand the requirements and timeline for progressing to Master Teacher. For those who\'ve made the climb—what were the most impactful actions you took? Was completing a Master\'s degree the main factor, or did action research publications matter more?',
+  region: 'Region III',
+  division: 'Pampanga',
+  category: 'Career Growth',
+  authorId: janelId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Project-based learning in Physics: Real-world engineering challenges',
+  content:
+    'Sharing our experience with a bridge-building competition as a culminating activity for Grade 10 Physics. Students applied concepts of force, tension, and structural integrity using popsicle sticks. Great for engagement but assessment rubric design was tricky. Open to suggestions!',
+  region: 'Region III',
+  division: 'Pampanga',
+  category: 'Curriculum',
+  authorId: janelId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Advocating for better science lab funding at the division level',
+  content:
+    'Our school has been using the same microscopes since 2012. I\'ve submitted proposals to the division office three years in a row. For those who\'ve successfully secured lab equipment funding—what approach or documentation worked? Was it through MOOE, SEF, or external partnerships?',
+  region: 'Region VII',
+  division: 'Cebu',
+  category: 'Policy & Advocacy',
+  authorId: adminId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Creating STEM community partnerships with local industries',
+  content:
+    'We partnered with a local food processing plant to give our Chemistry students a facility tour and real-world context for quality control and chemical analysis. The students were incredibly engaged. Looking for ideas on how to formalize industry-school partnerships for regular STEM exposure.',
+  region: 'Region VI',
+  division: 'Iloilo',
+  category: 'Community',
+  authorId: adminId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Digital tools for tracking student competency mastery',
+  content:
+    'Has anyone tried using Google Sheets or free LMS platforms to track individual student competency mastery across the quarter? I\'m building a simple tracker for my Math classes but would love to see how others handle this—especially with limited internet access in our area.',
+  region: 'Region V',
+  division: 'Albay',
+  category: 'Technology',
+  authorId: adrielId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Addressing gender gaps in senior high STEM enrollment',
+  content:
+    'In our school, female enrollment in STEM track has been declining over the past 3 years. We\'re planning a "Women in STEM" career talk series with local professionals. Has anyone run similar programs? What made them effective for actually shifting enrollment patterns?',
+  region: 'Region XI',
+  division: 'Davao City',
+  category: 'Community',
+  authorId: gemId,
+});
+
+await insertForumPostIfMissing({
+  title: 'Best practices for Earth Science field activities in coastal areas',
+  content:
+    'Teaching Earth and Environmental Science in a coastal community offers unique opportunities—mangrove ecology, tide patterns, coral reef monitoring. But we struggle with safety protocols and parental consent logistics. Would appreciate any SOPs or risk assessment templates others have developed.',
+  region: 'Region IV-B',
+  division: 'Palawan',
+  category: 'Lab & Field Work',
   authorId: christineId,
 });
 

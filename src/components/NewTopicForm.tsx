@@ -63,9 +63,14 @@ export default function NewTopicForm() {
           Category
           <select name="category" required defaultValue="">
             <option value="" disabled>Pick a category</option>
-            <option value="Pedagogy">Pedagogy</option>
-            <option value="Resources">Resources</option>
-            <option value="Mentorship">Mentorship</option>
+            <option value="Curriculum">Curriculum</option>
+            <option value="Lab & Field Work">Lab & Field Work</option>
+            <option value="Professional Development">Professional Development</option>
+            <option value="Technology">Technology</option>
+            <option value="Assessment">Assessment</option>
+            <option value="Community">Community</option>
+            <option value="Career Growth">Career Growth</option>
+            <option value="Policy & Advocacy">Policy & Advocacy</option>
             <option value="General">General</option>
           </select>
         </label>

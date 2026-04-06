@@ -474,3 +474,8 @@
   .topicMeta { flex-direction: column; align-items: flex-start; gap: 1rem; }
   .formRow { grid-template-columns: 1fr; }
 }
+
+:global([data-theme="dark"]) .category {
+  color: var(--primary-blue-hover) !important;
+  background: rgba(140, 168, 210, 0.15) !important;
+}
