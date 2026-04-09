@@ -65,11 +65,12 @@ export async function loginAction(_state: AuthActionState, formData: FormData) {
     return { error: 'Please provide a valid email address.' } satisfies AuthActionState;
   }
 
+  let toProfile = false;
   try {
     const user = await loginUser({ email, password });
 
     if (hasAcceptedLatestTerms(user)) {
-      redirect('/profile');
+      toProfile = true;
     }
   } catch {
     return {
@@ -77,7 +78,11 @@ export async function loginAction(_state: AuthActionState, formData: FormData) {
     } satisfies AuthActionState;
   }
 
-  redirect('/hub');
+  if (toProfile) {
+    redirect('/profile');
+  } else {
+    redirect('/hub');
+  }
 }
 
 export async function registerAction(_state: AuthActionState, formData: FormData) {
