@@ -1,0 +1,176 @@
+.pageContainer {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  max-width: 680px;
+}
+
+.empty {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  padding: 1rem 0;
+}
+
+.programList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.programCard {
+  border-radius: var(--radius-lg);
+}
+
+.programHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.programTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.statusBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.statusScheduled {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+}
+
+.statusOngoing {
+  background: rgba(234, 179, 8, 0.12);
+  color: #92400e;
+}
+
+.statusCompleted {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+}
+
+.statusCancelled {
+  background: rgba(239, 68, 68, 0.1);
+  color: #991b1b;
+}
+
+.programMeta {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0.2rem 0;
+}
+
+.programType {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: rgba(var(--primary-blue-rgb, 31, 78, 159), 0.08);
+  color: var(--primary-blue);
+}
+
+.feedbackSection {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.feedbackHeading {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 1rem;
+}
+
+.feedbackForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.feedbackRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.feedbackLabel {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.feedbackSelect {
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.9rem;
+  max-width: 320px;
+}
+
+.feedbackTextarea {
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.9rem;
+  resize: vertical;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.feedbackDone {
+  font-size: 0.95rem;
+  color: #15803d;
+  font-weight: 500;
+  margin: 0;
+}
+
+.feedbackError {
+  font-size: 0.88rem;
+  color: #b91c1c;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .pageContainer {
+    padding: 0 1rem;
+  }
+
+  .programHeader {
+    flex-direction: column;
+  }
+}

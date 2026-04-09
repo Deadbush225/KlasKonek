@@ -5,9 +5,11 @@ import { signOutAction } from '../actions/auth';
 import Link from 'next/link';
 import Image from 'next/image';
 import ProfileEditForm from '@/components/ProfileEditForm';
+import { AddTrainingForm } from '@/components/AddTrainingForm';
 import { formatDateTimeNoSeconds } from '@/lib/date-format';
 import { getNotificationsForUser, getUnreadNotificationCount } from '@/lib/notifications';
 import { markAllNotificationsReadAction } from '@/app/actions/notifications';
+import { getTrainingRecordsForTeacher } from '@/lib/training-records';
 
 function getAvatarByName(name: string, role: string) {
   if (role === 'admin') return '/img/admin-profile.png';
@@ -34,9 +36,10 @@ export default async function ProfilePage() {
     redirect('/hub');
   }
 
-  const [notifications, unreadNotifications] = await Promise.all([
+  const [notifications, unreadNotifications, trainingRecords] = await Promise.all([
     getNotificationsForUser(profile.id, 20),
     getUnreadNotificationCount(profile.id),
+    getTrainingRecordsForTeacher(profile.id),
   ]);
 
   return (
@@ -143,18 +146,28 @@ export default async function ProfilePage() {
             <strong>{profile.years_of_experience} Years</strong>
           </div>
           <div className={profileStyles.infoItem}>
-            <span>Training History</span>
-            <div className={profileStyles.tagGrid}>
-              {profile.training_history?.length > 0 ? (
-                profile.training_history.map((item) => (
-                  <span key={item} className={profileStyles.tag}>
-                    {item}
-                  </span>
-                ))
-              ) : (
-                <span className={profileStyles.muted}>No training records yet.</span>
-              )}
-            </div>
+            <span>Structured Training Records ({trainingRecords.length})</span>
+            {trainingRecords.length === 0 ? (
+              <span className={profileStyles.muted}>No structured training records yet.</span>
+            ) : (
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0.5rem 0 0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {trainingRecords.map((record) => (
+                  <li key={record.id} style={{ fontSize: '0.88rem', borderLeft: '3px solid var(--primary-blue)', paddingLeft: '0.75rem' }}>
+                    <strong>{record.program_title}</strong>
+                    {record.training_date ? <span style={{ color: 'var(--text-muted)' }}> · {record.training_date}</span> : null}
+                    {record.duration_hours ? <span style={{ color: 'var(--text-muted)' }}> · {record.duration_hours}h</span> : null}
+                    <br />
+                    <span style={{ color: 'var(--text-muted)' }}>{record.training_type} · {record.provider}</span>
+                    {record.verified ? <span style={{ color: '#15803d', fontWeight: 600, marginLeft: '0.4rem' }}> ✓ Verified</span> : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className={profileStyles.infoItem}>
+            <span>Add Training Record</span>
+            <AddTrainingForm />
           </div>
 
           <div className={profileStyles.editSection}>

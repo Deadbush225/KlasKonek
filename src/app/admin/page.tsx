@@ -10,6 +10,11 @@ import { formatDateTimeNoSeconds } from '@/lib/date-format';
 import { REGION_DISPLAY_NAMES, REGISTRATION_REGIONS } from '@/lib/constants';
 import { getNotificationsForUser, getUnreadNotificationCount } from '@/lib/notifications';
 import { markAllNotificationsReadAction } from '@/app/actions/notifications';
+import { getProgramDeliveries, PROGRAM_TYPES } from '@/lib/program-delivery';
+import { getTrainingGapsByRegion } from '@/lib/training-records';
+import { getAllFeedbackSummaries } from '@/lib/program-feedback';
+import { BulkImportTabContent } from './BulkImportTabContent';
+import { DeliveryTabContent } from './DeliveryTabContent';
 import {
   approveResourceAction,
   rejectResourceAction,
@@ -32,7 +37,11 @@ type AdminTabId =
   | 'underserved'
   | 'segmentation'
   | 'pending-documents'
-  | 'pending-topics';
+  | 'pending-topics'
+  | 'bulk-import'
+  | 'delivery'
+  | 'feedback'
+  | 'training-gaps';
 
 export default async function AdminPage({ searchParams }: PageProps) {
   const user = await getCurrentUser();
@@ -50,13 +59,16 @@ export default async function AdminPage({ searchParams }: PageProps) {
   }
 
   const { moderated, tab } = await searchParams;
-  const [pendingResources, pendingTopics, insights, auditLogs, notifications, unreadNotifications] = await Promise.all([
+  const [pendingResources, pendingTopics, insights, auditLogs, notifications, unreadNotifications, deliveries, trainingGaps, feedbackSummaries] = await Promise.all([
     getPendingResources(),
     getPendingForumTopics(),
     getRegionalInsightsDashboard(),
     getRecentAuditLogs(25),
     getNotificationsForUser(user.id, 20),
     getUnreadNotificationCount(user.id),
+    getProgramDeliveries(),
+    getTrainingGapsByRegion(),
+    getAllFeedbackSummaries(),
   ]);
 
   const needsByRegion = new Map(insights.needsSegmentation.map((item) => [item.region, item]));
@@ -74,6 +86,10 @@ export default async function AdminPage({ searchParams }: PageProps) {
     { id: 'segmentation', label: 'Needs Segmentation' },
     { id: 'pending-documents', label: `Pending Documents (${pendingResources.length})` },
     { id: 'pending-topics', label: `Pending Topics (${pendingTopics.length})` },
+    { id: 'bulk-import', label: 'Bulk Teacher Import' },
+    { id: 'delivery', label: `Program Delivery (${deliveries.length})` },
+    { id: 'feedback', label: `Feedback (${feedbackSummaries.length})` },
+    { id: 'training-gaps', label: 'Training Gaps' },
   ];
 
   const activeTab = tabs.some((item) => item.id === tab) ? (tab as AdminTabId) : 'regional';
@@ -520,6 +536,105 @@ export default async function AdminPage({ searchParams }: PageProps) {
           </div>
         )}
       </section>
+      ) : null}
+
+      {activeTab === 'bulk-import' ? (
+        <section className={adminStyles.section}>
+          <h2 className={adminStyles.sectionTitle}>Bulk Teacher Import</h2>
+          <p className={adminStyles.meta} style={{ marginBottom: '0.8rem' }}>
+            Upload a CSV file to batch-import existing teacher records. Each row is validated against
+            the regional taxonomy before insertion. Duplicates (by email) are skipped.
+            Download the template below to get started.
+          </p>
+          <BulkImportTabContent />
+        </section>
+      ) : null}
+
+      {activeTab === 'delivery' ? (
+        <section className={adminStyles.section}>
+          <h2 className={adminStyles.sectionTitle}>Program Delivery Scheduling</h2>
+          <p className={adminStyles.meta} style={{ marginBottom: '0.8rem' }}>
+            Schedule STAR capacity-building programs for specific regions or nationally.
+            Update status as programs progress from scheduled → ongoing → completed.
+          </p>
+          <DeliveryTabContent deliveries={deliveries} programTypes={[...PROGRAM_TYPES]} regions={['National', ...REGISTRATION_REGIONS]} />
+        </section>
+      ) : null}
+
+      {activeTab === 'feedback' ? (
+        <section className={adminStyles.section}>
+          <h2 className={adminStyles.sectionTitle}>Program Feedback Summaries</h2>
+          <p className={adminStyles.meta} style={{ marginBottom: '0.8rem' }}>
+            Aggregated teacher feedback for each completed or ongoing program delivery.
+          </p>
+          {feedbackSummaries.length === 0 ? (
+            <div className="card">
+              <p className={adminStyles.empty}>No feedback submitted yet. Programs must be completed or ongoing for teachers to submit feedback.</p>
+            </div>
+          ) : (
+            <div className={adminStyles.analyticsGrid}>
+              {feedbackSummaries.map((summary) => {
+                const delivery = deliveries.find((d) => d.id === summary.deliveryId);
+                return (
+                  <article key={summary.deliveryId} className="card">
+                    <h3>{delivery?.title ?? 'Unknown Program'}</h3>
+                    <p className={adminStyles.meta}>Region: {delivery?.target_region ?? '—'}</p>
+                    <p className={adminStyles.meta}>Responses: {summary.totalResponses}</p>
+                    <p className={adminStyles.meta}>Attendance Rate: {summary.attendanceRate}%</p>
+                    <p className={adminStyles.meta}>
+                      Avg Rating: {summary.averageRating !== null ? `${summary.averageRating}/5 ⭐` : 'No ratings'}
+                    </p>
+                    <p className={adminStyles.meta}>
+                      Avg Usefulness: {summary.averageUsefulness !== null ? `${summary.averageUsefulness}/5` : 'No data'}
+                    </p>
+                    {summary.recentComments.length > 0 ? (
+                      <>
+                        <p className={adminStyles.meta} style={{ marginTop: '0.5rem', fontWeight: 600 }}>Recent Comments:</p>
+                        <ul style={{ paddingLeft: '1rem', margin: 0 }}>
+                          {summary.recentComments.map((c, i) => (
+                            <li key={i} className={adminStyles.meta} style={{ fontStyle: 'italic' }}>&ldquo;{c}&rdquo;</li>
+                          ))}
+                        </ul>
+                      </>
+                    ) : null}
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      ) : null}
+
+      {activeTab === 'training-gaps' ? (
+        <section className={adminStyles.section}>
+          <h2 className={adminStyles.sectionTitle}>Training Gap Analysis</h2>
+          <p className={adminStyles.meta} style={{ marginBottom: '0.8rem' }}>
+            Regions sorted by lowest training coverage. Teachers who have no structured training records
+            or no STAR-specific training are flagged for priority outreach.
+          </p>
+          {trainingGaps.length === 0 ? (
+            <div className="card">
+              <p className={adminStyles.empty}>No training records exist yet. Teachers can add structured records from their profile page.</p>
+            </div>
+          ) : (
+            <div className={adminStyles.analyticsGrid}>
+              {trainingGaps.map((gap) => (
+                <article key={gap.region} className="card">
+                  <div className={adminStyles.itemHeader}>
+                    <h3>{REGION_DISPLAY_NAMES[gap.region] ?? gap.region}</h3>
+                    <span className={gap.trainingCoverageRate < 50 ? adminStyles.riskBadge : adminStyles.metricBadge}>
+                      {gap.trainingCoverageRate}% covered
+                    </span>
+                  </div>
+                  <p className={adminStyles.meta}>Total Teachers: {gap.totalTeachers}</p>
+                  <p className={adminStyles.meta}>With any training: {gap.teachersWithTraining} ({gap.trainingCoverageRate}%)</p>
+                  <p className={adminStyles.meta}>With STAR training: {gap.teachersWithStarTraining} ({gap.starTrainingRate}%)</p>
+                  <p className={adminStyles.meta}>Avg training count: {gap.averageTrainingCount}</p>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
       ) : null}
     </div>
   );
