@@ -68,7 +68,7 @@ export default async function RepositoryPage({ searchParams }: PageProps) {
         <div className={repoStyles.titleBlock}>
           <h1 className={repoStyles.title}>Research & Extension Projects</h1>
           <p className={repoStyles.subtitle}>
-            Browse and share the latest research and extension materials across STAR regions.
+            Upload a document to Neon and browse the latest shared research and extension materials.
           </p>
         </div>
         <a href="/repository/upload" className="btn btn-primary" style={{ height: 'fit-content' }}>

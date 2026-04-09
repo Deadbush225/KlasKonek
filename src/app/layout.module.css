@@ -8,7 +8,9 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  /* border-bottom managed by .glass in globals.css */
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 6px 16px rgba(15, 43, 92, 0.06);
 }
 
 .container {

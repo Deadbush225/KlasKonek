@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import layoutStyles from '@/app/layout.module.css';
 import ThemeToggle from './ThemeToggle';
 import { signOutAction } from '@/app/actions/auth';
@@ -18,10 +19,11 @@ export default function Navigation({ currentUser }: NavigationProps) {
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <header className={`${layoutStyles.header} glass`}>
+    <header className={layoutStyles.header}>
       <div className={layoutStyles.container}>
         <div className={layoutStyles.logoArea}>
           <Link href="/" className={layoutStyles.logoText} onClick={closeMenu}>
+            <Image src="/img/favicon.png" alt="STAR-LINK Logo" width={36} height={36} style={{ objectFit: 'contain' }} priority unoptimized />
             <strong>STAR-LINK</strong> <span className={layoutStyles.tagline}>by DOST-SEI</span>
           </Link>
         </div>

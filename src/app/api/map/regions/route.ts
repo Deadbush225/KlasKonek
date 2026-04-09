@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { REGION_DISPLAY_NAMES, REGISTRATION_REGIONS } from '@/lib/constants';
+import { REGION_DISPLAY_NAMES, REGION_DIVISIONS_BY_REGION, REGISTRATION_REGIONS } from '@/lib/constants';
 import { getRegionalInsightsDashboard } from '@/lib/regional-insights';
 import { getMapTimelineFrames } from '@/lib/map-timeline';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 type MapSeverity = 'low' | 'medium' | 'high' | 'critical';
 
@@ -25,6 +25,14 @@ type ActionableInsight = {
   title: string;
   description: string;
   level: 'stable' | 'warning' | 'critical';
+};
+
+type DivisionDensityRankRow = {
+  division: string;
+  teacherCount: number;
+  averageExperience: number;
+  underservedScore: number;
+  densityIndex: number;
 };
 
 function round(value: number, decimals = 2) {
@@ -136,6 +144,62 @@ export async function GET() {
     };
   });
 
+  const divisionDensityByRegion: Record<string, DivisionDensityRankRow[]> = Object.fromEntries(
+    REGISTRATION_REGIONS.map((region) => {
+      const snapshots = insights.divisionSnapshots.filter((item) => item.region === region);
+      const snapshotByDivision = new Map(snapshots.map((item) => [item.division, item]));
+      const configuredDivisions = REGION_DIVISIONS_BY_REGION[region] ?? [];
+
+      const normalizedRows: DivisionDensityRankRow[] = configuredDivisions.map((division) => {
+        const snapshot = snapshotByDivision.get(division);
+
+        return {
+          division,
+          teacherCount: snapshot?.teacherCount ?? 0,
+          averageExperience: snapshot?.averageExperience ?? 0,
+          underservedScore: snapshot?.underservedScore ?? 0,
+          densityIndex: 0,
+        };
+      });
+
+      const extraRows = snapshots
+        .filter((item) => !configuredDivisions.includes(item.division))
+        .map((item) => ({
+          division: item.division,
+          teacherCount: item.teacherCount,
+          averageExperience: item.averageExperience,
+          underservedScore: item.underservedScore,
+          densityIndex: 0,
+        } satisfies DivisionDensityRankRow));
+
+      const allRows = [...normalizedRows, ...extraRows];
+      const averageTeacherCountPerDivision = allRows.length > 0
+        ? allRows.reduce((sum, item) => sum + item.teacherCount, 0) / allRows.length
+        : 0;
+
+      const rankedRows = allRows
+        .map((item) => ({
+          ...item,
+          densityIndex: averageTeacherCountPerDivision > 0
+            ? round(item.teacherCount / averageTeacherCountPerDivision)
+            : 0,
+        }))
+        .sort((a, b) => {
+          if (b.teacherCount !== a.teacherCount) {
+            return b.teacherCount - a.teacherCount;
+          }
+
+          if (b.densityIndex !== a.densityIndex) {
+            return b.densityIndex - a.densityIndex;
+          }
+
+          return a.division.localeCompare(b.division, 'en');
+        });
+
+      return [region, rankedRows];
+    }),
+  );
+
   const timelineMonths = await getMapTimelineFrames(regionMapPoints, 12);
 
   return NextResponse.json(
@@ -144,10 +208,11 @@ export async function GET() {
       regions: regionMapPoints,
       actionableInsights,
       timelineMonths,
+      divisionDensityByRegion,
     },
     {
       headers: {
-        'Cache-Control': 'no-store',
+        'Cache-Control': 'public, max-age=120, stale-while-revalidate=600',
       },
     },
   );

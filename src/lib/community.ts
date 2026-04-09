@@ -229,7 +229,7 @@ export async function getForumTopics() {
       p.moderation_status,
       p.author_id,
       coalesce(u.full_name, 'Unknown Author') as author_name,
-      p.created_at
+      coalesce(p.moderated_at, p.created_at) as created_at
     from forum_posts p
     left join profiles u on u.id = p.author_id
     left join lateral (
@@ -238,7 +238,7 @@ export async function getForumTopics() {
       where c.topic_id = p.id
     ) fc on true
     where p.moderation_status = 'approved'
-    order by p.created_at desc
+    order by coalesce(p.moderated_at, p.created_at) desc
   `) as ForumTopic[];
 
   if (approvedRows.length > 0) {
@@ -290,7 +290,7 @@ export async function getForumTopicById(id: string) {
       p.moderation_status,
       p.author_id,
       coalesce(u.full_name, 'Unknown Author') as author_name,
-      p.created_at
+      coalesce(p.moderated_at, p.created_at) as created_at
     from forum_posts p
     left join profiles u on u.id = p.author_id
     left join lateral (
@@ -497,7 +497,7 @@ export async function getApprovedForumTopicsByAuthor(authorId: string) {
       p.moderation_status,
       p.author_id,
       coalesce(u.full_name, 'Unknown Author') as author_name,
-      p.created_at
+      coalesce(p.moderated_at, p.created_at) as created_at
     from forum_posts p
     left join profiles u on u.id = p.author_id
     left join lateral (
@@ -507,7 +507,7 @@ export async function getApprovedForumTopicsByAuthor(authorId: string) {
     ) fc on true
     where p.author_id = ${authorId}
       and p.moderation_status = 'approved'
-    order by p.created_at desc
+    order by coalesce(p.moderated_at, p.created_at) desc
   `) as ForumTopic[];
 
   return rows;
@@ -652,6 +652,7 @@ export async function updateForumTopicModeration(input: {
     update forum_posts
     set
       moderation_status = ${input.status},
+      created_at = case when ${input.status} = 'approved' then now() else created_at end,
       moderated_by = ${input.moderatedBy},
       moderated_at = now()
     where id = ${input.id}

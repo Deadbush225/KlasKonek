@@ -342,8 +342,8 @@ async function buildSchoolActivityAndTwinningInsights() {
       const mentor = inRegionMentor ?? fallbackMentor ?? null;
 
       const rationale = mentor
-        ? `Algorithmic Match: Identifying collaboration gap (Activity Index ${target.activityScore}). Pairing ${target.teacherCount} educators with the established community of practice at ${mentor.school} for structured capacity augmentation.`
-        : `Critical Isolation Signal (Index ${target.activityScore}): No viable high-capacity mentor nearby. Prioritize direct induction workshop led by division focal personnel.`;
+        ? `Low collaboration activity detected. Pair ${target.school} with ${mentor.school} for structured peer mentoring and resource co-development.`
+        : `Low collaboration activity detected. No high-activity mentor school is currently available; prioritize regional onboarding and facilitation support.`;
 
       twinningTargets.push({
         region,
@@ -675,33 +675,33 @@ export async function getRegionalInsightsDashboard() {
         )
       : 0;
 
-    let priorityScore = 8; // Baseline indexing score
+    let priorityScore = 0;
     const reasons: string[] = [];
 
     if (teacherCount === 0) {
-      priorityScore += 45;
+      priorityScore += 40;
       reasons.push('No teacher records currently captured');
-    } else if (teacherCount < 10) {
-      priorityScore += 18;
-      reasons.push('Extremely low teacher sample size');
-    } else if (teacherCount < 25) {
-      priorityScore += 8;
-      reasons.push('Limited teacher footprint');
+    } else if (teacherCount < 5) {
+      priorityScore += 12;
+      reasons.push('Very low teacher sample size');
+    } else if (teacherCount < 15) {
+      priorityScore += 6;
+      reasons.push('Limited teacher sample size');
     }
 
-    if (starAccessRate < 75) {
-      priorityScore += (75 - starAccessRate) * 0.8;
-      reasons.push('Suboptimal STAR access coverage');
+    if (starAccessRate < 50) {
+      priorityScore += (50 - starAccessRate) * 0.6;
+      reasons.push('Low STAR access participation');
     }
 
-    if (averageUnderservedScore >= 15) {
-      priorityScore += averageUnderservedScore * 0.5;
-      reasons.push('Elevated regional risk signals');
+    if (averageUnderservedScore >= 35) {
+      priorityScore += averageUnderservedScore * 0.35;
+      reasons.push('High underserved risk signals');
     }
 
-    if (completenessPercentage < 95) {
-      priorityScore += (95 - completenessPercentage) * 0.9;
-      reasons.push('Data consistency / completeness gaps');
+    if (completenessPercentage < 70) {
+      priorityScore += (70 - completenessPercentage) * 0.3;
+      reasons.push('Low profile completeness/freshness quality');
     }
 
     const finalPriorityScore = round(Math.min(100, Math.max(0, priorityScore)));

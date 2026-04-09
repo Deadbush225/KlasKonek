@@ -94,13 +94,13 @@
 
 .sectionTitle {
   font-size: 1.35rem;
-  color: var(--primary-blue);
+  color: var(--institutional-blue);
   margin-bottom: 1rem;
 }
 
 .subSectionTitle {
   font-size: 1.05rem;
-  color: var(--primary-blue);
+  color: var(--institutional-blue);
   margin: 1.1rem 0 0.75rem;
 }
 

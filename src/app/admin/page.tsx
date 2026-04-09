@@ -16,18 +16,13 @@ import {
   approveTopicAction,
   rejectTopicAction,
 } from '@/app/actions/community';
-import OverviewDashboard from '@/components/charts/OverviewDashboard';
-import RegionCompare from '@/components/charts/RegionCompare';
-import ExportDropdown from '@/components/ExportDropdown';
 
 type PageProps = {
   searchParams: Promise<{ moderated?: string; tab?: string }>;
 };
 
 type AdminTabId =
-  | 'overview'
   | 'regional'
-  | 'compare'
   | 'twinning'
   | 'notifications'
   | 'privacy'
@@ -68,22 +63,20 @@ export default async function AdminPage({ searchParams }: PageProps) {
   const freshnessByRegion = new Map(insights.freshnessIndicators.map((item) => [item.region, item]));
 
   const tabs: Array<{ id: AdminTabId; label: string }> = [
-    { id: 'overview', label: 'Overview' },
     { id: 'regional', label: 'Regional Dashboard' },
-    { id: 'compare', label: 'Compare Regions' },
     { id: 'twinning', label: `Twinning Targets (${insights.twinningTargets.length})` },
     { id: 'notifications', label: `Notifications (${unreadNotifications})` },
     { id: 'privacy', label: 'Privacy & Consent' },
     { id: 'freshness', label: 'Data Freshness' },
     { id: 'dictionary', label: 'Data Dictionary' },
-    { id: 'audit', label: 'Activity Log' },
+    { id: 'audit', label: 'Audit Trail' },
     { id: 'underserved', label: 'Underserved Areas' },
     { id: 'segmentation', label: 'Needs Segmentation' },
     { id: 'pending-documents', label: `Pending Documents (${pendingResources.length})` },
     { id: 'pending-topics', label: `Pending Topics (${pendingTopics.length})` },
   ];
 
-  const activeTab = tabs.some((item) => item.id === tab) ? (tab as AdminTabId) : 'overview';
+  const activeTab = tabs.some((item) => item.id === tab) ? (tab as AdminTabId) : 'regional';
 
   return (
     <div className={adminStyles.pageContainer}>
@@ -95,7 +88,9 @@ export default async function AdminPage({ searchParams }: PageProps) {
           </p>
         </div>
         <div className={adminStyles.exportActions}>
-          <ExportDropdown />
+          <a href="/api/admin/reports?type=annual-planning" className="btn btn-primary">Export Annual Planning CSV</a>
+          <a href="/api/admin/reports?type=twinning-targets" className="btn btn-secondary">Export Twinning Targets CSV</a>
+          <a href="/api/admin/reports?type=school-activity" className="btn btn-secondary">Export School Activity CSV</a>
           <Link href="/profile" className="btn btn-secondary" style={{ height: 'fit-content' }}>
             Back to Profile
           </Link>
@@ -123,43 +118,6 @@ export default async function AdminPage({ searchParams }: PageProps) {
           ))}
         </ul>
       </nav>
-
-      {activeTab === 'overview' ? (
-      <section className={adminStyles.section}>
-        <h2 className={adminStyles.sectionTitle}>STAR-LINK Intelligence Overview</h2>
-        <p className={adminStyles.meta} style={{ marginBottom: '1rem' }}>
-          National-level summary of teacher profiling data, STAR program access, and priority indicators across all regions.
-        </p>
-        <OverviewDashboard
-          needsSegmentation={insights.needsSegmentation}
-          topPriorityRegions={insights.topPriorityRegions}
-          freshnessIndicators={insights.freshnessIndicators}
-          coverageGaps={insights.coverageGaps}
-          divisionSnapshots={insights.divisionSnapshots}
-          programRecommendations={insights.programRecommendations}
-          anonymizedResearchSummary={insights.anonymizedResearchSummary}
-          regionDisplayNames={REGION_DISPLAY_NAMES}
-        />
-      </section>
-      ) : null}
-
-      {activeTab === 'compare' ? (
-      <section className={adminStyles.section}>
-        <h2 className={adminStyles.sectionTitle}>Region Comparison Tool</h2>
-        <p className={adminStyles.meta} style={{ marginBottom: '1rem' }}>
-          Select two regions to compare their teacher profiles, STAR access rates, coverage, and priority indicators side-by-side.
-        </p>
-        <RegionCompare
-          needsSegmentation={insights.needsSegmentation}
-          topPriorityRegions={insights.topPriorityRegions}
-          freshnessIndicators={insights.freshnessIndicators}
-          coverageGaps={insights.coverageGaps}
-          divisionSnapshots={insights.divisionSnapshots}
-          regions={[...REGISTRATION_REGIONS]}
-          regionDisplayNames={REGION_DISPLAY_NAMES}
-        />
-      </section>
-      ) : null}
 
       {activeTab === 'notifications' ? (
       <section className={adminStyles.section}>
@@ -212,21 +170,16 @@ export default async function AdminPage({ searchParams }: PageProps) {
             {insights.twinningTargets.slice(0, 20).map((target) => (
               <article key={`${target.region}:${target.targetSchool}`} className="card">
                 <div className={adminStyles.itemHeader}>
-                  <h3>Target: {target.targetSchool}</h3>
+                  <h3>{REGION_DISPLAY_NAMES[target.region] ?? target.region}</h3>
                   <span className={adminStyles.riskBadge}>Priority {target.priorityScore}</span>
                 </div>
-                <p className={adminStyles.meta}>Region: {REGION_DISPLAY_NAMES[target.region] ?? target.region} • Teachers: {target.targetTeacherCount}</p>
-                <p className={adminStyles.meta} style={{ marginTop: '0.4rem' }}>
-                  <strong>Proposed Mentor:</strong> {target.mentorSchool ?? 'Escalate for Regional Facilitation'}
+                <p className={adminStyles.meta}>Target School: {target.targetSchool}</p>
+                <p className={adminStyles.meta}>Target Activity Score: {target.targetActivityScore} • Teachers: {target.targetTeacherCount}</p>
+                <p className={adminStyles.meta}>
+                  Mentor School: {target.mentorSchool ?? 'No high-activity mentor school yet'}
+                  {target.mentorSchool ? ` • Mentor Activity Score: ${target.mentorActivityScore}` : ''}
                 </p>
-                {target.mentorSchool && (
-                  <p className={adminStyles.meta} style={{ marginTop: '0.2rem' }}>
-                    Match Confidence: High • Mentor Capacity: {target.mentorTeacherCount} Active Teachers
-                  </p>
-                )}
-                <p className={adminStyles.description} style={{ marginTop: '0.6rem', borderTop: '1px solid var(--border)', paddingTop: '0.6rem' }}>
-                  <strong>Rationale:</strong> {target.rationale}
-                </p>
+                <p className={adminStyles.description}>{target.rationale}</p>
               </article>
             ))}
           </div>
@@ -414,37 +367,24 @@ export default async function AdminPage({ searchParams }: PageProps) {
 
       {activeTab === 'audit' ? (
       <section className={adminStyles.section}>
-        <h2 className={adminStyles.sectionTitle}>Activity Log</h2>
-        <p className={adminStyles.meta} style={{ marginBottom: '0.8rem' }}>
-          Recent actions taken by administrators on the platform, such as approving content or updating records.
-        </p>
+        <h2 className={adminStyles.sectionTitle}>Audit Trail</h2>
         {auditLogs.length === 0 ? (
           <div className="card">
-            <p className={adminStyles.empty}>No recent activity recorded yet.</p>
+            <p className={adminStyles.empty}>No audit events recorded yet.</p>
           </div>
         ) : (
           <div className={adminStyles.queue}>
-            {auditLogs.map((entry) => {
-              const actionVerb = entry.action?.replace(/_/g, ' ') ?? 'performed an action';
-              const entityLabel = entry.entity_type === 'resource' ? 'document' : entry.entity_type === 'forum_post' ? 'forum topic' : (entry.entity_type ?? 'item');
-              const changedKeys = Object.keys(entry.changed_fields || {});
-              const summary = changedKeys.length > 0
-                ? `Updated fields: ${changedKeys.map(k => k.replace(/_/g, ' ')).join(', ')}`
-                : null;
-
-              return (
-                <article key={entry.id} className="card">
-                  <div className={adminStyles.itemHeader}>
-                    <h3 style={{ textTransform: 'capitalize' }}>{actionVerb}</h3>
-                    <span className={adminStyles.metricBadge}>{formatDateTimeNoSeconds(entry.created_at)}</span>
-                  </div>
-                  <p className={adminStyles.meta}>
-                    <strong>{entry.actor_name}</strong> {actionVerb} a {entityLabel}
-                  </p>
-                  {summary ? <p className={adminStyles.description}>{summary}</p> : null}
-                </article>
-              );
-            })}
+            {auditLogs.map((entry) => (
+              <article key={entry.id} className="card">
+                <div className={adminStyles.itemHeader}>
+                  <h3>{entry.action}</h3>
+                  <span className={adminStyles.metricBadge}>{formatDateTimeNoSeconds(entry.created_at)}</span>
+                </div>
+                <p className={adminStyles.meta}>Actor: {entry.actor_name}</p>
+                <p className={adminStyles.meta}>Entity: {entry.entity_type} ({entry.entity_id})</p>
+                <p className={adminStyles.meta}>Changes: {Object.keys(entry.changed_fields || {}).join(', ') || 'none'}</p>
+              </article>
+            ))}
           </div>
         )}
       </section>

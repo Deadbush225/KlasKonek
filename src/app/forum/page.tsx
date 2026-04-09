@@ -8,20 +8,16 @@ import { PHILIPPINE_REGIONS_SHORT, REGION_DISPLAY_NAMES, REGION_DIVISIONS_BY_REG
 import { formatDateTimeNoSeconds } from '@/lib/date-format';
 
 type PageProps = {
-  searchParams: Promise<{ submitted?: string; region?: string; division?: string; sort?: string; q?: string; removedTopic?: string; category?: string }>;
+  searchParams: Promise<{
+    submitted?: string;
+    region?: string;
+    division?: string;
+    sort?: string;
+    category?: string;
+    q?: string;
+    removedTopic?: string;
+  }>;
 };
-
-const FORUM_CATEGORIES = [
-  'Curriculum',
-  'Lab & Field Work',
-  'Professional Development',
-  'Technology',
-  'Assessment',
-  'Community',
-  'Career Growth',
-  'Policy & Advocacy',
-  'General',
-];
 
 function getAvatarByName(name: string) {
   const normalized = name.toLowerCase();
@@ -62,13 +58,16 @@ function ClockIcon() {
 }
 
 export default async function ForumPage({ searchParams }: PageProps) {
-  const { submitted, region, division, sort, q, removedTopic, category } = await searchParams;
+  const { submitted, region, division, sort, category, q, removedTopic } = await searchParams;
   const [topics, user] = await Promise.all([getForumTopics(), getCurrentUser()]);
   const activeRegion = PHILIPPINE_REGIONS_SHORT.includes(region ?? '') ? (region as string) : null;
   const activeRegionDivisions = activeRegion ? (REGION_DIVISIONS_BY_REGION[activeRegion] ?? []) : [];
   const activeDivision = activeRegionDivisions.includes(division ?? '') ? (division as string) : null;
+  const availableCategories = Array.from(
+    new Set(topics.map((topic) => topic.category.trim()).filter(Boolean)),
+  ).sort((a, b) => a.localeCompare(b));
+  const activeCategory = availableCategories.includes(category ?? '') ? (category as string) : '';
   const activeSort = sort === 'most_comments' || sort === 'most_upvotes' ? sort : 'recent';
-  const activeCategory = FORUM_CATEGORIES.includes(category ?? '') ? (category as string) : null;
   const normalizedQuery = String(q ?? '').trim();
   const normalizedQueryLower = normalizedQuery.toLowerCase();
 
@@ -80,8 +79,12 @@ export default async function ForumPage({ searchParams }: PageProps) {
     ? filteredTopicsByRegion.filter((topic) => topic.division === activeDivision)
     : filteredTopicsByRegion;
 
+  const filteredTopicsByCategory = activeCategory
+    ? filteredTopicsBase.filter((topic) => topic.category === activeCategory)
+    : filteredTopicsBase;
+
   const filteredTopicsByQuery = normalizedQueryLower
-    ? filteredTopicsBase.filter((topic) => {
+    ? filteredTopicsByCategory.filter((topic) => {
       const searchableText = [
         topic.title,
         topic.content,
@@ -95,13 +98,9 @@ export default async function ForumPage({ searchParams }: PageProps) {
 
       return searchableText.includes(normalizedQueryLower);
     })
-    : filteredTopicsBase;
+    : filteredTopicsByCategory;
 
-  const filteredTopicsByCategory = activeCategory
-    ? filteredTopicsByQuery.filter((topic) => topic.category === activeCategory)
-    : filteredTopicsByQuery;
-
-  const filteredTopics = [...filteredTopicsByCategory].sort((a, b) => {
+  const filteredTopics = [...filteredTopicsByQuery].sort((a, b) => {
     if (activeSort === 'most_comments') {
       if (b.comment_count !== a.comment_count) return b.comment_count - a.comment_count;
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -122,12 +121,17 @@ export default async function ForumPage({ searchParams }: PageProps) {
   const returnToParams = new URLSearchParams();
   if (activeRegion) returnToParams.set('region', activeRegion);
   if (activeDivision) returnToParams.set('division', activeDivision);
-  if (activeSort !== 'recent') returnToParams.set('sort', activeSort);
   if (activeCategory) returnToParams.set('category', activeCategory);
+  if (activeSort !== 'recent') returnToParams.set('sort', activeSort);
   if (normalizedQuery) returnToParams.set('q', normalizedQuery);
   const returnTo = `/forum${returnToParams.toString() ? `?${returnToParams.toString()}` : ''}`;
 
-  const buildForumHref = (nextRegion: string | null, nextDivision: string | null = null) => {
+  const buildForumHref = (
+    nextRegion: string | null,
+    nextDivision: string | null = null,
+    options?: { preserveFilters?: boolean },
+  ) => {
+    const preserveFilters = options?.preserveFilters ?? true;
     const params = new URLSearchParams();
 
     if (nextRegion) {
@@ -139,15 +143,15 @@ export default async function ForumPage({ searchParams }: PageProps) {
       params.set('division', nextDivision);
     }
 
-    if (activeSort !== 'recent') {
-      params.set('sort', activeSort);
-    }
-
-    if (activeCategory) {
+    if (preserveFilters && activeCategory) {
       params.set('category', activeCategory);
     }
 
-    if (normalizedQuery) {
+    if (preserveFilters && activeSort !== 'recent') {
+      params.set('sort', activeSort);
+    }
+
+    if (preserveFilters && normalizedQuery) {
       params.set('q', normalizedQuery);
     }
 
@@ -248,29 +252,43 @@ export default async function ForumPage({ searchParams }: PageProps) {
           <form method="get" className={forumStyles.sortBar}>
             {activeRegion ? <input type="hidden" name="region" value={activeRegion} /> : null}
             {activeDivision ? <input type="hidden" name="division" value={activeDivision} /> : null}
-            <label htmlFor="sort" className={forumStyles.sortLabel}>Sort by</label>
-            <select id="sort" name="sort" defaultValue={activeSort} className={forumStyles.sortSelect}>
-              <option value="recent">Most Recent</option>
-              <option value="most_comments">Most Comments</option>
-              <option value="most_upvotes">Most Upvotes</option>
-            </select>
-            <label htmlFor="category" className={forumStyles.sortLabel}>Category</label>
-            <select id="category" name="category" defaultValue={activeCategory ?? ''} className={forumStyles.sortSelect}>
-              <option value="">All Categories</option>
-              {FORUM_CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-            <label htmlFor="q" className={forumStyles.sortLabel}>Keyword</label>
-            <input
-              id="q"
-              type="search"
-              name="q"
-              defaultValue={normalizedQuery}
-              placeholder="Search by title, content, or author"
-              className={forumStyles.searchInput}
-            />
-            <button type="submit" className="btn btn-secondary">Apply</button>
+            <label htmlFor="sort" className={forumStyles.filterField}>
+              <span>Sort by</span>
+              <select id="sort" name="sort" defaultValue={activeSort} className={forumStyles.sortSelect}>
+                <option value="recent">Most Recent</option>
+                <option value="most_comments">Most Comments</option>
+                <option value="most_upvotes">Most Upvotes</option>
+              </select>
+            </label>
+            <label htmlFor="category" className={forumStyles.filterField}>
+              <span>Category</span>
+              <select id="category" name="category" defaultValue={activeCategory} className={forumStyles.sortSelect}>
+                <option value="">All Categories</option>
+                {availableCategories.map((categoryOption) => (
+                  <option key={categoryOption} value={categoryOption}>{categoryOption}</option>
+                ))}
+              </select>
+            </label>
+            <label htmlFor="q" className={`${forumStyles.filterField} ${forumStyles.filterSearchField}`}>
+              <span>Keyword</span>
+              <input
+                id="q"
+                type="search"
+                name="q"
+                defaultValue={normalizedQuery}
+                placeholder="Search by title, content, or author"
+                className={forumStyles.searchInput}
+              />
+            </label>
+            <div className={forumStyles.filterActions}>
+              <button type="submit" className="btn btn-secondary">Apply</button>
+              <Link
+                href={buildForumHref(activeRegion, activeDivision, { preserveFilters: false })}
+                className="btn btn-secondary"
+              >
+                Reset
+              </Link>
+            </div>
           </form>
 
           {filteredTopics.length === 0 ? (

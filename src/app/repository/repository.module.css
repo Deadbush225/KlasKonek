@@ -29,7 +29,9 @@
 }
 
 .filterBar {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.05fr) minmax(0, 1.4fr) auto;
+  align-items: end;
   gap: 1rem;
   margin-bottom: 2rem;
   background: var(--surface);
@@ -49,6 +51,8 @@
   font-size: 0.95rem;
   outline: none;
   transition: border-color 0.2s ease;
+  width: 100%;
+  min-width: 0;
 }
 
 .filterSelect:focus, .searchInput:focus {
@@ -56,12 +60,17 @@
 }
 
 .searchInput {
-  flex-grow: 1;
+  min-width: 0;
 }
 
 .filterActions {
   display: inline-flex;
+  align-items: center;
   gap: 0.5rem;
+}
+
+.filterActions :global(.btn) {
+  min-height: 44px;
 }
 
 .grid {
@@ -279,43 +288,6 @@
   background: var(--secondary-accent-hover);
 }
 
-.fileDropzone {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 2rem 1.5rem;
-  border: 2px dashed var(--border);
-  border-radius: var(--radius-md);
-  background: var(--background);
-  cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease;
-  text-align: center;
-}
-
-.fileDropzone:hover {
-  border-color: var(--primary-blue);
-  background: var(--secondary-accent);
-}
-
-.fileDropzoneActive {
-  border-color: var(--primary-blue);
-  background: var(--secondary-accent);
-}
-
-.fileDropzoneLabel {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.fileDropzoneHint {
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  opacity: 0.7;
-}
-
 .formRow input:focus,
 .formRow textarea:focus,
 .formGrid input:focus,
@@ -336,7 +308,7 @@
   }
 
   .header { flex-direction: column; gap: 1.5rem; }
-  .filterBar { flex-direction: column; }
+  .filterBar { grid-template-columns: 1fr; }
   .filterActions { width: 100%; }
   .filterActions :global(.btn) { flex: 1; justify-content: center; }
   .formGrid { grid-template-columns: 1fr; }
@@ -355,16 +327,15 @@
     width: 100%;
     justify-content: flex-start;
   }
+}
 
-  .title {
-    font-size: 1.65rem;
+@media (max-width: 1080px) and (min-width: 769px) {
+  .filterBar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .subtitle {
-    font-size: 0.95rem;
-  }
-
-  .filterSelect {
-    width: 100%;
+  .filterActions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
   }
 }

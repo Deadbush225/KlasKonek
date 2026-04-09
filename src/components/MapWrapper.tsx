@@ -34,6 +34,8 @@ type MapWrapperProps = {
   regions: RegionMapPoint[];
   activeMetric: ChoroplethMetric;
   activeTimeLabel: string;
+  selectedRegion?: string | null;
+  onRegionSelect?: (region: string) => void;
 };
 
 function WarningIcon() {
@@ -47,8 +49,8 @@ function WarningIcon() {
 }
 
 const PHILIPPINES_BOUNDS: LatLngBoundsExpression = [
-  [3.6, 116.5],
-  [22.3, 127.4],
+  [3.2, 115.8],
+  [23.9, 127.8],
 ];
 
 function getMetricValue(region: RegionMapPoint, metric: ChoroplethMetric) {
@@ -71,21 +73,23 @@ function getChoroplethColor(metric: ChoroplethMetric, normalizedValue: number) {
   const value = clamp(normalizedValue, 0, 1);
 
   if (metric === 'underservedScore') {
-    if (value >= 0.85) return '#8b0000';
-    if (value >= 0.65) return '#c62828';
-    if (value >= 0.45) return '#ef6c00';
-    if (value >= 0.25) return '#f9a825';
+    if (value >= 0.66) return '#b42318';
+    if (value >= 0.33) return '#d97706';
     return '#2e7d32';
   }
 
-  if (value >= 0.85) return '#1b5e20';
-  if (value >= 0.65) return '#2e7d32';
-  if (value >= 0.45) return '#f9a825';
-  if (value >= 0.25) return '#ef6c00';
+  if (value >= 0.66) return '#2e7d32';
+  if (value >= 0.33) return '#f9a825';
   return '#b71c1c';
 }
 
-export default function MapWrapper({ regions, activeMetric, activeTimeLabel }: MapWrapperProps) {
+export default function MapWrapper({
+  regions,
+  activeMetric,
+  activeTimeLabel,
+  selectedRegion = null,
+  onRegionSelect,
+}: MapWrapperProps) {
   const [boundaryByRegion, setBoundaryByRegion] = useState<Record<string, LeafletPolygonPositions>>({});
 
   useEffect(() => {
@@ -146,9 +150,9 @@ export default function MapWrapper({ regions, activeMetric, activeTimeLabel }: M
   return (
     <MapContainer
       bounds={PHILIPPINES_BOUNDS}
-      boundsOptions={{ padding: [12, 12] }}
+      boundsOptions={{ padding: [24, 24] }}
       maxBounds={PHILIPPINES_BOUNDS}
-      maxBoundsViscosity={0.85}
+      maxBoundsViscosity={0.6}
       minZoom={5}
       maxZoom={10}
       zoomSnap={0.5}
@@ -172,6 +176,7 @@ export default function MapWrapper({ regions, activeMetric, activeTimeLabel }: M
         const metricValue = getMetricValue(region, activeMetric);
         const normalizedValue = (metricValue - metricMin) / metricRange;
         const borderColor = getChoroplethColor(activeMetric, normalizedValue);
+        const isSelected = selectedRegion === region.region;
         const borderWeight = region.severity === 'critical'
           ? 2.8
           : region.severity === 'high'
@@ -185,15 +190,25 @@ export default function MapWrapper({ regions, activeMetric, activeTimeLabel }: M
             pathOptions={{
               color: borderColor,
               fillColor: borderColor,
-              fillOpacity: 0.08,
-              weight: borderWeight,
-              opacity: 0.95,
+              fillOpacity: isSelected ? 0.18 : 0.08,
+              weight: isSelected ? borderWeight + 0.8 : borderWeight,
+              opacity: isSelected ? 1 : 0.95,
+            }}
+            eventHandlers={{
+              click: () => {
+                onRegionSelect?.(region.region);
+              },
             }}
           >
             <Tooltip permanent direction="center" className={mapStyles.regionLabel}>
               {region.region}
             </Tooltip>
-            <Popup className={mapStyles.regionPopup}>
+            <Popup
+              className={mapStyles.regionPopup}
+              autoPan
+              autoPanPaddingTopLeft={[24, 96]}
+              autoPanPaddingBottomRight={[24, 24]}
+            >
               <div className={mapStyles.popupContent}>
                 <h3 className={mapStyles.popupTitle}>{region.displayName}</h3>
                 <p className={mapStyles.popupMetric}><strong>Time Slice:</strong> {activeTimeLabel}</p>

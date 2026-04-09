@@ -89,7 +89,7 @@ body::after {
   height: 34vw;
   z-index: -3;
   border-radius: 50%;
-  filter: blur(72px);
+  filter: blur(48px);
   opacity: 0.1;
   background: var(--secondary-accent);
   pointer-events: none;
@@ -114,15 +114,15 @@ body::after {
 .blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(86px);
-  opacity: 0.14;
-  mix-blend-mode: multiply;
-  animation: blobFloat 30s infinite ease-in-out;
+  filter: blur(56px);
+  opacity: 0.1;
+  mix-blend-mode: normal;
+  animation: none;
 }
 
 [data-theme="dark"] .blob {
-  opacity: 0.1;
-  mix-blend-mode: screen;
+  opacity: 0.08;
+  mix-blend-mode: normal;
 }
 
 .blob1 {
@@ -183,7 +183,6 @@ button {
   font-weight: 600;
   letter-spacing: 0.01em;
   transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-  backdrop-filter: blur(4px);
 }
 
 .btn-primary {
@@ -217,13 +216,11 @@ button {
 .card {
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.5));
-  backdrop-filter: blur(10px) saturate(120%);
-  -webkit-backdrop-filter: blur(10px) saturate(120%);
   border: 1px solid rgba(255, 255, 255, 0.72);
   border-radius: var(--radius-lg);
   padding: 1.75rem;
   box-shadow:
-    0 18px 38px rgba(15, 43, 92, 0.09),
+    0 12px 26px rgba(15, 43, 92, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
@@ -243,8 +240,6 @@ button {
 
 .glass {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.45));
-  backdrop-filter: blur(12px) saturate(125%);
-  -webkit-backdrop-filter: blur(12px) saturate(125%);
   border: 1px solid rgba(255, 255, 255, 0.75);
   box-shadow: 0 10px 22px rgba(15, 43, 92, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
@@ -283,10 +278,6 @@ button {
     opacity: 0.08;
   }
 
-  .card {
-    backdrop-filter: blur(6px) saturate(110%);
-    -webkit-backdrop-filter: blur(6px) saturate(110%);
-  }
 }
 
 @media (max-width: 480px) {
@@ -294,20 +285,4 @@ button {
     white-space: normal;
     text-align: center;
   }
-}
-
-/* Custom Scrollbar for Dark/Light Mode Adaptability */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: var(--surface);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 5px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
 }
