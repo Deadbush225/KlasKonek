@@ -30,7 +30,7 @@ export function BulkImportTabContent() {
 
       <div className="card">
         <h3 style={{ marginBottom: '0.75rem' }}>Upload Teachers CSV</h3>
-        <form action={formAction} encType="multipart/form-data" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <label style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.9rem', fontWeight: 500 }}>
             Select CSV File (max 5MB)
             <input
