@@ -695,4 +695,319 @@ await insertResourceIfMissing({
   authorId: christineId,
 });
 
+/* ── Seed program_deliveries table ────────────────────────── */
+
+// Create the table if it doesn't exist yet (mirrors ensureDeliverySchema)
+await pool.query(`
+  create table if not exists program_deliveries (
+    id uuid primary key default gen_random_uuid(),
+    title text not null,
+    program_type text not null,
+    target_region text not null default 'National',
+    target_division text,
+    scheduled_date date not null,
+    status text not null default 'scheduled'
+      check (status in ('scheduled', 'ongoing', 'completed', 'cancelled')),
+    notes text,
+    created_by uuid references profiles(id) on delete set null,
+    created_at timestamptz not null default now()
+  )
+`);
+
+await pool.query(`
+  create index if not exists program_deliveries_region_idx
+  on program_deliveries(target_region, scheduled_date desc)
+`);
+
+await pool.query(`
+  create index if not exists program_deliveries_status_idx
+  on program_deliveries(status, scheduled_date desc)
+`);
+
+const MOCK_PROGRAMS = [
+  {
+    title: '2025 National STEM Teachers Summit',
+    programType: 'National Convention',
+    targetRegion: 'National',
+    targetDivision: null,
+    scheduledDate: '2025-11-15',
+    status: 'completed',
+    notes: 'Annual convention featuring keynote speakers, parallel sessions on STEM pedagogy, and poster presentations from regional awardees.',
+  },
+  {
+    title: 'STAR Capacity-Building Workshop — Batch 12',
+    programType: 'STAR Capacity-Building Workshop',
+    targetRegion: 'NCR',
+    targetDivision: 'Quezon City',
+    scheduledDate: '2026-01-20',
+    status: 'completed',
+    notes: 'Intensive 5-day in-person workshop at DOST-SEI covering action research design, data collection, and manuscript preparation.',
+  },
+  {
+    title: 'Region IV-A STEM Summit 2026',
+    programType: 'Regional STEM Summit',
+    targetRegion: 'Region IV-A',
+    targetDivision: null,
+    scheduledDate: '2026-03-10',
+    status: 'completed',
+    notes: 'Three-day regional summit in Laguna. Focused on inquiry-based science teaching and localized curriculum development.',
+  },
+  {
+    title: 'Action Research Mentoring Cohort — BARMM',
+    programType: 'Action Research Mentoring',
+    targetRegion: 'BARMM',
+    targetDivision: null,
+    scheduledDate: '2026-02-05',
+    status: 'ongoing',
+    notes: '6-month virtual mentoring program for BARMM science teachers. Monthly check-ins and peer review circles.',
+  },
+  {
+    title: 'School Twinning Facilitation — CAR & Region I',
+    programType: 'School Twinning Facilitation',
+    targetRegion: 'CAR',
+    targetDivision: 'Baguio City',
+    scheduledDate: '2026-04-01',
+    status: 'ongoing',
+    notes: 'Pairing urban schools in Baguio with rural schools in Ilocos Norte for shared lab resources and co-teaching sessions.',
+  },
+  {
+    title: 'STEM Specialization Bridging — Region XI',
+    programType: 'STEM Specialization Bridging',
+    targetRegion: 'Region XI',
+    targetDivision: 'Davao City',
+    scheduledDate: '2026-05-12',
+    status: 'scheduled',
+    notes: 'Bridging program for teachers transitioning from General Science to specialized Physics or Chemistry tracks.',
+  },
+  {
+    title: 'Division LAC Sessions — Visayas Cluster',
+    programType: 'Division-Level LAC Session',
+    targetRegion: 'Region VII',
+    targetDivision: 'Cebu',
+    scheduledDate: '2026-04-22',
+    status: 'scheduled',
+    notes: 'Learning Action Cell sessions on formative assessment strategies in mathematics. Facilitated by regional master teachers.',
+  },
+  {
+    title: 'Online Learning Sprint — Data Literacy for STEM Teachers',
+    programType: 'Online Learning Sprint',
+    targetRegion: 'National',
+    targetDivision: null,
+    scheduledDate: '2026-06-01',
+    status: 'scheduled',
+    notes: 'Two-week asynchronous online course covering spreadsheet analysis, basic statistics, and data visualization for classroom use.',
+  },
+  {
+    title: 'Teacher Induction Program — Region III',
+    programType: 'Teacher Induction Program',
+    targetRegion: 'Region III',
+    targetDivision: 'Pampanga',
+    scheduledDate: '2026-03-18',
+    status: 'completed',
+    notes: 'Orientation program for newly hired science and math teachers. Covers STAR program objectives, classroom management, and professional development pathways.',
+  },
+  {
+    title: 'STAR Capacity-Building Workshop — Mindanao Leg',
+    programType: 'STAR Capacity-Building Workshop',
+    targetRegion: 'Region X',
+    targetDivision: 'Bukidnon',
+    scheduledDate: '2026-07-08',
+    status: 'scheduled',
+    notes: '5-day workshop covering laboratory-based inquiry, research ethics, and community engagement for STEM outreach.',
+  },
+  {
+    title: 'Regional STEM Summit — Region V',
+    programType: 'Regional STEM Summit',
+    targetRegion: 'Region V',
+    targetDivision: null,
+    scheduledDate: '2025-09-25',
+    status: 'completed',
+    notes: 'Two-day summit featuring best practices in STEM education for Bicol Region teachers. Included hands-on workshops and research poster sessions.',
+  },
+  {
+    title: 'Action Research Mentoring Cohort — Region VIII',
+    programType: 'Action Research Mentoring',
+    targetRegion: 'Region VIII',
+    targetDivision: 'Leyte',
+    scheduledDate: '2026-04-15',
+    status: 'ongoing',
+    notes: '4-month cohort-based mentoring with bi-weekly virtual sessions and a culminating research symposium.',
+  },
+];
+
+for (const program of MOCK_PROGRAMS) {
+  const existing = await pool.query(
+    'select id from program_deliveries where title = $1 limit 1',
+    [program.title]
+  );
+
+  if (existing.rowCount === 0) {
+    await pool.query(
+      `insert into program_deliveries (title, program_type, target_region, target_division, scheduled_date, status, notes, created_by)
+       values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        program.title,
+        program.programType,
+        program.targetRegion,
+        program.targetDivision,
+        program.scheduledDate,
+        program.status,
+        program.notes,
+        adminId,
+      ]
+    );
+  }
+}
+
+console.log(`Seeded ${MOCK_PROGRAMS.length} mock program deliveries.`);
+
+/* ── Seed training_records table ────────────────────────── */
+
+await pool.query(`
+  create table if not exists training_records (
+    id uuid primary key default gen_random_uuid(),
+    teacher_id uuid not null references profiles(id) on delete cascade,
+    program_title text not null,
+    provider text not null default 'Self-reported',
+    training_date date,
+    duration_hours integer default null,
+    training_type text not null default 'External Workshop',
+    verified boolean not null default false,
+    created_at timestamptz not null default now()
+  )
+`);
+
+await pool.query(`
+  create index if not exists training_records_teacher_idx
+  on training_records(teacher_id, created_at desc)
+`);
+
+const TRAINING_TYPE_POOL = [
+  'STAR Capacity-Building',
+  'Regional Workshop',
+  'National Convention',
+  'Online Course',
+  'External Workshop',
+  'Peer Learning',
+  'School-Based LAC Session',
+];
+
+const TRAINING_PROVIDER_POOL = [
+  'DOST-SEI',
+  'DepEd Regional Office',
+  'CHED',
+  'Philippine Normal University',
+  'University of the Philippines',
+  'SEAMEO INNOTECH',
+  'Self-reported',
+];
+
+// Seed structured training records for the 5 named profiles
+const namedProfiles = [
+  { id: adrielId, name: 'Adriel' },
+  { id: janelId, name: 'Janel' },
+  { id: gemId, name: 'Gem' },
+  { id: martiId, name: 'Marti' },
+  { id: christineId, name: 'Christine' },
+];
+
+for (const profile of namedProfiles) {
+  const existingRecords = await pool.query(
+    'select count(*) as c from training_records where teacher_id = $1',
+    [profile.id]
+  );
+
+  if (Number.parseInt(existingRecords.rows[0].c, 10) === 0) {
+    const recordCount = 2 + Math.floor(Math.random() * 3);
+
+    for (let i = 0; i < recordCount; i++) {
+      const year = 2023 + Math.floor(Math.random() * 3);
+      const month = String(1 + Math.floor(Math.random() * 12)).padStart(2, '0');
+      const day = String(1 + Math.floor(Math.random() * 28)).padStart(2, '0');
+
+      await pool.query(
+        `insert into training_records (teacher_id, program_title, provider, training_date, duration_hours, training_type, verified)
+         values ($1, $2, $3, $4, $5, $6, $7)`,
+        [
+          profile.id,
+          pickOne(TRAINING_POOL),
+          pickOne(TRAINING_PROVIDER_POOL),
+          `${year}-${month}-${day}`,
+          pickOne([4, 8, 16, 24, 40]),
+          pickOne(TRAINING_TYPE_POOL),
+          Math.random() < 0.4,
+        ]
+      );
+    }
+
+    console.log(`Seeded ${recordCount} training records for ${profile.name}.`);
+  }
+}
+
+/* ── Seed program_feedback table ────────────────────────── */
+
+await pool.query(`
+  create table if not exists program_feedback (
+    id uuid primary key default gen_random_uuid(),
+    delivery_id uuid not null references program_deliveries(id) on delete cascade,
+    teacher_id uuid not null references profiles(id) on delete cascade,
+    attended boolean not null default true,
+    rating integer check (rating >= 1 and rating <= 5),
+    usefulness_score integer check (usefulness_score >= 1 and usefulness_score <= 5),
+    comments text,
+    submitted_at timestamptz not null default now(),
+    unique(delivery_id, teacher_id)
+  )
+`);
+
+await pool.query(`
+  create index if not exists program_feedback_delivery_idx
+  on program_feedback(delivery_id, submitted_at desc)
+`);
+
+await pool.query(`
+  create index if not exists program_feedback_teacher_idx
+  on program_feedback(teacher_id)
+`);
+
+// Seed some feedback for completed programs from named profiles
+const completedPrograms = await pool.query(
+  "select id from program_deliveries where status = 'completed' limit 5"
+);
+
+const FEEDBACK_COMMENTS = [
+  'Very well-organized. The facilitators were knowledgeable and the materials were excellent.',
+  'I gained practical techniques I can apply immediately in my classroom.',
+  'Good content but the schedule was too compressed. Consider extending to a full week.',
+  'The hands-on lab component was the highlight. More of this, please.',
+  'Networking with fellow science teachers from other divisions was invaluable.',
+];
+
+for (const program of completedPrograms.rows) {
+  for (const profile of namedProfiles.slice(0, 3)) {
+    const existingFeedback = await pool.query(
+      'select id from program_feedback where delivery_id = $1 and teacher_id = $2 limit 1',
+      [program.id, profile.id]
+    );
+
+    if (existingFeedback.rowCount === 0) {
+      await pool.query(
+        `insert into program_feedback (delivery_id, teacher_id, attended, rating, usefulness_score, comments)
+         values ($1, $2, $3, $4, $5, $6)`,
+        [
+          program.id,
+          profile.id,
+          true,
+          3 + Math.floor(Math.random() * 3), // 3-5
+          3 + Math.floor(Math.random() * 3), // 3-5
+          pickOne(FEEDBACK_COMMENTS),
+        ]
+      );
+    }
+  }
+}
+
+console.log('Seeded feedback for completed programs.');
+
 await pool.end();
+

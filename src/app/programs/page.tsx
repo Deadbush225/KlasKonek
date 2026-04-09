@@ -70,9 +70,9 @@ export default async function ProgramsPage() {
                 </div>
 
                 <p className={programStyles.programMeta}>
-                  📅 {delivery.scheduled_date}
-                  {delivery.target_division ? ` • ${delivery.target_division}` : ''}
-                  {' • '}
+                  {delivery.scheduled_date}
+                  {delivery.target_division ? ` · ${delivery.target_division}` : ''}
+                  {' · '}
                   {delivery.target_region === 'National' ? 'National Program' : delivery.target_region}
                 </p>
 

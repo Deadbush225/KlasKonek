@@ -54,7 +54,7 @@ export function DeliveryTabContent({ deliveries, programTypes, regions }: Props)
       <div className="card">
         <h3 style={{ marginBottom: '1rem' }}>Schedule a New Program</h3>
         {createState.success ? (
-          <p style={{ color: '#15803d', fontWeight: 500 }}>✅ Program scheduled. Refresh to see it in the list.</p>
+          <p style={{ color: '#15803d', fontWeight: 500 }}>Program scheduled successfully. Refresh to see it in the list.</p>
         ) : (
           <form action={createAction} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
@@ -121,7 +121,7 @@ export function DeliveryTabContent({ deliveries, programTypes, regions }: Props)
                   </span>
                 </div>
                 <p className={adminStyles.meta}>{delivery.program_type} · {delivery.target_region}{delivery.target_division ? ` – ${delivery.target_division}` : ''}</p>
-                <p className={adminStyles.meta}>📅 {delivery.scheduled_date}</p>
+                <p className={adminStyles.meta}>{delivery.scheduled_date}</p>
                 {delivery.notes ? <p className={adminStyles.description}>{delivery.notes}</p> : null}
                 <UpdateStatusForm delivery={delivery} />
               </article>

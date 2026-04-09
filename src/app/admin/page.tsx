@@ -582,7 +582,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
                     <p className={adminStyles.meta}>Responses: {summary.totalResponses}</p>
                     <p className={adminStyles.meta}>Attendance Rate: {summary.attendanceRate}%</p>
                     <p className={adminStyles.meta}>
-                      Avg Rating: {summary.averageRating !== null ? `${summary.averageRating}/5 ⭐` : 'No ratings'}
+                      Avg Rating: {summary.averageRating !== null ? `${summary.averageRating}/5` : 'No ratings'}
                     </p>
                     <p className={adminStyles.meta}>
                       Avg Usefulness: {summary.averageUsefulness !== null ? `${summary.averageUsefulness}/5` : 'No data'}

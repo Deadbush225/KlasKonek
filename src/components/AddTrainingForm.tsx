@@ -17,7 +17,7 @@ export function AddTrainingForm({ className }: Props) {
   if (state.success) {
     return (
       <p style={{ color: 'var(--success, #15803d)', fontWeight: 500, margin: 0 }}>
-        ✅ Training record saved. Refresh to see the updated list.
+        Training record saved. Refresh to see the updated list.
       </p>
     );
   }

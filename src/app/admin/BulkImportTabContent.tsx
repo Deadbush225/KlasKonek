@@ -24,7 +24,7 @@ export function BulkImportTabContent() {
           style={{ marginTop: '0.75rem', display: 'inline-block' }}
           download="star-link-teacher-import-template.csv"
         >
-          ⬇ Download CSV Template
+          Download CSV Template
         </a>
       </div>
 
@@ -56,12 +56,12 @@ export function BulkImportTabContent() {
       {state.result ? (
         <div className="card">
           <h3 style={{ marginBottom: '0.75rem' }}>Import Result</h3>
-          <p className={adminStyles.meta} style={{ color: '#15803d' }}>✅ Inserted: {state.result.inserted}</p>
-          <p className={adminStyles.meta} style={{ color: 'var(--text-muted)' }}>⏭ Skipped (existing): {state.result.skipped}</p>
+          <p className={adminStyles.meta} style={{ color: '#15803d' }}>Inserted: {state.result.inserted}</p>
+          <p className={adminStyles.meta} style={{ color: 'var(--text-muted)' }}>Skipped (existing): {state.result.skipped}</p>
           {state.result.errors.length > 0 ? (
             <>
               <p className={adminStyles.meta} style={{ color: '#b91c1c', marginTop: '0.5rem', fontWeight: 600 }}>
-                ❌ Errors ({state.result.errors.length}):
+                Errors ({state.result.errors.length}):
               </p>
               <ul style={{ paddingLeft: '1rem', margin: 0 }}>
                 {state.result.errors.map((err, i) => (

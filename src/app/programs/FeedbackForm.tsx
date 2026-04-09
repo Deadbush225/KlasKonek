@@ -18,7 +18,7 @@ export function FeedbackForm({ delivery, hasSubmitted }: Props) {
   if (hasSubmitted || state.success) {
     return (
       <p className={programStyles.feedbackDone}>
-        ✅ Feedback submitted. Thank you!
+        Feedback submitted successfully. Thank you!
       </p>
     );
   }
