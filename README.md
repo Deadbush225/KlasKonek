@@ -23,15 +23,16 @@
 3. [Tech Stack](#tech-stack)
 4. [Repository Structure](#repository-structure)
 5. [Core Features](#core-features)
-6. [Getting Started](#getting-started)
-7. [Environment Variables](#environment-variables)
-8. [Available Scripts](#available-scripts)
-9. [UI/UX Design Direction](#uiux-design-direction)
-10. [Security Hardening](#security-hardening)
-11. [Production Readiness](#production-readiness)
-12. [Success Metrics](#success-metrics)
-13. [Delivery Phases](#delivery-phases)
-14. [Team](#team)
+6. [Platform Screenshots](#platform-screenshots)
+7. [Getting Started](#getting-started)
+8. [Environment Variables](#environment-variables)
+9. [Available Scripts](#available-scripts)
+10. [UI/UX Design Direction](#uiux-design-direction)
+11. [Security Hardening](#security-hardening)
+12. [Production Readiness](#production-readiness)
+13. [Success Metrics](#success-metrics)
+14. [Delivery Phases](#delivery-phases)
+15. [Team](#team)
 
 ---
 
@@ -228,6 +229,63 @@ Geminated/
 
 ---
 
+## Platform Screenshots
+
+<table width="100%">
+  <tr>
+    <td width="50%">
+      <img src="public/img/screenshots/LandingPage.png" alt="Landing Page">
+      <br><b>Landing Page</b>: The welcoming gateway to the STAR-LINK community hub.
+    </td>
+    <td width="50%">
+      <img src="public/img/screenshots/TeacherRegistration.png" alt="Teacher Registration">
+      <br><b>Teacher Registration</b>: Dedicated sign-up flow ensuring authenticated STEM educators.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="public/img/screenshots/TeacherLoginPage(TeacherAccess).png" alt="Teacher Login Page">
+      <br><b>Teacher Login Page</b>: Secure entry point for educators to access their network.
+    </td>
+    <td width="50%">
+      <img src="public/img/screenshots/TeacherProfile.png" alt="Teacher Profile">
+      <br><b>Teacher Profile</b>: A detailed pedagogical profile displaying specializations and expertise.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="public/img/screenshots/ResearchExtensionProjects.png" alt="Research & Extension Projects">
+      <br><b>Research & Extension Projects</b>: The central repository for discovering and scaling classroom innovations.
+    </td>
+    <td width="50%">
+      <img src="public/img/screenshots/RegionalDiscussionForums.png" alt="Regional Discussion Forums">
+      <br><b>Regional Discussion Forums</b>: Interactive spaces for localized peer support and knowledge exchange.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="public/img/screenshots/RegionalTeacherProfileMap.png" alt="Regional Teacher Profile Map">
+      <br><b>Regional Teacher Profile Map</b>: An interactive geospatial tool visualizing collaboration density across provinces.
+    </td>
+    <td width="50%">
+      <img src="public/img/screenshots/STARPrograms.png" alt="STAR Programs">
+      <br><b>STAR Programs</b>: A dedicated module tracking participation and quality feedback for training initiatives.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="public/img/screenshots/AdminDashboard.png" alt="Admin Dashboard">
+      <br><b>Admin Dashboard</b>: A powerful command center for monitoring platform-wide behavior and metrics.
+    </td>
+    <td width="50%">
+      <img src="public/img/screenshots/AdminProfile.png" alt="Admin Profile">
+      <br><b>Admin Profile</b>: Management hub for overseeing regional coordinators and maintaining system health.
+    </td>
+  </tr>
+</table>
+
+---
+
 ## Getting Started
 
 ### Prerequisites
@@ -385,6 +443,9 @@ Configured via `next.config.ts`:
         <a href="https://www.linkedin.com/in/janel-rose-trongcoso-24467b23a/">
           <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
         </a>
+        <a href="https://github.com/jrtrongcoso">
+          <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
+        </a>
       </td>
       <td align="center" style="border: 1px solid #30363d; width: 220px;">
         <img src="public/img/gem.jpeg" alt="Gem Christian Lazo" width="120" height="120" style="object-fit: cover;"><br>
@@ -392,12 +453,18 @@ Configured via `next.config.ts`:
         <a href="https://www.linkedin.com/in/gemchristianolazo/">
           <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
         </a>
+        <a href="https://github.com/gemchristianolazo">
+          <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
+        </a>
       </td>
       <td align="center" style="border: 1px solid #30363d; width: 220px;">
         <img src="public/img/adriel.jpg" alt="Adriel Magalona" width="120" height="120" style="object-fit: cover;"><br>
         <strong>Adriel Magalona</strong><br>
         <a href="https://www.linkedin.com/in/adr1el/">
           <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+        </a>
+        <a href="https://github.com/adr1el-m">
+          <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
         </a>
       </td>
     </tr>
@@ -411,12 +478,18 @@ Configured via `next.config.ts`:
         <a href="https://www.linkedin.com/in/marti-kier-trance-125371370/">
           <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
         </a>
+        <a href="https://github.com/KMarttt">
+          <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
+        </a>
       </td>
       <td align="center" style="border: 1px solid #30363d; width: 220px;">
         <img src="public/img/christine.jpeg" alt="Christine Rio" width="120" height="120" style="object-fit: cover;"><br>
         <strong>Christine Rio</strong><br>
         <a href="https://www.linkedin.com/in/riochristine/">
           <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+        </a>
+        <a href="https://github.com/riochristine">
+          <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
         </a>
       </td>
     </tr>
