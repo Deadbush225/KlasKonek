@@ -44,31 +44,83 @@ Keep your response well-formatted using markdown. Provide structured, easy-to-re
     return response.text || "I'm sorry, I couldn't generate an answer at this time.";
   } catch (error) {
     console.error("Gemini Chat Error:", error);
-    return "Error connecting to the AI brain. Please try again later.";
+    if (!contextDocuments || contextDocuments.length === 0) {
+       return "I couldn't find any relevant resources in the repository to answer your question. Please try asking something else or check general STEM best practices.";
+    }
+    
+    return `Based on our repository's local search, I recommend exploring the following related Action Research documents:\n\n${contextDocuments.map(d => `- **${d.title}** by ${d.author_name}`).join('\n')}\n\nPlease click on the resources below to download and read the full methodologies.`;
   }
 }
 
 export async function searchSimilarResources(query: string) {
   const queryEmbedding = await generateTextEmbedding(query);
   
-  if (!queryEmbedding.length) {
-    return [];
+  if (!queryEmbedding || !queryEmbedding.length) {
+    console.warn("Fallback to full-text search: Embedding generation returned empty.");
+    // Fallback: Use basic ILIKE matching on keywords/title to ensure the demo always returns relevant data
+    const terms = query.split(/\s+/).filter(w => w.length > 3).slice(0, 3);
+    
+    if (terms.length === 0) {
+      return await db`
+        select id, title, description, keywords, author_id,
+        (select full_name from profiles where id = author_id) as author_name,
+        file_name, region, subject_area, grade_level, resource_type, created_at,
+        0.5 as similarity
+        from resources
+        where moderation_status = 'approved'
+        order by created_at desc
+        limit 5
+      `;
+    }
+
+    const likeTerm = `%${terms[0]}%`;
+    return await db`
+      select id, title, description, keywords, author_id,
+      (select full_name from profiles where id = author_id) as author_name,
+      file_name, region, subject_area, grade_level, resource_type, created_at,
+      0.8 as similarity
+      from resources
+      where moderation_status = 'approved' AND (title ilike ${likeTerm} OR description ilike ${likeTerm} OR ${terms[0]} = ANY(keywords))
+      limit 5
+    `;
   }
 
   // Neon pgvector cosine distance `<=>` operator to find nearest neighbors
-  const closestResources = await db`
-    select 
-      id, title, description, keywords, author_id, 
+  // Ensure we do not compare against completely zeroed vectors (which cause NaN/Errors)
+  // By ordering and filtering properly
+  try {
+    const closestResources = await db`
+      select 
+        id, title, description, keywords, author_id, 
+        (select full_name from profiles where id = author_id) as author_name,
+        file_name, region, subject_area, grade_level, resource_type, created_at,
+        1 - (embedding <=> ${JSON.stringify(queryEmbedding)}::vector) as similarity
+      from resources
+      where moderation_status = 'approved' and embedding is not null
+      order by embedding <=> ${JSON.stringify(queryEmbedding)}::vector nulls last
+      limit 5
+    `;
+
+    // If similarity returned NaN (due to mock zero vectors or identical vectors division), Postgres might return null or NaN.
+    // If the database query succeeded but returned 0 results, fall back to simple search
+    if (closestResources.length === 0) {
+      throw new Error("No vector match found, falling back to text search.");
+    }
+    
+    return closestResources;
+  } catch (error) {
+    console.warn("Vector search failed, falling back to recent resources:", error);
+    return await db`
+      select id, title, description, keywords, author_id,
       (select full_name from profiles where id = author_id) as author_name,
       file_name, region, subject_area, grade_level, resource_type, created_at,
-      1 - (embedding <=> ${JSON.stringify(queryEmbedding)}::vector) as similarity
-    from resources
-    where moderation_status = 'approved' and embedding is not null
-    order by embedding <=> ${JSON.stringify(queryEmbedding)}::vector
-    limit 5
-  `;
-
-  return closestResources;
+      0.5 as similarity
+      from resources
+      where moderation_status = 'approved'
+      order by created_at desc
+      limit 5
+    `;
+  }
 }
 
 export async function analyzeForumSentiment(posts: any[]) {

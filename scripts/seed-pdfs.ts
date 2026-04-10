@@ -1,0 +1,152 @@
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+import { Pool } from '@neondatabase/serverless';
+import { jsPDF } from 'jspdf';
+import { GoogleGenAI } from '@google/genai';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootDir = path.resolve(__dirname, '..');
+const envPath = path.join(rootDir, '.env.local');
+
+// 1. Load Environment Variables
+if (!fs.existsSync(envPath)) {
+  throw new Error('.env.local is missing.');
+}
+
+const envText = fs.readFileSync(envPath, 'utf8');
+envText.split(/\r?\n/).forEach(line => {
+  const match = line.match(/^([^=]+)=(.*)$/);
+  if (match) {
+    process.env[match[1].trim()] = match[2].trim();
+  }
+});
+
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error('DATABASE_URL is missing from .env.local.');
+}
+
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey || apiKey.includes('your_gemini_api_key_here')) {
+  console.log("No valid GEMINI_API_KEY found, seeding with default zero embeddings (Semantic search will not be highly accurate without real embeddings).");
+}
+
+const pool = new Pool({ connectionString });
+const ai = apiKey && !apiKey.includes('your_gemini_api_key') ? new GoogleGenAI({ apiKey }) : null;
+
+// 2. Mock Data Pools
+const TOTAL_PDFS = 100;
+
+const TOPICS = [
+  "Integrating Robotics in High School Physics",
+  "Low-Cost Chemistry Lab Alternatives",
+  "Gamification of Algebra Principles",
+  "Effective Online Pedagogy in Rural Areas",
+  "Flipped Classroom Model for Biology",
+  "Assessing Critical Thinking in STEM",
+  "Using AI to Grade Math Assignments",
+  "Improving Scientific Literacy in Grade 7",
+  "Hands-on Experiments with Household Items",
+  "Peer Tutoring Strategies in Mathematics",
+  "Action Research on Inquiry-Based Science",
+  "Overcoming Math Anxiety via Interactive Media",
+  "Building Resilience in Junior High Science",
+  "Data Loggers in Environmental Science",
+  "Micro-certifications for IT Electives"
+];
+
+const REGIONS = ["NCR", "Region I", "Region II", "Region III", "Region IV-A", "CAR"];
+const GRADES = ["Grade 7", "Grade 8", "Grade 9", "Grade 10", "Senior High", "Multi-level"];
+const SUBJECTS = ["Physics", "Chemistry", "Biology", "Mathematics", "Earth Science", "General Science"];
+
+async function run() {
+  console.log("Starting PDF generation and embedding seeding...");
+
+  // Get some valid teacher IDs
+  const authorRes = await pool.query("SELECT id FROM profiles WHERE role = 'teacher' LIMIT 20");
+  if (authorRes.rowCount === 0) {
+    throw new Error('No teachers found in DB. Please run `npm run seed` first to populate profiles.');
+  }
+  const authors = authorRes.rows.map((r: any) => r.id);
+
+  for (let i = 1; i <= TOTAL_PDFS; i++) {
+    const topic = TOPICS[Math.floor(Math.random() * TOPICS.length)];
+    const region = REGIONS[Math.floor(Math.random() * REGIONS.length)];
+    const grade = GRADES[Math.floor(Math.random() * GRADES.length)];
+    const subject = SUBJECTS[Math.floor(Math.random() * SUBJECTS.length)];
+    const authorId = authors[Math.floor(Math.random() * authors.length)];
+
+    const title = `${topic}: Regional Insight ${Math.floor(Math.random() * 1000)}`;
+    const description = `This document provides insights on ${topic.toLowerCase()} specifically tailored for ${grade} students in ${region}. It discusses methodologies and outcomes observed in local classrooms focusing on ${subject}.`;
+    const keywordsStr = `${subject}, ${grade}, pedagogy, ${topic.split(' ')[0]}`;
+
+    // Generate PDF Buffer
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text(title, 20, 20);
+    doc.setFontSize(12);
+    
+    // Add text body
+    const splitText = doc.splitTextToSize(description, 170);
+    doc.text(splitText, 20, 30);
+    
+    // Add metadata
+    doc.text(`Region: ${region}`, 20, 70);
+    doc.text(`Subject: ${subject}`, 20, 80);
+    doc.text(`Grade Level: ${grade}`, 20, 90);
+    doc.text(`Keywords: ${keywordsStr}`, 20, 100);
+    
+    const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+
+    // Generate AI Embedding
+    const textForEmbedding = `${title}\n\n${description}\n\n${keywordsStr}`;
+    let embeddingValues = new Array(768).fill(0); // fallback
+
+    if (ai) {
+      try {
+        const response = await ai.models.embedContent({
+          model: 'text-embedding-004',
+          contents: textForEmbedding,
+        });
+        if (response.embeddings && response.embeddings.length > 0) {
+          embeddingValues = response.embeddings[0].values || new Array(768).fill(0);
+        }
+      } catch(err: any) {
+        console.error(`Gemini embedding failed for [${i}]:`, err.message);
+      }
+    }
+
+    const embeddingStr = `[${embeddingValues.join(',')}]`;
+    const fileName = `${title.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30)}.pdf`;
+
+    // Insert into DB
+    await pool.query(
+      `INSERT INTO resources (
+        id, title, description, region, subject_area, grade_level, resource_type,
+        keywords, file_name, mime_type, file_size, file_data, moderation_status,
+        author_id, embedding, created_at
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+      )`,
+      [
+        crypto.randomUUID(), title, description, region, subject, grade, 'Action Research',
+        keywordsStr.split(', '), fileName, 'application/pdf',
+        pdfBuffer.byteLength, pdfBuffer, 'approved', authorId, embeddingStr,
+        new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString() // Random past date
+      ]
+    );
+
+    console.log(`[${i}/${TOTAL_PDFS}] Successfully seeded: ${title}`);
+    
+    // 200ms delay to respect rate limits (if calling API)
+    if (ai) await new Promise(r => setTimeout(r, 200));
+  }
+
+  console.log("Completed seeding 100 mock PDFs!");
+  process.exit(0);
+}
+
+run().catch(console.error);
