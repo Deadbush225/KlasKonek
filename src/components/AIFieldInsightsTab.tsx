@@ -2,8 +2,17 @@
 
 import { useState } from 'react';
 import { runForumDiagnosticsAction } from '@/app/actions/ai';
-import { AiFieldAlert } from '@/lib/community';
 import adminStyles from '@/app/admin/admin.module.css';
+
+type AiFieldAlert = {
+  id?: string;
+  region: string;
+  cluster_title: string;
+  sentiment: string;
+  affected_count: number;
+  description: string;
+  suggested_intervention: string;
+};
 
 type Props = {
   initialAlerts: AiFieldAlert[];
@@ -18,7 +27,7 @@ export default function AIFieldInsightsTab({ initialAlerts }: Props) {
     setLoading(true);
     setMessage(null);
     try {
-      const result = await runForumDiagnosticsAction();
+      const result = await runForumDiagnosticsAction(new FormData());
       if (result.error) {
         setMessage(`Error: ${result.error}`);
       } else {
@@ -69,8 +78,8 @@ export default function AIFieldInsightsTab({ initialAlerts }: Props) {
             <p className={adminStyles.empty}>No AI field insights generated yet. Click the button above to start the first scan.</p>
           </div>
         ) : (
-          alerts.map((insight) => (
-            <article key={insight.id} className="card" style={{ border: '1px solid var(--border)' }}>
+          alerts.map((insight, index) => (
+            <article key={insight.id ?? `${insight.region}-${insight.cluster_title}-${index}`} className="card" style={{ border: '1px solid var(--border)' }}>
               <div className={adminStyles.itemHeader}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <span style={{ 

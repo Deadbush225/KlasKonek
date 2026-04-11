@@ -5,9 +5,9 @@ import { askAiAction } from '@/app/actions/ai';
 import Link from 'next/link';
 
 type ResourceMatch = {
-  id: string;
-  title: string;
-  author_name: string;
+  id?: string;
+  title?: string;
+  author_name?: string;
   description?: string;
   region?: string;
   subject_area?: string;
@@ -207,22 +207,26 @@ export default function AIRepositorySearch() {
                       const relevance = formatSimilarity(doc.similarity);
 
                       return (
-                      <div key={doc.id} style={{ ...styles.sourceCard, ...(isMobile ? styles.sourceCardMobile : {}) }}>
+                      <div key={doc.id ?? `resource-${index}`} style={{ ...styles.sourceCard, ...(isMobile ? styles.sourceCardMobile : {}) }}>
                         <div style={styles.sourceIndex}>{index + 1}</div>
                         <div style={{ ...styles.sourceDetails, ...(isMobile ? styles.sourceDetailsMobile : {}) }}>
-                          <strong style={styles.sourceName}>{doc.title}</strong>
-                          <span style={styles.sourceAuthor}>by {doc.author_name}</span>
+                          <strong style={styles.sourceName}>{doc.title ?? 'Untitled resource'}</strong>
+                          <span style={styles.sourceAuthor}>by {doc.author_name ?? 'Unknown author'}</span>
                           <span style={styles.sourceMeta}>
                             {[doc.region, doc.subject_area, relevance].filter(Boolean).join(' • ')}
                           </span>
                         </div>
                         <div style={{ ...styles.sourceActions, ...(isMobile ? styles.sourceActionsMobile : {}) }}>
-                          <Link href={`/repository#resource-${doc.id}`} style={styles.sourceLinkBtn}>
-                            View Post
-                          </Link>
-                          <Link href={`/api/documents/${doc.id}`} style={styles.sourceFileBtn}>
-                            Open File
-                          </Link>
+                          {doc.id ? (
+                            <>
+                              <Link href={`/repository#resource-${doc.id}`} style={styles.sourceLinkBtn}>
+                                View Post
+                              </Link>
+                              <Link href={`/api/documents/${doc.id}`} style={styles.sourceFileBtn}>
+                                Open File
+                              </Link>
+                            </>
+                          ) : null}
                         </div>
                       </div>
                     )})}

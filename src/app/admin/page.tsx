@@ -46,6 +46,11 @@ type AdminTabId =
   | 'ai-alerts'
   | 'training-gaps';
 
+async function runForumDiagnosticsFormAction(_formData: FormData): Promise<void> {
+  'use server';
+  await runForumDiagnosticsAction(_formData);
+}
+
 export default async function AdminPage({ searchParams }: PageProps) {
   const user = await getCurrentUser();
 
@@ -646,7 +651,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
         <section className={adminStyles.section}>
           <div className={adminStyles.sectionHeaderInline}>
             <h2 className={adminStyles.sectionTitle}>AI Field Diagnostics ({aiFieldAlerts.length})</h2>
-            <form action={runForumDiagnosticsAction}>
+            <form action={runForumDiagnosticsFormAction}>
               <button type="submit" className="btn btn-primary">Run Diagnostic Scan</button>
             </form>
           </div>
