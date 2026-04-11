@@ -8,8 +8,8 @@ Thank you for your interest in contributing to STAR-LINK. This document covers l
 
 | Tool | Minimum Version |
 |:-----|:----------------|
-| Node.js | 18.x |
-| npm | 9.x |
+| Node.js | 20.9.x |
+| npm | 10.x |
 | PostgreSQL | 14.x (Neon recommended) |
 
 ---
