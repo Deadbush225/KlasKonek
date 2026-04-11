@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/img/favicon.png" alt="STAR-LINK Logo" width="100" height="100">
+  <img src="public/img/favicon.png" alt="STAR-LINK Logo" width="220" height="220">
 
   # STAR-LINK
 
@@ -58,54 +58,219 @@ The goal is to transform isolated innovations into nationally shared assets for 
 
 ### Core Framework
 
-| Layer | Technology | Version | Purpose |
-|:------|:-----------|:--------|:--------|
-| Framework | ![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat&logo=nextdotjs&logoColor=white) | 16.2 | Server-side rendering, routing, API routes |
-| UI Library | ![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB) | 19.2 | Component-based user interface |
-| Language | ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white) | 5.x | Static type safety across the codebase |
-| Styling | ![CSS Modules](https://img.shields.io/badge/CSS_Modules-1572B6?style=flat&logo=css3&logoColor=white) | -- | Scoped component styles with shared design tokens |
+<table width="100%" style="width: 100%; table-layout: fixed;">
+  <thead>
+    <tr>
+      <th align="left" width="18%">Layer</th>
+      <th align="left" width="28%">Technology</th>
+      <th align="left" width="12%">Version</th>
+      <th align="left" width="42%">Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Framework</td>
+      <td><img src="https://img.shields.io/badge/Next.js-000000?style=flat&logo=nextdotjs&logoColor=white" alt="Next.js"></td>
+      <td>16.2</td>
+      <td>Server-side rendering, routing, API routes</td>
+    </tr>
+    <tr>
+      <td>UI Library</td>
+      <td><img src="https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB" alt="React"></td>
+      <td>19.2</td>
+      <td>Component-based user interface</td>
+    </tr>
+    <tr>
+      <td>Language</td>
+      <td><img src="https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white" alt="TypeScript"></td>
+      <td>5.x</td>
+      <td>Static type safety across the codebase</td>
+    </tr>
+    <tr>
+      <td>Styling</td>
+      <td><img src="https://img.shields.io/badge/CSS_Modules-1572B6?style=flat&logo=css3&logoColor=white" alt="CSS Modules"></td>
+      <td>--</td>
+      <td>Scoped component styles with shared design tokens</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Data and Authentication
 
-| Layer | Technology | Version | Purpose |
-|:------|:-----------|:--------|:--------|
-| Database | ![Neon Postgres](https://img.shields.io/badge/Neon_Postgres-00E599?style=flat&logo=postgresql&logoColor=white) | -- | Serverless managed relational data store |
-| Query Layer | ![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-C5F74F?style=flat&logo=drizzle&logoColor=black) | 0.45 | Type-safe SQL queries and schema management |
-| Database Driver | ![Neon Serverless](https://img.shields.io/badge/Neon_Serverless-00E599?style=flat&logo=postgresql&logoColor=white) | 1.x | HTTP-based PostgreSQL driver for edge/serverless |
-| Schema Tooling | ![Drizzle Kit](https://img.shields.io/badge/Drizzle_Kit-C5F74F?style=flat&logo=drizzle&logoColor=black) | 0.31 | Migration generation and schema push |
-| Authentication | ![Custom Auth](https://img.shields.io/badge/Custom_Auth-000000?style=flat) | -- | Server actions with bcryptjs password hashing |
-| Auth Integration | ![NextAuth](https://img.shields.io/badge/NextAuth.js-000000?style=flat&logo=nextdotjs&logoColor=white) | 5.0-beta | Available for OAuth/social login expansion |
+<table width="100%" style="width: 100%; table-layout: fixed;">
+  <thead>
+    <tr>
+      <th align="left" width="18%">Layer</th>
+      <th align="left" width="28%">Technology</th>
+      <th align="left" width="12%">Version</th>
+      <th align="left" width="42%">Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Database</td>
+      <td><img src="https://img.shields.io/badge/Neon_Postgres-00E599?style=flat&logo=postgresql&logoColor=white" alt="Neon Postgres"></td>
+      <td>--</td>
+      <td>Serverless managed relational data store</td>
+    </tr>
+    <tr>
+      <td>Query Layer</td>
+      <td><img src="https://img.shields.io/badge/Drizzle_ORM-C5F74F?style=flat&logo=drizzle&logoColor=black" alt="Drizzle ORM"></td>
+      <td>0.45</td>
+      <td>Type-safe SQL queries and schema management</td>
+    </tr>
+    <tr>
+      <td>Database Driver</td>
+      <td><img src="https://img.shields.io/badge/Neon_Serverless-00E599?style=flat&logo=postgresql&logoColor=white" alt="Neon Serverless"></td>
+      <td>1.x</td>
+      <td>HTTP-based PostgreSQL driver for edge/serverless</td>
+    </tr>
+    <tr>
+      <td>Schema Tooling</td>
+      <td><img src="https://img.shields.io/badge/Drizzle_Kit-C5F74F?style=flat&logo=drizzle&logoColor=black" alt="Drizzle Kit"></td>
+      <td>0.31</td>
+      <td>Migration generation and schema push</td>
+    </tr>
+    <tr>
+      <td>Authentication</td>
+      <td><img src="https://img.shields.io/badge/Custom_Auth-000000?style=flat" alt="Custom Auth"></td>
+      <td>--</td>
+      <td>Server actions with bcryptjs password hashing</td>
+    </tr>
+    <tr>
+      <td>Auth Integration</td>
+      <td><img src="https://img.shields.io/badge/NextAuth.js-000000?style=flat&logo=nextdotjs&logoColor=white" alt="NextAuth"></td>
+      <td>5.0-beta</td>
+      <td>Available for OAuth/social login expansion</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Maps, Visualization, and Reporting
 
-| Layer | Technology | Version | Purpose |
-|:------|:-----------|:--------|:--------|
-| Maps | ![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=flat&logo=leaflet&logoColor=white) | 1.9 / 5.0 | Interactive geospatial map and collaboration overlays |
-| Charts | ![Recharts](https://img.shields.io/badge/Recharts-22B5BF?style=flat) | 3.8 | Admin dashboard analytics visualizations |
-| PDF Export | ![jsPDF](https://img.shields.io/badge/jsPDF-FF0000?style=flat) | 4.2 / 5.0 | Server-side and client-side report generation |
-| Geospatial Data | ![GeoJSON](https://img.shields.io/badge/GeoJSON-333333?style=flat) | -- | Regional boundary rendering on the collaboration map |
+<table width="100%" style="width: 100%; table-layout: fixed;">
+  <thead>
+    <tr>
+      <th align="left" width="18%">Layer</th>
+      <th align="left" width="28%">Technology</th>
+      <th align="left" width="12%">Version</th>
+      <th align="left" width="42%">Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Maps</td>
+      <td><img src="https://img.shields.io/badge/Leaflet-199900?style=flat&logo=leaflet&logoColor=white" alt="Leaflet"></td>
+      <td>1.9 / 5.0</td>
+      <td>Interactive geospatial map and collaboration overlays</td>
+    </tr>
+    <tr>
+      <td>Charts</td>
+      <td><img src="https://img.shields.io/badge/Recharts-22B5BF?style=flat" alt="Recharts"></td>
+      <td>3.8</td>
+      <td>Admin dashboard analytics visualizations</td>
+    </tr>
+    <tr>
+      <td>PDF Export</td>
+      <td><img src="https://img.shields.io/badge/jsPDF-FF0000?style=flat" alt="jsPDF"></td>
+      <td>4.2 / 5.0</td>
+      <td>Server-side and client-side report generation</td>
+    </tr>
+    <tr>
+      <td>Geospatial Data</td>
+      <td><img src="https://img.shields.io/badge/GeoJSON-333333?style=flat" alt="GeoJSON"></td>
+      <td>--</td>
+      <td>Regional boundary rendering on the collaboration map</td>
+    </tr>
+  </tbody>
+</table>
 
 ### File Storage
 
-| Layer | Technology | Version | Purpose |
-|:------|:-----------|:--------|:--------|
-| Document Storage | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white) | -- | Binary document storage for current uploads |
-| Blob Storage | ![Vercel Blob](https://img.shields.io/badge/Vercel_Blob-000000?style=flat&logo=vercel&logoColor=white) | 2.3 | Available for large file offloading |
+<table width="100%" style="width: 100%; table-layout: fixed;">
+  <thead>
+    <tr>
+      <th align="left" width="18%">Layer</th>
+      <th align="left" width="28%">Technology</th>
+      <th align="left" width="12%">Version</th>
+      <th align="left" width="42%">Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Document Storage</td>
+      <td><img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white" alt="PostgreSQL"></td>
+      <td>--</td>
+      <td>Binary document storage for current uploads</td>
+    </tr>
+    <tr>
+      <td>Blob Storage</td>
+      <td><img src="https://img.shields.io/badge/Vercel_Blob-000000?style=flat&logo=vercel&logoColor=white" alt="Vercel Blob"></td>
+      <td>2.3</td>
+      <td>Available for large file offloading</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Tooling and Quality
 
-| Layer | Technology | Version | Purpose |
-|:------|:-----------|:--------|:--------|
-| CI Pipeline | NPM | -- | Lint, typecheck, and build in a single command |
+<table width="100%" style="width: 100%; table-layout: fixed;">
+  <thead>
+    <tr>
+      <th align="left" width="18%">Layer</th>
+      <th align="left" width="28%">Technology</th>
+      <th align="left" width="12%">Version</th>
+      <th align="left" width="42%">Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>CI Pipeline</td>
+      <td>NPM</td>
+      <td>--</td>
+      <td>Lint, typecheck, and build in a single command</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Knowledge Intelligence (AI Layer)
 
-| Layer | Technology | Model | Purpose |
-|:------|:-----------|:------|:--------|
-| Inference Engine | ![Groq](https://img.shields.io/badge/Groq-f55036?style=flat) | Llama-3.1 / 3.3 | High-velocity LLM inference for RAG and NLP |
-| Synthesis Layer | ![RAG](https://img.shields.io/badge/RAG-000000?style=flat) | Custom | Context-grounded pedagogical answer synthesis |
-| Analysis Layer | ![NLP](https://img.shields.io/badge/NLP-000000?style=flat) | Custom | Thematic clustering of regional forum discourse |
-| Embedding Fallback | ![Lexical](https://img.shields.io/badge/Lexical_Search-000000?style=flat) | Heuristic | Rule-based fallback for high-availability diagnostics |
+<table width="100%" style="width: 100%; table-layout: fixed;">
+  <thead>
+    <tr>
+      <th align="left" width="18%">Layer</th>
+      <th align="left" width="28%">Technology</th>
+      <th align="left" width="12%">Model</th>
+      <th align="left" width="42%">Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Inference Engine</td>
+      <td><img src="https://img.shields.io/badge/Groq-f55036?style=flat" alt="Groq"></td>
+      <td>Llama-3.1 / 3.3</td>
+      <td>High-velocity LLM inference for RAG and NLP</td>
+    </tr>
+    <tr>
+      <td>Synthesis Layer</td>
+      <td><img src="https://img.shields.io/badge/RAG-000000?style=flat" alt="RAG"></td>
+      <td>Custom</td>
+      <td>Context-grounded pedagogical answer synthesis</td>
+    </tr>
+    <tr>
+      <td>Analysis Layer</td>
+      <td><img src="https://img.shields.io/badge/NLP-000000?style=flat" alt="NLP"></td>
+      <td>Custom</td>
+      <td>Thematic clustering of regional forum discourse</td>
+    </tr>
+    <tr>
+      <td>Embedding Fallback</td>
+      <td><img src="https://img.shields.io/badge/Lexical_Search-000000?style=flat" alt="Lexical Search"></td>
+      <td>Heuristic</td>
+      <td>Rule-based fallback for high-availability diagnostics</td>
+    </tr>
+  </tbody>
+</table>
 
 
 ---
@@ -293,77 +458,82 @@ Geminated/
 
 ## Screenshots
 
-### 1. Landing Page
-
-![Landing Page](public/img/screenshots/LandingPage.png)
-
-Main entry screen that introduces STAR-LINK and guides educators into the platform.
-
-### 2. Teacher Registration
-
-![Teacher Registration](public/img/screenshots/TeacherRegistration.png)
-
-Registration flow where educators provide profile and institutional information.
-
-### 3. Teacher Login (Teacher Access)
-
-![Teacher Login](public/img/screenshots/TeacherLoginPage%28TeacherAccess%29.png)
-
-Secure sign-in interface for returning teachers and administrators.
-
-### 4. Teacher Profile
-
-![Teacher Profile](public/img/screenshots/TeacherProfile.png)
-
-Personal profile page showing educator details, credentials, and participation context.
-
-### 5. STAR Programs
-
-![STAR Programs](public/img/screenshots/STARPrograms.png)
-
-Program listing view for available STAR initiatives and related activities.
-
-### 6. Research and Extension Projects
-
-![Research and Extension Projects](public/img/screenshots/ResearchExtensionProjects.png)
-
-Repository page for browsing and sharing action research and extension outputs.
-
-### 7. Regional Discussion Forums
-
-![Regional Discussion Forums](public/img/screenshots/RegionalDiscussionForums.png)
-
-Community forum space where teachers exchange field experiences and strategies.
-
-### 8. Regional Teacher Profile Map
-
-![Regional Teacher Profile Map](public/img/screenshots/RegionalTeacherProfileMap.png)
-
-Map-based visualization of educator presence and regional collaboration patterns.
-
-### 9. Scholarly Synthesis and Pedagogical Guidance
-
-![Scholarly Synthesis and Pedagogical Guidance](public/img/screenshots/Scholarly%20SynthesisPedagogicalGuidance.png)
-
-AI-assisted synthesis panel that returns evidence-grounded teaching guidance.
-
-### 10. Admin Dashboard
-
-![Admin Dashboard](public/img/screenshots/AdminDashboard.png)
-
-Administrative analytics and moderation hub for oversight and planning decisions.
-
-### 11. Admin Profile
-
-![Admin Profile](public/img/screenshots/AdminProfile.png)
-
-Administrator profile and account management screen.
-
-### 12. AI Field Diagnostics
-
-![AI Field Diagnostics](public/img/screenshots/AIFieldDiagnostics.png)
-
-AI diagnostics view highlighting regional clusters, signals, and suggested interventions.
+<div align="center">
+  <table border="0" cellpadding="12" cellspacing="0" style="border-collapse: collapse; width: 100%; table-layout: fixed;">
+    <tr>
+      <td align="center" width="50%">
+        <strong>1. Landing Page</strong><br>
+        <img src="public/img/screenshots/LandingPage.png" alt="Landing Page" width="100%"><br>
+        <sub>Main entry screen that introduces STAR-LINK and guides educators into the platform.</sub>
+      </td>
+      <td align="center" width="50%">
+        <strong>2. Teacher Registration</strong><br>
+        <img src="public/img/screenshots/TeacherRegistration.png" alt="Teacher Registration" width="100%"><br>
+        <sub>Registration flow where educators provide profile and institutional information.</sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" width="50%">
+        <strong>3. Teacher Login (Teacher Access)</strong><br>
+        <img src="public/img/screenshots/TeacherLoginPage%28TeacherAccess%29.png" alt="Teacher Login" width="100%"><br>
+        <sub>Secure sign-in interface for returning teachers and administrators.</sub>
+      </td>
+      <td align="center" width="50%">
+        <strong>4. Teacher Profile</strong><br>
+        <img src="public/img/screenshots/TeacherProfile.png" alt="Teacher Profile" width="100%"><br>
+        <sub>Personal profile page showing educator details, credentials, and participation context.</sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" width="50%">
+        <strong>5. STAR Programs</strong><br>
+        <img src="public/img/screenshots/STARPrograms.png" alt="STAR Programs" width="100%"><br>
+        <sub>Program listing view for available STAR initiatives and related activities.</sub>
+      </td>
+      <td align="center" width="50%">
+        <strong>6. Research and Extension Projects</strong><br>
+        <img src="public/img/screenshots/ResearchExtensionProjects.png" alt="Research and Extension Projects" width="100%"><br>
+        <sub>Repository page for browsing and sharing action research and extension outputs.</sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" width="50%">
+        <strong>7. Regional Discussion Forums</strong><br>
+        <img src="public/img/screenshots/RegionalDiscussionForums.png" alt="Regional Discussion Forums" width="100%"><br>
+        <sub>Community forum space where teachers exchange field experiences and strategies.</sub>
+      </td>
+      <td align="center" width="50%">
+        <strong>8. Regional Teacher Profile Map</strong><br>
+        <img src="public/img/screenshots/RegionalTeacherProfileMap.png" alt="Regional Teacher Profile Map" width="100%"><br>
+        <sub>Map-based visualization of educator presence and regional collaboration patterns.</sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" width="50%">
+        <strong>9. Scholarly Synthesis and Pedagogical Guidance</strong><br>
+        <img src="public/img/screenshots/Scholarly%20SynthesisPedagogicalGuidance.png" alt="Scholarly Synthesis and Pedagogical Guidance" width="100%"><br>
+        <sub>AI-assisted synthesis panel that returns evidence-grounded teaching guidance.</sub>
+      </td>
+      <td align="center" width="50%">
+        <strong>10. Admin Dashboard</strong><br>
+        <img src="public/img/screenshots/AdminDashboard.png" alt="Admin Dashboard" width="100%"><br>
+        <sub>Administrative analytics and moderation hub for oversight and planning decisions.</sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" width="50%">
+        <strong>11. Admin Profile</strong><br>
+        <img src="public/img/screenshots/AdminProfile.png" alt="Admin Profile" width="100%"><br>
+        <sub>Administrator profile and account management screen.</sub>
+      </td>
+      <td align="center" width="50%">
+        <strong>12. AI Field Diagnostics</strong><br>
+        <img src="public/img/screenshots/AIFieldDiagnostics.png" alt="AI Field Diagnostics" width="100%"><br>
+        <sub>AI diagnostics view highlighting regional clusters, signals, and suggested interventions.</sub>
+      </td>
+    </tr>
+  </table>
+</div>
 
 ---
 
