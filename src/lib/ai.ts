@@ -411,6 +411,23 @@ export async function searchSimilarResources(query: string) {
       `;
     }
 
+    try {
+      const results = await db`
+        select id, title, description, keywords, author_id,
+        (select full_name from profiles where id = author_id) as author_name,
+        file_name, region, subject_area, grade_level, resource_type, created_at,
+        ts_rank(to_tsvector('english', coalesce(title,'') || ' ' || coalesce(description,'')), websearch_to_tsquery('english', ${query})) as similarity
+        from resources
+        where moderation_status = 'approved' 
+          and to_tsvector('english', coalesce(title,'') || ' ' || coalesce(description,'')) @@ websearch_to_tsquery('english', ${query})
+        order by similarity desc
+        limit 5
+      `;
+      if (results.length > 0) return results;
+    } catch (e) {
+      console.warn("FTS failed", e);
+    }
+
     const likeTerm = `%${terms[0]}%`;
     return await db`
       select id, title, description, keywords, author_id,
@@ -419,6 +436,7 @@ export async function searchSimilarResources(query: string) {
       0.8 as similarity
       from resources
       where moderation_status = 'approved' AND (title ilike ${likeTerm} OR description ilike ${likeTerm} OR ${terms[0]} = ANY(keywords))
+      order by created_at desc
       limit 5
     `;
   }
