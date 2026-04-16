@@ -27,7 +27,7 @@ export default function AIFieldInsightsTab({ initialAlerts }: Props) {
     setLoading(true);
     setMessage(null);
     try {
-      const result = await runForumDiagnosticsAction(new FormData());
+      const result = await runForumDiagnosticsAction();
       if (result.error) {
         setMessage(`Error: ${result.error}`);
       } else {

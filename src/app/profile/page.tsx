@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import ProfileEditForm from '@/components/ProfileEditForm';
 import { AddTrainingForm } from '@/components/AddTrainingForm';
+import PrivacyPanel from '@/components/PrivacyPanel';
 import { formatDateTimeNoSeconds } from '@/lib/date-format';
 import { getNotificationsForUser, getUnreadNotificationCount } from '@/lib/notifications';
 import { markAllNotificationsReadAction } from '@/app/actions/notifications';
@@ -25,7 +26,8 @@ function getAvatarByName(name: string, role: string) {
   return null;
 }
 
-export default async function ProfilePage() {
+export default async function ProfilePage({ searchParams }: { searchParams: Promise<{ updated?: string; deletion_requested?: string; deletion_cancelled?: string }> }) {
+  const params = await searchParams;
   const profile = await getCurrentUser();
 
   if (!profile) {
@@ -117,12 +119,7 @@ export default async function ProfilePage() {
             <span>Data Quality Score</span>
             <strong>{profile.data_quality_score}/100</strong>
           </div>
-          <div className={profileStyles.infoItem}>
-            <span>Privacy & Consent</span>
-            <strong>
-              Processing: {profile.consent_data_processing ? 'Granted' : 'Not Granted'} • Research: {profile.consent_research ? 'Granted' : 'Not Granted'} • Anonymization Opt-out: {profile.anonymization_opt_out ? 'Yes' : 'No'}
-            </strong>
-          </div>
+
           <div className={profileStyles.infoItem}>
             <span>Last Profile Update</span>
             <strong>{formatDateTimeNoSeconds(profile.profile_last_updated_at)}</strong>
@@ -192,6 +189,22 @@ export default async function ProfilePage() {
               }}
             />
           </div>
+        </section>
+
+        <section className={`${profileStyles.infoSection} card`}>
+          <h3>Data Privacy &amp; Account</h3>
+          {params.deletion_requested === '1' ? <p style={{ color: '#dc2626', fontWeight: 600, marginBottom: '0.75rem' }}>✓ Account deletion has been requested. You have 30 days to cancel.</p> : null}
+          {params.deletion_cancelled === '1' ? <p style={{ color: '#22863a', fontWeight: 600, marginBottom: '0.75rem' }}>✓ Deletion request has been cancelled. Your account is safe.</p> : null}
+          <PrivacyPanel
+            consentDataProcessing={profile.consent_data_processing}
+            consentResearch={profile.consent_research}
+            anonymizationOptOut={profile.anonymization_opt_out}
+            consentVersion={profile.consent_version}
+            consentedAt={profile.consented_at}
+            dataRetentionExpiresAt={profile.data_retention_expires_at}
+            deletionRequestedAt={profile.deletion_requested_at}
+            createdAt={profile.created_at}
+          />
         </section>
 
         <section className={`${profileStyles.activitySection} card`}>

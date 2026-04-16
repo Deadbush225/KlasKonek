@@ -3,6 +3,7 @@
 import { searchSimilarResources, synthesizeAiAnswer, analyzeForumSentiment } from '@/lib/ai';
 import { db } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
+import { ensureAiFieldAlertsSchema } from '@/lib/ai-alerts';
 import { revalidatePath } from 'next/cache';
 
 export async function askAiAction(query: string) {
@@ -26,19 +27,21 @@ export async function askAiAction(query: string) {
       answer,
       resources: similarResources
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("AI Action Error:", err);
     return { error: 'Something went wrong while asking the AI. Please try again later.' };
   }
 }
 
-export async function runForumDiagnosticsAction(_formData: FormData) {
+export async function runForumDiagnosticsAction() {
   const user = await getCurrentUser();
   if (!user || user.role !== 'admin') {
     return { error: 'Unauthorized' };
   }
 
   try {
+    await ensureAiFieldAlertsSchema();
+
     // 1. Fetch latest approved forum posts
     const posts = await db`
       select region, title, content 

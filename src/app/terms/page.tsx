@@ -51,9 +51,25 @@ export default function TermsPage() {
             Data is used exclusively for account management, community facilitation, and programme analytics.
           </p>
           <p style={{ marginTop: '0.75rem' }}>
+            <strong>Data Retention:</strong> Your profile data is retained for <strong>5 years</strong> from the
+            date of registration. After this period, your data is automatically anonymized. Session tokens expire
+            after 30 days. Audit and consent logs are retained for 7 years for compliance purposes.
+          </p>
+          <p style={{ marginTop: '0.75rem' }}>
+            <strong>Account Deletion:</strong> You may request deletion of your account at any time from your profile page.
+            A 30-day grace period applies, during which you may cancel the request. After the grace period, your
+            profile will be permanently anonymized — personal identifiers will be replaced with redacted values, and
+            forum content will be replaced with a redaction notice.
+          </p>
+          <p style={{ marginTop: '0.75rem' }}>
+            <strong>Data Portability:</strong> You may export all data associated with your account as a
+            machine-readable JSON file from your profile page at any time.
+          </p>
+          <p style={{ marginTop: '0.75rem' }}>
             You may request access to, correction of, or deletion of your personal data at any time by
             contacting the platform administrator. Profile data marked for anonymisation will be de-identified
-            in all analytics outputs.
+            in all analytics outputs. For full details, see our{' '}
+            <a href="/privacy" style={{ color: 'var(--primary-blue)', textDecoration: 'underline' }}>Privacy Policy</a>.
           </p>
         </section>
 

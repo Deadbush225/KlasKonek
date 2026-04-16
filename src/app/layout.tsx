@@ -50,6 +50,11 @@ export default async function RootLayout({
           <footer className={layoutStyles.footer}>
             <div className={layoutStyles.container}>
               <p>&copy; {new Date().getFullYear()} DOST-SEI STAR-LINK. A collaborative space for STEM educators.</p>
+              <p style={{ marginTop: '0.4rem', fontSize: '0.85rem' }}>
+                <a href="/privacy" style={{ color: 'var(--primary-blue)', fontWeight: 600 }}>Privacy Policy</a>
+                <span style={{ margin: '0 0.5rem', opacity: 0.5 }}>·</span>
+                <a href="/terms" style={{ color: 'var(--primary-blue)', fontWeight: 600 }}>Terms &amp; Conditions</a>
+              </p>
             </div>
           </footer>
         </div>

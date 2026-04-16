@@ -1,7 +1,9 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { db } from './db';
+import { ensurePrivacySchema, logConsentChange } from './privacy';
 
 export type UserRole = 'teacher' | 'admin';
 
@@ -32,6 +34,9 @@ export type Profile = {
   data_quality_score: number;
   role: UserRole;
   created_at: string;
+  data_retention_expires_at: string | null;
+  deletion_requested_at: string | null;
+  deletion_reason: string | null;
 };
 
 export type PublicProfile = {
@@ -61,6 +66,8 @@ let termsSchemaReady: Promise<void> | null = null;
 async function ensureTermsSchema() {
   if (!termsSchemaReady) {
     termsSchemaReady = (async () => {
+      await ensurePrivacySchema();
+
       await db`
         alter table profiles
         add column if not exists terms_version text not null default 'v1.0'
@@ -111,7 +118,7 @@ async function createSession(userId: string) {
   await setSessionCookie(token);
 }
 
-export async function getCurrentUser(): Promise<Profile | null> {
+async function _getCurrentUser(): Promise<Profile | null> {
   await ensureTermsSchema();
 
   const cookieStore = await cookies();
@@ -148,7 +155,10 @@ export async function getCurrentUser(): Promise<Profile | null> {
       p.years_of_experience,
       p.data_quality_score,
       p.role,
-      p.created_at
+      p.created_at,
+      p.data_retention_expires_at,
+      p.deletion_requested_at,
+      p.deletion_reason
     from auth_sessions s
     inner join profiles p on p.id = s.user_id
     where s.token = ${token}
@@ -158,6 +168,13 @@ export async function getCurrentUser(): Promise<Profile | null> {
 
   return rows[0] ?? null;
 }
+
+/**
+ * Request-scoped cached version of getCurrentUser.
+ * React's cache() deduplicates calls within a single server render,
+ * so layout.tsx + page.tsx calling this only hits Neon once per request.
+ */
+export const getCurrentUser = cache(_getCurrentUser);
 
 export async function registerUser(input: {
   fullName: string;
@@ -289,7 +306,10 @@ export async function registerUser(input: {
       years_of_experience,
       data_quality_score,
       role,
-      created_at
+      created_at,
+      data_retention_expires_at,
+      deletion_requested_at,
+      deletion_reason
   `) as Profile[];
 
   const user = rows[0];
@@ -334,6 +354,9 @@ export async function loginUser(input: { email: string; password: string }) {
       data_quality_score,
       role,
       created_at,
+      data_retention_expires_at,
+      deletion_requested_at,
+      deletion_reason,
       password_hash
     from profiles
     where email = ${email}
@@ -400,6 +423,18 @@ export async function updateCurrentUserProfile(input: {
     throw new Error('You must be signed in to update your profile.');
   }
 
+  // Track consent changes for PDPA compliance audit log
+  const consentChanges: Array<{ field: string; oldVal: string; newVal: string }> = [];
+  if (currentUser.consent_data_processing !== input.consentDataProcessing) {
+    consentChanges.push({ field: 'consent_data_processing', oldVal: String(currentUser.consent_data_processing), newVal: String(input.consentDataProcessing) });
+  }
+  if (currentUser.consent_research !== input.consentResearch) {
+    consentChanges.push({ field: 'consent_research', oldVal: String(currentUser.consent_research), newVal: String(input.consentResearch) });
+  }
+  if (currentUser.anonymization_opt_out !== input.anonymizationOptOut) {
+    consentChanges.push({ field: 'anonymization_opt_out', oldVal: String(currentUser.anonymization_opt_out), newVal: String(input.anonymizationOptOut) });
+  }
+
   const rows = (await db`
     update profiles
     set
@@ -449,13 +484,26 @@ export async function updateCurrentUserProfile(input: {
       years_of_experience,
       data_quality_score,
       role,
-      created_at
+      created_at,
+      data_retention_expires_at,
+      deletion_requested_at,
+      deletion_reason
   `) as Profile[];
 
   const updated = rows[0];
 
   if (!updated) {
     throw new Error('Unable to update your profile at this time.');
+  }
+
+  // Write consent audit entries
+  for (const change of consentChanges) {
+    await logConsentChange({
+      userId: currentUser.id,
+      fieldName: change.field,
+      oldValue: change.oldVal,
+      newValue: change.newVal,
+    });
   }
 
   return updated;

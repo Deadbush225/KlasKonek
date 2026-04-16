@@ -202,19 +202,44 @@ export default function ProfileEditForm({ initial }: ProfileEditFormProps) {
       </label>
 
       <div className={profileStyles.checkboxGroup}>
+        <p style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--institutional-blue)', marginBottom: '0.25rem' }}>
+          Privacy &amp; Consent Settings
+        </p>
+        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+          All consent changes are recorded in a tamper-evident audit log for PDPA compliance.{' '}
+          <a href="/privacy" target="_blank" rel="noopener" style={{ color: 'var(--primary-blue)', textDecoration: 'underline' }}>
+            Read our Privacy Policy
+          </a>
+        </p>
+
         <label className={profileStyles.checkboxLabel}>
           <input type="checkbox" name="dataProcessingConsent" defaultChecked={initial.consentDataProcessing} required />
-          <span>I consent to STAR-LINK processing my data for platform operations and regional planning.</span>
+          <div>
+            <span>I consent to STAR-LINK processing my data for platform operations and regional planning.</span>
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+              Required · This permits the platform to store and use your profile data for STAR programme coordination.
+            </p>
+          </div>
         </label>
 
         <label className={profileStyles.checkboxLabel}>
           <input type="checkbox" name="researchConsent" defaultChecked={initial.consentResearch} />
-          <span>I consent to inclusion in anonymized research analytics.</span>
+          <div>
+            <span>I consent to inclusion in anonymized research analytics.</span>
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+              Optional · Your data will be de-identified before inclusion in aggregate research reports. Your name, email, and school will never appear.
+            </p>
+          </div>
         </label>
 
         <label className={profileStyles.checkboxLabel}>
           <input type="checkbox" name="anonymizeOptOut" defaultChecked={initial.anonymizationOptOut} />
-          <span>Exclude my profile from anonymized research datasets.</span>
+          <div>
+            <span>Exclude my profile from anonymized research datasets.</span>
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+              Optional · If checked, your data will not be included in any research datasets, even in anonymized form.
+            </p>
+          </div>
         </label>
       </div>
 

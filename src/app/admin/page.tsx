@@ -13,16 +13,16 @@ import { markAllNotificationsReadAction } from '@/app/actions/notifications';
 import { getProgramDeliveries, PROGRAM_TYPES } from '@/lib/program-delivery';
 import { getTrainingGapsByRegion } from '@/lib/training-records';
 import { getAllFeedbackSummaries } from '@/lib/program-feedback';
+import { getAiFieldAlerts } from '@/lib/ai-alerts';
 import { BulkImportTabContent } from './BulkImportTabContent';
 import { DeliveryTabContent } from './DeliveryTabContent';
+import AIFieldInsightsTab from '@/components/AIFieldInsightsTab';
 import {
   approveResourceAction,
   rejectResourceAction,
   approveTopicAction,
   rejectTopicAction,
 } from '@/app/actions/community';
-import { getAiFieldAlerts } from '@/lib/ai-alerts';
-import { runForumDiagnosticsAction } from '@/app/actions/ai';
 
 type PageProps = {
   searchParams: Promise<{ moderated?: string; tab?: string }>;
@@ -43,13 +43,8 @@ type AdminTabId =
   | 'bulk-import'
   | 'delivery'
   | 'feedback'
-  | 'ai-alerts'
-  | 'training-gaps';
-
-async function runForumDiagnosticsFormAction(_formData: FormData): Promise<void> {
-  'use server';
-  await runForumDiagnosticsAction(_formData);
-}
+  | 'training-gaps'
+  | 'ai-insights';
 
 export default async function AdminPage({ searchParams }: PageProps) {
   const user = await getCurrentUser();
@@ -98,8 +93,8 @@ export default async function AdminPage({ searchParams }: PageProps) {
     { id: 'bulk-import', label: 'Bulk Teacher Import' },
     { id: 'delivery', label: `Program Delivery (${deliveries.length})` },
     { id: 'feedback', label: `Feedback (${feedbackSummaries.length})` },
-    { id: 'ai-alerts', label: `Diagnostic AI (${aiFieldAlerts.length})` },
     { id: 'training-gaps', label: 'Training Gaps' },
+    { id: 'ai-insights', label: `AI Field Insights (${aiFieldAlerts.length})` },
   ];
 
   const activeTab = tabs.some((item) => item.id === tab) ? (tab as AdminTabId) : 'regional';
@@ -620,7 +615,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
           <h2 className={adminStyles.sectionTitle}>Training Gap Analysis</h2>
           <p className={adminStyles.meta} style={{ marginBottom: '0.8rem' }}>
             Regions sorted by lowest training coverage. Teachers who have no structured training records
-            or no STAR-SPECIFIC training are flagged for priority outreach.
+            or no STAR-specific training are flagged for priority outreach.
           </p>
           {trainingGaps.length === 0 ? (
             <div className="card">
@@ -647,61 +642,13 @@ export default async function AdminPage({ searchParams }: PageProps) {
         </section>
       ) : null}
 
-      {activeTab === 'ai-alerts' ? (
+      {activeTab === 'ai-insights' ? (
         <section className={adminStyles.section}>
-          <div className={adminStyles.sectionHeaderInline}>
-            <h2 className={adminStyles.sectionTitle}>AI Field Diagnostics ({aiFieldAlerts.length})</h2>
-            <form action={runForumDiagnosticsFormAction}>
-              <button type="submit" className="btn btn-primary">Run Diagnostic Scan</button>
-            </form>
-          </div>
-          <p className={adminStyles.meta} style={{ marginBottom: '1rem' }}>
-            Analyzes the latest regional forum discourse to detect thematic clusters and identify emerging training needs.
-            Artificial Intelligence (NLP) generates structured intervention plans for critical alert clusters.
+          <h2 className={adminStyles.sectionTitle}>AI Field Insights</h2>
+          <p className={adminStyles.meta} style={{ marginBottom: '0.8rem' }}>
+            Generate diagnostic clusters from approved forum activity and surface region-specific intervention plans.
           </p>
-          
-          {aiFieldAlerts.length === 0 ? (
-            <div className="card">
-              <p className={adminStyles.empty}>No field alerts detected yet. Ensure the regional forums have active community discourse and click "Run Diagnostic Scan" above.</p>
-            </div>
-          ) : (
-            <div className={adminStyles.queue}>
-              {aiFieldAlerts.map((alert: any) => (
-                <article key={alert.id} className="card">
-                  <div className={adminStyles.itemHeader}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <h3 style={{ margin: 0 }}>{alert.cluster_title}</h3>
-                      <span className={alert.sentiment === 'Critical' ? adminStyles.riskBadge : adminStyles.badge}>
-                        {alert.sentiment.toUpperCase()}
-                      </span>
-                    </div>
-                    <span className={adminStyles.metricBadge}>{alert.region}</span>
-                  </div>
-                  
-                  <p className={adminStyles.meta} style={{ marginBottom: '0.6rem' }}>
-                    <strong>Affected Teachers/Posts:</strong> {alert.affected_count}
-                  </p>
-                  
-                  <p className={adminStyles.description}>
-                    <strong>Issue Summary:</strong> {alert.description}
-                  </p>
-                  
-                  <div className={adminStyles.notice} style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(29, 79, 145, 0.05)' }}>
-                    <h4 style={{ marginTop: 0, marginBottom: '0.5rem', color: 'var(--institutional-blue)' }}>Proposed Intervention Blueprint</h4>
-                    <pre style={{ 
-                      whiteSpace: 'pre-wrap', 
-                      fontFamily: 'inherit', 
-                      fontSize: '0.85rem', 
-                      color: 'var(--text-muted)',
-                      margin: 0
-                    }}>
-                      {alert.suggested_intervention}
-                    </pre>
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
+          <AIFieldInsightsTab initialAlerts={aiFieldAlerts} />
         </section>
       ) : null}
     </div>

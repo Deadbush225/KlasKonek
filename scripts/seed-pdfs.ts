@@ -77,7 +77,7 @@ async function run() {
   if (authorRes.rowCount === 0) {
     throw new Error('No teachers found in DB. Please run `npm run seed` first to populate profiles.');
   }
-  const authors = authorRes.rows.map((r: any) => r.id);
+  const authors = authorRes.rows.map((r: { id: string }) => r.id);
 
   for (let i = 1; i <= TOTAL_PDFS; i++) {
     const topic = TOPICS[Math.floor(Math.random() * TOPICS.length)];

@@ -1,19 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import layoutStyles from '@/app/layout.module.css';
 
+const IS_DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+
 export default function DemoBanner() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
-  useEffect(() => {
-    // Only show if the env variable is exactly 'true'
-    if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
-      setIsVisible(true);
-    }
-  }, []);
-
-  if (!isVisible) return null;
+  if (!IS_DEMO || isDismissed) return null;
 
   return (
     <div className={layoutStyles.demoBanner}>
@@ -25,7 +20,7 @@ export default function DemoBanner() {
       </div>
       <button 
         className={layoutStyles.demoBannerClose} 
-        onClick={() => setIsVisible(false)}
+        onClick={() => setIsDismissed(true)}
         aria-label="Dismiss banner"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -238,24 +238,52 @@ export default function RegisterPage() {
               id="trainingHistory"
               name="trainingHistory"
               rows={3}
-              placeholder="One training per line, e.g.\n2025 Regional STEM Bootcamp\n2024 Action Research Workshop"
+              placeholder={`One training per line, e.g.
+2025 Regional STEM Bootcamp
+2024 Action Research Workshop`}
             />
           </div>
 
           <div className={regStyles.consentGroup}>
+            <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--primary-blue)', marginBottom: '0.15rem' }}>
+              Data Privacy &amp; Consent
+            </p>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.5rem', lineHeight: 1.5 }}>
+              STAR-LINK collects and processes your data under the Philippine Data Privacy Act of 2012 (RA 10173). Your profile data is retained for 5 years,
+              after which it is automatically anonymized. You may request deletion at any time.{' '}
+              <a href="/privacy" target="_blank" rel="noopener" style={{ color: 'var(--primary-blue)', textDecoration: 'underline' }}>
+                Read our full Privacy Policy →
+              </a>
+            </p>
+
             <label className={regStyles.checkboxLabel}>
               <input type="checkbox" name="dataProcessingConsent" required />
-              <span>I consent to STAR-LINK processing my personal data for program operations and regional planning.</span>
+              <div>
+                <span>I consent to STAR-LINK processing my personal data for program operations and regional planning.</span>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                  Required · Without this consent, your account cannot be created.
+                </p>
+              </div>
             </label>
 
             <label className={regStyles.checkboxLabel}>
               <input type="checkbox" name="researchConsent" />
-              <span>I consent to my data being included in anonymized research reports.</span>
+              <div>
+                <span>I consent to my data being included in anonymized research reports.</span>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                  Optional · Your identity will be removed. Only aggregate statistics are shared in research outputs.
+                </p>
+              </div>
             </label>
 
             <label className={regStyles.checkboxLabel}>
               <input type="checkbox" name="anonymizeOptOut" />
-              <span>Exclude my record from anonymized research datasets.</span>
+              <div>
+                <span>Exclude my record from anonymized research datasets.</span>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                  Optional · If checked, your data will not appear in any research dataset, even in anonymized form.
+                </p>
+              </div>
             </label>
           </div>
 

@@ -51,9 +51,10 @@ export default function LoginPage() {
         </form>
 
         <div className={loginStyles.footer}>
-          <p>
-            Don&apos;t have an account? <Link href="/register">Register as a STAR Teacher</Link>
-          </p>
+          <p className={loginStyles.footerPrompt}>Don&apos;t have an account?</p>
+          <Link className={loginStyles.footerRegisterLink} href="/register">
+            Register as a STAR Teacher
+          </Link>
         </div>
       </div>
     </div>

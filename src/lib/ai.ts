@@ -1,5 +1,62 @@
 import { db } from "./db";
 
+type GroqApiError = Error & {
+  status?: number;
+  retryAfterMs?: number;
+};
+
+type GroqChatPayload = {
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
+  error?: {
+    message?: string;
+  };
+};
+
+type RepositoryContextDocument = {
+  title?: string;
+  author_name?: string;
+  description?: string;
+  keywords?: string[];
+};
+
+type ForumPostInput = {
+  region?: string;
+  title?: string;
+  content?: string;
+};
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  if (isObjectRecord(error) && typeof error.message === "string") {
+    return error.message;
+  }
+  return "";
+}
+
+function getErrorStatus(error: unknown): number | undefined {
+  if (isObjectRecord(error) && typeof error.status === "number") {
+    return error.status;
+  }
+  return undefined;
+}
+
+function getRetryAfterMs(error: unknown): number | undefined {
+  if (isObjectRecord(error) && typeof error.retryAfterMs === "number") {
+    return error.retryAfterMs;
+  }
+  return undefined;
+}
+
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 const DEFAULT_GROQ_MODELS = [
@@ -29,24 +86,25 @@ function parseRetryAfterHeaderMs(retryAfter: string | null): number | null {
   return null;
 }
 
-function isModelNotFoundError(error: any) {
-  const status = error?.status;
-  const message = String(error?.message || "");
+function isModelNotFoundError(error: unknown) {
+  const status = getErrorStatus(error);
+  const message = getErrorMessage(error);
   return status === 404 || message.toLowerCase().includes("model") && message.toLowerCase().includes("not found");
 }
 
-function isQuotaExceededError(error: any) {
-  const status = error?.status;
-  const message = String(error?.message || "").toLowerCase();
+function isQuotaExceededError(error: unknown) {
+  const status = getErrorStatus(error);
+  const message = getErrorMessage(error).toLowerCase();
   return status === 429 || message.includes("rate limit") || message.includes("quota") || message.includes("too many requests");
 }
 
-function parseRetryDelayMs(error: any): number | null {
-  if (typeof error?.retryAfterMs === "number" && Number.isFinite(error.retryAfterMs)) {
-    return Math.max(0, Math.ceil(error.retryAfterMs));
+function parseRetryDelayMs(error: unknown): number | null {
+  const retryAfterMs = getRetryAfterMs(error);
+  if (typeof retryAfterMs === "number" && Number.isFinite(retryAfterMs)) {
+    return Math.max(0, Math.ceil(retryAfterMs));
   }
 
-  const message = String(error?.message || "");
+  const message = getErrorMessage(error);
   const match = message.match(/retry in\s+([\d.]+)s/i) || message.match(/try again in\s+([\d.]+)s/i);
   if (match) {
     return Math.ceil(Number(match[1]) * 1000);
@@ -55,7 +113,7 @@ function parseRetryDelayMs(error: any): number | null {
   return null;
 }
 
-function updateQuotaCooldown(error: any) {
+function updateQuotaCooldown(error: unknown) {
   const retryMs = parseRetryDelayMs(error) ?? QUOTA_COOLDOWN_DEFAULT_MS;
   quotaBlockedUntilMs = Math.max(quotaBlockedUntilMs, Date.now() + retryMs);
   return retryMs;
@@ -66,7 +124,7 @@ function getQuotaWaitSeconds() {
 }
 
 function buildApiError(status: number, message: string, retryAfterMs?: number) {
-  const error: any = new Error(message);
+  const error = new Error(message) as GroqApiError;
   error.status = status;
   if (typeof retryAfterMs === "number") {
     error.retryAfterMs = retryAfterMs;
@@ -89,15 +147,15 @@ async function generateContentFromGroq(prompt: string, model: string): Promise<{
     body: JSON.stringify({
       model,
       messages: [{ role: "user", content: prompt }],
-      temperature: 0.1,
-      max_tokens: 1500,
+      temperature: 0.3,
+      max_tokens: 900,
     }),
   });
 
   const retryAfterMs = parseRetryAfterHeaderMs(response.headers.get("retry-after"));
-  let payload: any = null;
+  let payload: GroqChatPayload | null = null;
   try {
-    payload = await response.json();
+    payload = (await response.json()) as GroqChatPayload;
   } catch {
     payload = null;
   }
@@ -121,7 +179,86 @@ function truncateText(text: string, maxLength = 180) {
   return `${text.slice(0, maxLength - 1).trimEnd()}...`;
 }
 
-function buildLocalRepositoryAnswer(query: string, contextDocuments: any[], quotaWaitSeconds?: number) {
+function escapeControlCharactersInsideStrings(input: string): string {
+  let result = "";
+  let inString = false;
+  let isEscaped = false;
+
+  for (const char of input) {
+    if (char === '"' && !isEscaped) {
+      inString = !inString;
+      result += char;
+      continue;
+    }
+
+    if (inString) {
+      if (char === "\n") {
+        result += "\\n";
+        isEscaped = false;
+        continue;
+      }
+      if (char === "\r") {
+        result += "\\r";
+        isEscaped = false;
+        continue;
+      }
+      if (char === "\t") {
+        result += "\\t";
+        isEscaped = false;
+        continue;
+      }
+    }
+
+    result += char;
+    if (char === "\\" && !isEscaped) {
+      isEscaped = true;
+    } else {
+      isEscaped = false;
+    }
+  }
+
+  return result;
+}
+
+function parseJsonArrayWithRecovery(rawText: string): unknown[] | null {
+  const trimmed = rawText.trim();
+  const candidates = new Set<string>();
+  candidates.add(trimmed);
+
+  const markdownMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (markdownMatch?.[1]) {
+    candidates.add(markdownMatch[1].trim());
+  }
+
+  const firstBracket = trimmed.indexOf("[");
+  const lastBracket = trimmed.lastIndexOf("]");
+  if (firstBracket !== -1 && lastBracket > firstBracket) {
+    candidates.add(trimmed.slice(firstBracket, lastBracket + 1).trim());
+  }
+
+  for (const candidate of candidates) {
+    try {
+      const parsed = JSON.parse(candidate);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    } catch {
+      const recovered = escapeControlCharactersInsideStrings(candidate);
+      try {
+        const parsedRecovered = JSON.parse(recovered);
+        if (Array.isArray(parsedRecovered)) {
+          return parsedRecovered;
+        }
+      } catch {
+        // Try next candidate.
+      }
+    }
+  }
+
+  return null;
+}
+
+function buildLocalRepositoryAnswer(query: string, contextDocuments: RepositoryContextDocument[], quotaWaitSeconds?: number) {
   if (!contextDocuments || contextDocuments.length === 0) {
     return "I couldn't find any relevant resources in the repository to answer your question. Please try asking something else or check general STEM best practices.";
   }
@@ -161,7 +298,7 @@ function buildLocalRepositoryAnswer(query: string, contextDocuments: any[], quot
 
 async function generateContentWithFallback(prompt: string) {
   if (Date.now() < quotaBlockedUntilMs) {
-    const quotaError: any = new Error(`Groq quota cooldown active. Retry in ${getQuotaWaitSeconds()}s.`);
+    const quotaError = new Error(`Groq quota cooldown active. Retry in ${getQuotaWaitSeconds()}s.`) as GroqApiError;
     quotaError.status = 429;
     throw quotaError;
   }
@@ -171,7 +308,7 @@ async function generateContentWithFallback(prompt: string) {
   for (const model of DEFAULT_GROQ_MODELS) {
     try {
       return await generateContentFromGroq(prompt, model);
-    } catch (error: any) {
+    } catch (error: unknown) {
       lastError = error;
       if (isModelNotFoundError(error)) {
         console.warn(`Groq model unavailable: ${model}. Trying next fallback.`);
@@ -200,7 +337,7 @@ export async function generateTextEmbedding(text: string): Promise<number[]> {
   return [];
 }
 
-export async function synthesizeAiAnswer(query: string, contextDocuments: any[]): Promise<string> {
+export async function synthesizeAiAnswer(query: string, contextDocuments: RepositoryContextDocument[]): Promise<string> {
   try {
     const documentsContext = contextDocuments.map(
       (doc, index) =>
@@ -210,28 +347,44 @@ export async function synthesizeAiAnswer(query: string, contextDocuments: any[])
     const prompt = `You are the STAR-LINK AI Assistant, a specialized academic support assistant for STEM educators in the Philippines.
 The user is asking: "${query}"
 
-Here are the top 5 most relevant Action Research and Extension resources from our database:
+Here are the retrieved Action Research and Extension resources from our database:
 ${documentsContext}
 
-  Using ONLY the provided resources, produce a detailed, academically toned synthesis that is practical for classroom implementation.
-  Do not invent sources or claims that are not present in the provided context.
-  Explicitly connect claims to source citations using bracket notation like [1], [2], [3] corresponding to the listed resources.
-  If evidence is limited for any recommendation, state that limitation clearly.
+## CRITICAL INSTRUCTIONS:
+1. STRICT ADHERENCE TO CONTEXT: You must ONLY synthesize information using the provided resources above. DO NOT invent, hallucinate, or bring in external knowledge not present in the context.
+2. EXPLICIT CITATIONS: You must connect every significant claim or recommendation to a source citation using bracket notation (e.g., "As demonstrated in [1]..." or "The study showed significant improvement [2]").
+3. HANDLE MISSING EVIDENCE: If the provided resources do NOT contain enough information to fully answer the user's question, you must explicitly state: "The current Action Research repository has limited evidence on this specific topic," and then synthesize whatever partial information is available.
 
-  Return markdown using this structure:
-  ### Executive Summary
-  ### Contextual Interpretation for Philippine STEM Classrooms
-  ### Evidence-Based Instructional Strategies
-  - For each strategy: include rationale, implementation steps, and adaptation notes.
-  ### 2-Week Implementation Blueprint
-  ### Monitoring and Evaluation Indicators
-  ### Potential Risks and Mitigation
-  ### Cited Resources
+## REQUIRED RESPONSE STRUCTURE:
+Return a detailed markdown response using strictly this structure:
 
-  Tone requirements:
-  - Scholarly, clear, and concise.
-  - Practical and implementation-ready.
-  - Avoid generic filler and vague advice.`;
+### Executive Summary
+[Brief 2-3 sentence overview of the findings based strictly on the provided context]
+
+### Contextual Interpretation for Philippine STEM Classrooms
+[How these findings apply locally, based on the context]
+
+### Evidence-Based Instructional Strategies
+[List strategies based on the sources. For each strategy include:]
+- **Rationale**: [Why it works]
+- **Implementation Steps**: [How to do it]
+- **Adaptation Notes**: [How to adapt for different resource levels]
+
+### 2-Week Implementation Blueprint
+[Step-by-step practical guide derived from the sources]
+
+### Monitoring and Evaluation Indicators
+[How teachers can measure success, based on the sources]
+
+### Potential Risks and Mitigation
+[Challenges identified in the sources and how to overcome them]
+
+### Cited Resources
+[List the resources used with their citation numbers]
+
+## TONE REQUIREMENTS:
+- Scholarly, purely evidence-based, clear, concise, and highly actionable.
+- Avoid generic motivational filler and vague advice.`;
 
     const response = await generateContentWithFallback(prompt);
     const generated = response.text?.trim();
@@ -324,7 +477,7 @@ export async function searchSimilarResources(query: string) {
   }
 }
 
-export async function analyzeForumSentiment(posts: any[]) {
+export async function analyzeForumSentiment(posts: ForumPostInput[]) {
   if (!posts || posts.length === 0) return [];
 
   // Check for placeholder key
@@ -361,67 +514,29 @@ For each cluster, provide:
   Monitoring Metrics:
   Responsible Units:
 
-Return the response ONLY as a valid, standard JSON array of objects. 
-CRITICAL: Do not include literal line breaks (actual newlines) inside property values; use "\\n" for line breaks instead. 
-CRITICAL: Ensure all double quotes within string values are escaped as \\".
-
-Example of correct string escaping:
-"suggested_intervention": "Objective: Fix the issue.\\nImmediate Actions: Check the \\"equipment\\" thoroughly."
-
-Example:
+Return the response ONLY as a valid JSON array of objects. Example:
 [
   {
     "region": "Region III",
-    "cluster_title": "Laboratory Equipment Shortage",
+    "cluster_title": "Laboratoy Equipment Shortage",
     "sentiment": "Critical",
     "affected_count": 5,
     "description": "Teachers are reporting they cannot perform Electromagnetism experiments due to lack of kits.",
-    "suggested_intervention": "Objective: Restore practical lab delivery for affected schools.\\nImmediate Actions (0-14 days): Validate damaged kit inventory, deploy temporary shared lab kits, and issue classroom-safe alternatives."
+    "suggested_intervention": "Objective: Restore practical lab delivery for affected schools.\nImmediate Actions (0-14 days): Validate damaged kit inventory, deploy temporary shared lab kits, and issue classroom-safe alternatives.\nMedium-Term Actions (30-60 days): Procure replacement kits and run facilitator coaching for low-resource lab design.\nMonitoring Metrics: Kit replacement completion rate, number of classes conducting lab activities, and teacher confidence score.\nResponsible Units: Regional logistics team, curriculum supervisors, and school STEM coordinators."
   }
 ]
 If no significant clusters are found, return an empty array [].`;
 
     const response = await generateContentWithFallback(prompt);
+
     const text = response.text || "[]";
+    const parsed = parseJsonArrayWithRecovery(text);
 
-    // 1. Extract JSON body from potential markdown or preamble
-    let jsonString = text.trim();
-    const markdownMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-    if (markdownMatch) {
-      jsonString = markdownMatch[1];
-    } else {
-      const firstBracket = jsonString.indexOf('[');
-      const lastBracket = jsonString.lastIndexOf(']');
-      if (firstBracket !== -1 && lastBracket !== -1) {
-        jsonString = jsonString.slice(firstBracket, lastBracket + 1);
-      }
+    if (!parsed) {
+      return [];
     }
 
-    // 2. Initial cleaning (trailing commas and whitespace)
-    const cleaned = jsonString.replace(/,\s*([\}\]])/g, '$1').trim();
-
-    try {
-      // First attempt: clean up potentially unescaped newlines between property names and values
-      // This is a common error where the model puts a real newline instead of \n
-      const structuralRepair = cleaned
-        .replace(/:\s*"/g, ': "') // Normalize colons
-        .replace(/"\s*,\s*"/g, '", "') // Normalize commas
-        .replace(/\n\s*"/g, ' "'); // Remove structural newlines if they precede a quote
-
-      // Aggressive but safe: Escape raw newlines inside what appears to be string values
-      // We look for sequences between structural JSON characters: ": " .... " ,
-      const escapedValues = structuralRepair.replace(/:\s*"([\s\S]*?)"(?=\s*[,\]\}])/g, (match, p1) => {
-        const fixed = p1.replace(/\n/g, "\\n").replace(/\r/g, "").replace(/\t/g, "\\t");
-        return `: "${fixed}"`;
-      });
-
-      const parsed = JSON.parse(escapedValues);
-      if (!Array.isArray(parsed)) return [];
-      return parsed.map((item) => normalizeAlertOutput(item));
-    } catch (finalError) {
-      console.error("Structural JSON recovery failed:", finalError);
-      throw finalError; // Trigger heuristic fallback
-    }
+    return parsed.map((item) => normalizeAlertOutput(item));
   } catch (error) {
     if (isQuotaExceededError(error)) {
       console.warn("Groq NLP quota exceeded, falling back to heuristic alerts.");
@@ -433,8 +548,15 @@ If no significant clusters are found, return an empty array [].`;
   }
 }
 
-function generateHeuristicAlerts(posts: any[]) {
-  const alerts: any[] = [];
+function generateHeuristicAlerts(posts: ForumPostInput[]) {
+  const alerts: Array<{
+    region: string;
+    cluster_title: string;
+    sentiment: string;
+    affected_count: number;
+    description: string;
+    suggested_intervention: string;
+  }> = [];
   
   const findPosts = (regionMatch: string | RegExp, keywords: RegExp) => {
     return posts.filter(p => {
