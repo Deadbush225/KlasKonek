@@ -342,7 +342,7 @@ export async function synthesizeAiAnswer(query: string, contextDocuments: Reposi
         `[Citation ${index + 1} - ${doc.author_name}]: ${doc.title}\nContext: ${doc.description || ""}\nKeywords: ${doc.keywords?.join(", ")}`
     ).join("\n\n");
 
-    const prompt = `You are the STAR-LINK AI Assistant, a specialized academic support assistant for STEM educators in the Philippines.
+    const prompt = `You are the KlasKonek AI Assistant, a specialized academic support assistant for STEM educators in the Philippines.
 The user is asking: "${query}"
 
 Here are the top 5 most relevant Action Research and Extension resources from our database:
@@ -474,7 +474,7 @@ export async function analyzeForumSentiment(posts: ForumPostInput[]) {
   try {
     const postsContext = posts.map(p => `[Region: ${p.region}] Title: ${p.title}\nContent: ${p.content}`).join("\n---\n");
 
-    const prompt = `You are an AI specialized in Educational NLP analysis for the Department of Science and Technology (DOST).
+    const prompt = `You are an AI specialized in Educational NLP analysis for a national STEM educator collaboration hub.
 I will provide a list of forum posts from teachers across different regions in the Philippines.
 Your task is to perform "Thematic Clustering" and "Sentiment Detection".
 

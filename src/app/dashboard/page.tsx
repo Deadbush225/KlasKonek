@@ -33,7 +33,7 @@ export default async function DashboardPage() {
       <header className={dashStyles.header}>
         <h1 className={dashStyles.title}>Welcome back, {user.full_name.split(' ')[0]}!</h1>
         <p className={dashStyles.subtitle}>
-          Here is your personalized overview of what&lsquo;s happening in the STAR-LINK community today.
+          Here is your personalized overview of what&lsquo;s happening in the KlasKonek community today.
         </p>
       </header>
 

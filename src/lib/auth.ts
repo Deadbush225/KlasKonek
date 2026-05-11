@@ -57,7 +57,7 @@ export type PublicProfile = {
   created_at: string;
 };
 
-const SESSION_COOKIE = 'starlink_session';
+const SESSION_COOKIE = 'klaskonek_session';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 export const TERMS_VERSION = 'v1.0';
 

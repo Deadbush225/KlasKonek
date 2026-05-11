@@ -5,12 +5,13 @@
   --background: #ffffff;
   --foreground: #000000;
   
-  --primary-blue: #1d4f91;
-  --primary-blue-hover: #163f74;
-  --institutional-blue: #3F448C; /* Deep purple-blue from STAR banner */
-  --secondary-accent: #eef2f8;
-  --secondary-accent-hover: #e0e7f1;
-  --accent-soft: #8ba2c4;
+  --primary-blue: #154597;
+  --primary-blue-hover: #103773;
+  --institutional-blue: #154597; /* KlasKonek primary blue */
+  --secondary-accent: #fff3df;
+  --secondary-accent-hover: #ffe6c2;
+  --accent-soft: #7f9fd6;
+  --accent-yellow: #ffbd59;
   
   --surface: #ffffff;
   --border: rgba(63, 68, 140, 0.1);
@@ -29,11 +30,12 @@
   --background: #090e17;
   --foreground: #f1f5f9;
   
-  --primary-blue: #6f8fc0; 
-  --primary-blue-hover: #8ca8d2;
-  --institutional-blue: #1e293b;
-  --secondary-accent: rgba(111, 143, 192, 0.15);
-  --secondary-accent-hover: rgba(111, 143, 192, 0.25);
+  --primary-blue: #7da0df; 
+  --primary-blue-hover: #93b3e6;
+  --institutional-blue: #14223f;
+  --secondary-accent: rgba(21, 69, 151, 0.2);
+  --secondary-accent-hover: rgba(21, 69, 151, 0.3);
+  --accent-yellow: #ffbd59;
   
   --surface: #111827;
   --border: rgba(255, 255, 255, 0.1);
@@ -138,7 +140,7 @@ body::after {
   height: 40vw;
   bottom: -18%;
   right: -8%;
-  background: #29a0d6;
+  background: #2a6ccf;
   animation-delay: -6s;
 }
 
@@ -147,7 +149,7 @@ body::after {
   height: 28vw;
   top: 35%;
   right: -10%;
-  background: #facc15;
+  background: var(--accent-yellow);
   opacity: 0.11;
   animation-delay: -12s;
 }
@@ -214,7 +216,7 @@ select option {
 html,
 body {
   scrollbar-width: thin;
-  scrollbar-color: rgba(63, 68, 140, 0.35) rgba(63, 68, 140, 0.12);
+  scrollbar-color: rgba(21, 69, 151, 0.35) rgba(21, 69, 151, 0.12);
 }
 
 [data-theme="dark"] html,
@@ -230,19 +232,19 @@ body {
 }
 
 *::-webkit-scrollbar-track {
-  background: rgba(63, 68, 140, 0.08);
+  background: rgba(21, 69, 151, 0.08);
   border-radius: 999px;
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(63, 68, 140, 0.35);
+  background: rgba(21, 69, 151, 0.35);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(63, 68, 140, 0.55);
+  background: rgba(21, 69, 151, 0.55);
 }
 
 [data-theme="dark"] *::-webkit-scrollbar-track {

@@ -22,7 +22,7 @@ export function BulkImportTabContent() {
           href="/api/admin/bulk-import-template"
           className="btn btn-secondary"
           style={{ marginTop: '0.75rem', display: 'inline-block' }}
-          download="star-link-teacher-import-template.csv"
+          download="klaskonek-educator-import-template.csv"
         >
           Download CSV Template
         </a>

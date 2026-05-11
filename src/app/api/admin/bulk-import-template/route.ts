@@ -15,7 +15,7 @@ export async function GET() {
     status: 200,
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': 'attachment; filename="star-link-teacher-import-template.csv"',
+      'Content-Disposition': 'attachment; filename="klaskonek-educator-import-template.csv"',
     },
   });
 }

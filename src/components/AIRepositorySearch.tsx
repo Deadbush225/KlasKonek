@@ -158,7 +158,7 @@ export default function AIRepositorySearch() {
   return (
     <div style={{ ...styles.container, ...(isMobile ? styles.containerMobile : {}) }}>
       <div style={styles.header}>
-        <h2 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>Ask STAR-LINK AI</h2>
+        <h2 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>Ask KlasKonek AI</h2>
         <p style={styles.subtitle}>
           Use natural language to search the entire repository. The AI will synthesize methods and provide a compiled response based on real Filipino educator research.
         </p>

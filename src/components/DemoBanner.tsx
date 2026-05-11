@@ -15,7 +15,7 @@ export default function DemoBanner() {
       <div className={layoutStyles.demoBannerContent}>
         <span className={layoutStyles.demoBannerBadge}>Hackathon Context</span>
         <p>
-          <strong>Live Demo Environment.</strong> You are viewing a demonstration deployment of STAR-LINK. Data may be periodically reset.
+          <strong>Live Demo Environment.</strong> You are viewing a demonstration deployment of KlasKonek. Data may be periodically reset.
         </p>
       </div>
       <button 

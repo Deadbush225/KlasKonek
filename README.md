@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="public/img/favicon.png" alt="STAR-LINK Logo" width="220" height="220">
+  <img src="public/img/favicon.png" alt="KlasKonek Logo" width="220" height="220">
 
-  # STAR-LINK
+  # KlasKonek
 
   **Community Collaboration Hub for STEM Educators**
 
@@ -13,7 +13,7 @@
   ![License](https://img.shields.io/badge/License-Private-red?style=for-the-badge)
 </div>
 
-**Live Demo:** [https://geminated-star-link.vercel.app/](https://geminated-star-link.vercel.app/)
+**Live Demo:** [https://klaskonek.vercel.app/](https://klaskonek.vercel.app/)
 
 ---
 
@@ -39,7 +39,7 @@
 
 ## Overview
 
-STAR-LINK is a community-driven collaboration hub designed to complement and enrich the e-STAR.ph platform. While e-STAR.ph serves as a static repository of lesson exemplars and training materials, STAR-LINK adds a dynamic social layer where educators can:
+KlasKonek is a community-driven collaboration hub for STEM educators. It adds a dynamic social layer where educators can:
 
 - Share action research and extension projects
 - Discuss implementation challenges with peers
@@ -50,7 +50,7 @@ The goal is to transform isolated innovations into nationally shared assets for 
 **Primary outcomes:**
 - Increase educator participation in knowledge-sharing
 - Support region-specific problem solving
-- Provide evidence-based insights for STAR program planning
+- Provide evidence-based insights for program planning
 
 ---
 
@@ -281,7 +281,7 @@ The goal is to transform isolated innovations into nationally shared assets for 
 sequenceDiagram
     autonumber
     actor Educator as STEM Educator
-    participant Platform as STAR-LINK Hub
+    participant Platform as KlasKonek Hub
     participant AI as AI Intelligence (Groq)
     participant DB as Neon DB (pgvector)
 
@@ -295,7 +295,7 @@ sequenceDiagram
     Platform-->>Educator: Displays Brief with Author Citations
 
     Note over Educator, DB: Scenario B: Field Diagnostics (Admin Flow)
-    actor Admin as DOST Administrator
+    actor Admin as Program Administrator
     Admin->>Platform: Triggers Diagnostic Scan
     Platform->>DB: Fetch latest regional forum data
     DB-->>Platform: Raw forum discourse
@@ -367,7 +367,7 @@ Geminated/
 │   │   ├── register/                   # Authentication - registration
 │   │   ├── map/                        # Collaboration map view
 │   │   ├── profile/                    # Teacher profile management
-│   │   ├── programs/                   # STAR program listings
+│   │   ├── programs/                   # Program listings
 │   │   ├── repository/                 # Action research and extension repository
 │   │   └── terms/                      # Terms of service
 │   │
@@ -425,7 +425,7 @@ Geminated/
 ### Teacher Profiles
 
 - Registration via DepEd email or standard email
-- Profile fields: region, school, subjects taught, years of experience, optional e-STAR.ph account link
+- Profile fields: region, school, subjects taught, years of experience
 - Role-based access: Teacher and Admin
 - Profile completeness scoring
 
@@ -464,7 +464,7 @@ Geminated/
       <td align="center" width="50%">
         <strong>1. Landing Page</strong><br>
         <img src="public/img/screenshots/LandingPage.png" alt="Landing Page" width="100%"><br>
-        <sub>Main entry screen that introduces STAR-LINK and guides educators into the platform.</sub>
+        <sub>Main entry screen that introduces KlasKonek and guides educators into the platform.</sub>
       </td>
       <td align="center" width="50%">
         <strong>2. Teacher Registration</strong><br>
@@ -486,9 +486,9 @@ Geminated/
     </tr>
     <tr>
       <td align="center" width="50%">
-        <strong>5. STAR Programs</strong><br>
-        <img src="public/img/screenshots/STARPrograms.png" alt="STAR Programs" width="100%"><br>
-        <sub>Program listing view for available STAR initiatives and related activities.</sub>
+        <strong>5. Programs</strong><br>
+        <img src="public/img/screenshots/STARPrograms.png" alt="Programs" width="100%"><br>
+        <sub>Program listing view for available initiatives and related activities.</sub>
       </td>
       <td align="center" width="50%">
         <strong>6. Research and Extension Projects</strong><br>
@@ -598,16 +598,15 @@ Create a `.env.local` file based on `.env.example`:
 
 ### Visual Identity
 
-- Color palette aligned with DOST-SEI branding: blue, green, white with institutional tones
+- Color palette aligned with KlasKonek branding: blue (#154597), yellow (#ffbd59), and neutral whites
 - Professional, accessible sans-serif typography
 - Strong contrast ratios, readable type scale, and keyboard-friendly navigation
 - Light and dark mode support with persistent user preference
 
 ### Navigation Model
 
-- Preferred: integrated Community section within the existing e-STAR.ph menu structure
-- Fallback: standalone STAR-LINK site with a persistent header link back to e-STAR.ph
-- Experience goal: both platforms should feel like a single ecosystem
+- Preferred: standalone KlasKonek site with contextual links to partner repositories
+- Experience goal: community, research, and analytics feel like a single ecosystem
 
 ### Responsive Strategy
 
@@ -669,7 +668,7 @@ Configured via `next.config.ts`:
 ### Insights
 
 - Number and quality of admin-generated reports
-- Demonstrated impact of dashboard insights on STAR annual planning
+- Demonstrated impact of dashboard insights on annual planning
 
 ---
 

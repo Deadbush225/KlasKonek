@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to STAR-LINK are documented in this file.
+All notable changes to KlasKonek are documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versioning follows [Semantic Versioning](https://semver.org/).
@@ -12,9 +12,9 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ### Added
 
 **Platform Features**
-- Teacher profile registration with region, division, school, qualification level, gender, age bracket, years of experience, subjects taught, and STAR participation status
+- Teacher profile registration with region, division, school, qualification level, gender, age bracket, years of experience, subjects taught, and program participation status
 - Role-based access control: Teacher and Admin roles
-- STAR ID generation for every registered educator (format: `STAR-YYYY-XXXXXX`)
+- KlasKonek ID generation for every registered educator (format: `KK-YYYY-XXXXXX`)
 - Action research and extension resource repository with PDF upload, moderation, and download
 - Regional discussion forums with thread creation, replies, moderation, and topic tagging
 - Interactive collaboration map using Leaflet and GeoJSON Philippines ADM1 boundaries

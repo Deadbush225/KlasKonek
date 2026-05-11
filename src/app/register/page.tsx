@@ -35,7 +35,7 @@ export default function RegisterPage() {
       <div className={`${regStyles.authCard} card`}>
         <div className={regStyles.header}>
           <h2>Teacher Registration</h2>
-          <p>Join the STAR-LINK community to share research and connect with peers.</p>
+          <p>Join the KlasKonek community to share research and connect with peers.</p>
         </div>
 
         {state.error && <div className={regStyles.errorMessage}>{state.error}</div>}
@@ -219,7 +219,7 @@ export default function RegisterPage() {
           </div>
 
           <div className={regStyles.inputGroup}>
-            <label htmlFor="starParticipationStatus">STAR Participation Status</label>
+            <label htmlFor="starParticipationStatus">Program Participation Status</label>
             <select id="starParticipationStatus" name="starParticipationStatus" required defaultValue="">
               <option value="" disabled>
                 Select Status
@@ -249,7 +249,7 @@ export default function RegisterPage() {
               Data Privacy &amp; Consent
             </p>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.5rem', lineHeight: 1.5 }}>
-              STAR-LINK collects and processes your data under the Philippine Data Privacy Act of 2012 (RA 10173). Your profile data is retained for 5 years,
+              KlasKonek collects and processes your data under the Philippine Data Privacy Act of 2012 (RA 10173). Your profile data is retained for 5 years,
               after which it is automatically anonymized. You may request deletion at any time.{' '}
               <a href="/privacy" target="_blank" rel="noopener" style={{ color: 'var(--primary-blue)', textDecoration: 'underline' }}>
                 Read our full Privacy Policy →
@@ -259,7 +259,7 @@ export default function RegisterPage() {
             <label className={regStyles.checkboxLabel}>
               <input type="checkbox" name="dataProcessingConsent" required />
               <div>
-                <span>I consent to STAR-LINK processing my personal data for program operations and regional planning.</span>
+                <span>I consent to KlasKonek processing my personal data for program operations and regional planning.</span>
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
                   Required · Without this consent, your account cannot be created.
                 </p>

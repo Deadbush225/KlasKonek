@@ -400,7 +400,7 @@ export default function RegionalMapPage() {
         <h1 className={mapStyles.title}>Regional Teacher Profile Map</h1>
         <p className={mapStyles.subtitle}>
           Philippine-focused geospatial view of science and mathematics teacher profiles. 
-          Identify underserved areas and generate actionable insights to inform strategic delivery of STAR programs.
+          Identify underserved areas and generate actionable insights to inform strategic program delivery.
         </p>
       </div>
 

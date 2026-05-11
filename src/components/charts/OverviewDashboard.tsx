@@ -94,12 +94,12 @@ function IconGlobe() {
 }
 
 /* ── chart palette: muted, institutional ────── */
-const CHART_BLUE = '#1d4f91';
-const CHART_BLUE_LIGHT = '#2d6ab8';
-const CHART_NAVY = '#3f448c';
+const CHART_BLUE = '#154597';
+const CHART_BLUE_LIGHT = '#2a6ccf';
+const CHART_NAVY = '#0f3571';
 const CHART_TEAL = '#0e7c7b';
 const CHART_SLATE = '#4b5c6b';
-const CHART_GOLD = '#b8860b';
+const CHART_GOLD = '#ffbd59';
 const PIE_COLORS = [CHART_BLUE, CHART_TEAL, CHART_GOLD, CHART_NAVY, CHART_SLATE, CHART_BLUE_LIGHT];
 
 type NeedsSegmentation = {
@@ -301,7 +301,7 @@ export default function OverviewDashboard({
         <div className={`card ${styles.kpiCard}`}>
           <span className={styles.kpiIcon}><IconStar /></span>
           <span className={styles.kpiValue}>{weightedStarAccess}%</span>
-          <span className={styles.kpiLabel}>STAR Access Rate</span>
+          <span className={styles.kpiLabel}>Program Access Rate</span>
         </div>
         <div className={`card ${styles.kpiCard}`}>
           <span className={styles.kpiIcon}><IconAlert /></span>
@@ -442,7 +442,7 @@ export default function OverviewDashboard({
                   }}
                   formatter={(value, name) => {
                     if (name === 'score') return [`${value}`, 'Priority Score'];
-                    return [`${value}%`, 'STAR Access'];
+                    return [`${value}%`, 'Program Access'];
                   }}
                 />
                 <Bar dataKey="score" fill={CHART_BLUE} radius={[0, 4, 4, 0]} barSize={14} name="score" />
@@ -477,7 +477,7 @@ export default function OverviewDashboard({
         </div>
       </div>
 
-      {/* ── STAR Program Consent Summary ─────── */}
+      {/* ── Program Consent Summary ──────────── */}
       <div className={styles.kpiRow} style={{ marginBottom: '1.5rem' }}>
         <div className={`card ${styles.kpiCard}`}>
           <span className={styles.kpiIcon}><IconCheck /></span>

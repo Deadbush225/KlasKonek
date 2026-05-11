@@ -69,7 +69,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
         <section className={`${profileStyles.infoSection} card`}>
           <h3>Public Information</h3>
           <div className={profileStyles.infoItem}>
-            <span>STAR ID</span>
+            <span>KlasKonek ID</span>
             <strong>{profile.star_id}</strong>
           </div>
           <div className={profileStyles.infoItem}>
@@ -111,7 +111,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
             <strong>{profile.years_of_experience} Years</strong>
           </div>
           <div className={profileStyles.infoItem}>
-            <span>STAR Participation</span>
+            <span>Program Participation</span>
             <strong>{profile.star_participation_status}</strong>
           </div>
           <div className={profileStyles.infoItem}>

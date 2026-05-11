@@ -174,7 +174,7 @@ export default function RegionCompare({
   /* ── Radar chart data ──────────────────────── */
   const radarData = hasBoth
     ? [
-        { metric: 'STAR Access', A: profileA.starAccessRate, B: profileB.starAccessRate },
+        { metric: 'Program Access', A: profileA.starAccessRate, B: profileB.starAccessRate },
         { metric: 'Completeness', A: profileA.completeness, B: profileB.completeness },
         { metric: 'Coverage', A: profileA.coveragePercentage, B: profileB.coveragePercentage },
         { metric: '100 - Priority', A: Math.max(0, 100 - profileA.priorityScore), B: Math.max(0, 100 - profileB.priorityScore) },
@@ -188,7 +188,7 @@ export default function RegionCompare({
     ? [
         (() => { const d = profileA.totalTeachers - profileB.totalTeachers; return { label: 'Total Teachers', a: `${profileA.totalTeachers}`, b: `${profileB.totalTeachers}`, deltaLabel: d > 0 ? `+${d}` : `${d}`, deltaClass: d > 0 ? styles.deltaPositive : d < 0 ? styles.deltaNegative : styles.deltaNeutral }; })(),
         (() => { const d = round(profileA.avgExperience - profileB.avgExperience); return { label: 'Avg Experience (yr)', a: `${profileA.avgExperience}`, b: `${profileB.avgExperience}`, deltaLabel: d > 0 ? `+${d}` : `${d}`, deltaClass: d > 0 ? styles.deltaPositive : d < 0 ? styles.deltaNegative : styles.deltaNeutral }; })(),
-        (() => { const d = round(profileA.starAccessRate - profileB.starAccessRate); return { label: 'STAR Access Rate', a: `${profileA.starAccessRate}%`, b: `${profileB.starAccessRate}%`, deltaLabel: `${d > 0 ? '+' : ''}${d}pp`, deltaClass: d > 0 ? styles.deltaPositive : d < 0 ? styles.deltaNegative : styles.deltaNeutral }; })(),
+        (() => { const d = round(profileA.starAccessRate - profileB.starAccessRate); return { label: 'Program Access Rate', a: `${profileA.starAccessRate}%`, b: `${profileB.starAccessRate}%`, deltaLabel: `${d > 0 ? '+' : ''}${d}pp`, deltaClass: d > 0 ? styles.deltaPositive : d < 0 ? styles.deltaNegative : styles.deltaNeutral }; })(),
         (() => { const d = round(profileA.completeness - profileB.completeness); return { label: 'Data Completeness', a: `${profileA.completeness}%`, b: `${profileB.completeness}%`, deltaLabel: `${d > 0 ? '+' : ''}${d}pp`, deltaClass: d > 0 ? styles.deltaPositive : d < 0 ? styles.deltaNegative : styles.deltaNeutral }; })(),
         (() => { const d = round(profileA.coveragePercentage - profileB.coveragePercentage); return { label: 'Division Coverage', a: `${profileA.coveredDivisions}/${profileA.expectedDivisions} (${profileA.coveragePercentage}%)`, b: `${profileB.coveredDivisions}/${profileB.expectedDivisions} (${profileB.coveragePercentage}%)`, deltaLabel: `${d > 0 ? '+' : ''}${d}pp`, deltaClass: d > 0 ? styles.deltaPositive : d < 0 ? styles.deltaNegative : styles.deltaNeutral }; })(),
         (() => { const d = round(profileA.priorityScore - profileB.priorityScore); return { label: 'Priority Score', a: `${profileA.priorityScore}`, b: `${profileB.priorityScore}`, deltaLabel: d > 0 ? `+${d}` : `${d}`, deltaClass: d > 0 ? styles.deltaNegative : d < 0 ? styles.deltaPositive : styles.deltaNeutral }; })(),
@@ -256,7 +256,7 @@ export default function RegionCompare({
                 {regionDisplayNames[regionA] ?? regionA}
               </h3>
               <div className={styles.compareStatRow}><span className={styles.compareStatLabel}>Teachers</span><span className={styles.compareStatValue}>{profileA.totalTeachers}</span></div>
-              <div className={styles.compareStatRow}><span className={styles.compareStatLabel}>STAR Access</span><span className={styles.compareStatValue}>{profileA.starAccessRate}%</span></div>
+              <div className={styles.compareStatRow}><span className={styles.compareStatLabel}>Program Access</span><span className={styles.compareStatValue}>{profileA.starAccessRate}%</span></div>
               <div className={styles.compareStatRow}><span className={styles.compareStatLabel}>Completeness</span><span className={styles.compareStatValue}>{profileA.completeness}%</span></div>
               <div className={styles.compareStatRow}><span className={styles.compareStatLabel}>Priority Score</span><span className={styles.compareStatValue}>{profileA.priorityScore}</span></div>
               <div className={styles.compareStatRow}><span className={styles.compareStatLabel}>Avg Experience</span><span className={styles.compareStatValue}>{profileA.avgExperience} yr</span></div>
@@ -267,7 +267,7 @@ export default function RegionCompare({
                 {regionDisplayNames[regionB] ?? regionB}
               </h3>
               <div className={styles.compareStatRow}><span className={styles.compareStatLabel}>Teachers</span><span className={styles.compareStatValue}>{profileB.totalTeachers}</span></div>
-              <div className={styles.compareStatRow}><span className={styles.compareStatLabel}>STAR Access</span><span className={styles.compareStatValue}>{profileB.starAccessRate}%</span></div>
+              <div className={styles.compareStatRow}><span className={styles.compareStatLabel}>Program Access</span><span className={styles.compareStatValue}>{profileB.starAccessRate}%</span></div>
               <div className={styles.compareStatRow}><span className={styles.compareStatLabel}>Completeness</span><span className={styles.compareStatValue}>{profileB.completeness}%</span></div>
               <div className={styles.compareStatRow}><span className={styles.compareStatLabel}>Priority Score</span><span className={styles.compareStatValue}>{profileB.priorityScore}</span></div>
               <div className={styles.compareStatRow}><span className={styles.compareStatLabel}>Avg Experience</span><span className={styles.compareStatValue}>{profileB.avgExperience} yr</span></div>
@@ -296,8 +296,8 @@ export default function RegionCompare({
                       }}
                     />
                     <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '0.78rem' }} />
-                    <Bar dataKey={nameA} fill="#1d4f91" radius={[4, 4, 0, 0]} barSize={20} />
-                    <Bar dataKey={nameB} fill="#b8860b" radius={[4, 4, 0, 0]} barSize={20} />
+                    <Bar dataKey={nameA} fill="#154597" radius={[4, 4, 0, 0]} barSize={20} />
+                    <Bar dataKey={nameB} fill="#ffbd59" radius={[4, 4, 0, 0]} barSize={20} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -313,8 +313,8 @@ export default function RegionCompare({
                     <PolarGrid strokeOpacity={0.2} />
                     <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10 }} />
                     <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 9 }} />
-                    <Radar name={nameA} dataKey="A" stroke="#1d4f91" fill="#1d4f91" fillOpacity={0.2} strokeWidth={2} />
-                    <Radar name={nameB} dataKey="B" stroke="#b8860b" fill="#b8860b" fillOpacity={0.2} strokeWidth={2} />
+                    <Radar name={nameA} dataKey="A" stroke="#154597" fill="#154597" fillOpacity={0.2} strokeWidth={2} />
+                    <Radar name={nameB} dataKey="B" stroke="#ffbd59" fill="#ffbd59" fillOpacity={0.2} strokeWidth={2} />
                     <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '0.78rem' }} />
                     <Tooltip
                       contentStyle={{

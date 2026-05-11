@@ -34,7 +34,7 @@ export default function TermsModal() {
             Terms and Conditions
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-            Before accessing the STAR-LINK hub, please review and accept our Terms and Conditions.
+            Before accessing the KlasKonek hub, please review and accept our Terms and Conditions.
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export default function TermsModal() {
             }}
           />
           <span style={{ fontSize: '0.95rem' }}>
-            I agree to the Terms and Conditions and commit to using STAR-LINK responsibly for the advancement of STEM education.
+            I agree to the Terms and Conditions and commit to using KlasKonek responsibly for the advancement of STEM education.
           </span>
         </label>
 

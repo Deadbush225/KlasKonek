@@ -183,7 +183,7 @@ export async function GET(request: NextRequest) {
       'Teacher Count',
       'Priority Score',
       'Average Underserved Score',
-      'STAR Access Rate (%)',
+      'Program Access Rate (%)',
       'Completeness (%)',
       'Division Coverage (%)',
       'Coverage Gap Level',

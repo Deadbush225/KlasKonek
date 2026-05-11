@@ -12,7 +12,7 @@ export async function GET() {
     return Response.json(
       {
         status: 'error',
-        service: 'star-link',
+        service: 'klaskonek',
         db: 'unreachable',
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV,
@@ -27,7 +27,7 @@ export async function GET() {
   return Response.json(
     {
       status: 'ok',
-      service: 'star-link',
+      service: 'klaskonek',
       db: 'ok',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV,

@@ -539,7 +539,7 @@ export async function getRegionalInsightsDashboard(options: RegionalInsightsOpti
 
     if (starAccessRate < 0.5) {
       underservedScore += 25 * ((0.5 - starAccessRate) / 0.5);
-      underservedReasons.push('Low STAR access rate');
+      underservedReasons.push('Low program access rate');
     }
 
     if (outOfFieldRate > 0.3) {
@@ -727,7 +727,7 @@ export async function getRegionalInsightsDashboard(options: RegionalInsightsOpti
 
     if (starAccessRate < 50) {
       priorityScore += (50 - starAccessRate) * 0.6;
-      reasons.push('Low STAR access participation');
+      reasons.push('Low program access participation');
     }
 
     if (averageUnderservedScore >= 35) {
@@ -767,7 +767,7 @@ export async function getRegionalInsightsDashboard(options: RegionalInsightsOpti
       recommendedPrograms.push('Regional teacher mapping and onboarding drive with division focal persons');
     }
     if (starAccessRate < 50) {
-      recommendedPrograms.push('STAR orientation and application clinic for underserved schools');
+      recommendedPrograms.push('KlasKonek orientation and application clinic for underserved schools');
     }
     if (averageUnderservedScore >= 40) {
       recommendedPrograms.push('Targeted coaching package with division-level mentoring support');

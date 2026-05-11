@@ -39,7 +39,7 @@ export default function Home() {
       <section className={homeStyles.hero}>
         <div className={homeStyles.heroContent}>
           <div className={homeStyles.badgeFade} style={{ animationDelay: '0.1s' }}>
-            <span className={homeStyles.badge}>DOST-SEI STAR-LINK</span>
+            <span className={homeStyles.badge}>KlasKonek</span>
           </div>
           <h1 className={`${homeStyles.title} ${homeStyles.fadeUp}`} style={{ animationDelay: '0.2s' }}>
             Turning Isolated Innovations Into <br />
@@ -47,8 +47,8 @@ export default function Home() {
           </h1>
           <p className={`${homeStyles.subtitle} ${homeStyles.fadeUp}`} style={{ animationDelay: '0.3s' }}>
             Connect, collaborate, and share impactful Action Research and Extension Projects 
-            with STEM educators across the Philippines. This platform enriches the e-STAR.ph 
-            repository with a dynamic social layer and real-time mapping.
+            with STEM educators across the Philippines. This platform blends a research 
+            repository, community forums, and real-time mapping into one hub.
           </p>
           <div className={`${homeStyles.ctaGroup} ${homeStyles.fadeUp}`} style={{ animationDelay: '0.4s' }}>
             <Link href="/register" className={`btn btn-primary ${homeStyles.glowBtn}`}>

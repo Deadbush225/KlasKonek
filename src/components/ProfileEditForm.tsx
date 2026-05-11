@@ -188,7 +188,7 @@ export default function ProfileEditForm({ initial }: ProfileEditFormProps) {
           </label>
 
           <label className={profileStyles.formLabel}>
-            STAR Participation Status
+            Program Participation Status
             <select name="starParticipationStatus" required defaultValue={initial.starParticipationStatus}>
               {STAR_PARTICIPATION_STATUSES.map((status) => (
                 <option key={status} value={status}>
@@ -224,9 +224,9 @@ export default function ProfileEditForm({ initial }: ProfileEditFormProps) {
         <label className={profileStyles.checkboxLabel}>
           <input type="checkbox" name="dataProcessingConsent" defaultChecked={initial.consentDataProcessing} required />
           <div>
-            <span>I consent to STAR-LINK processing my data for platform operations and regional planning.</span>
+            <span>I consent to KlasKonek processing my data for platform operations and regional planning.</span>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-              Required · This permits the platform to store and use your profile data for STAR programme coordination.
+              Required · This permits the platform to store and use your profile data for program coordination.
             </p>
           </div>
         </label>

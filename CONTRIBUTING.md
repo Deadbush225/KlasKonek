@@ -1,6 +1,6 @@
-# Contributing to STAR-LINK
+# Contributing to KlasKonek
 
-Thank you for your interest in contributing to STAR-LINK. This document covers local setup, project conventions, and how to submit changes.
+Thank you for your interest in contributing to KlasKonek. This document covers local setup, project conventions, and how to submit changes.
 
 ---
 

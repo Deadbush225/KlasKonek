@@ -80,7 +80,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
         <section className={`${profileStyles.infoSection} card`}>
           <h3>Professional Information</h3>
           <div className={profileStyles.infoItem}>
-            <span>STAR ID</span>
+            <span>KlasKonek ID</span>
             <strong>{profile.star_id}</strong>
           </div>
           <div className={profileStyles.infoItem}>
@@ -119,7 +119,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                 <strong>{profile.gender} • {profile.age_bracket}</strong>
               </div>
               <div className={profileStyles.infoItem}>
-                <span>STAR Participation</span>
+                <span>Program Participation</span>
                 <strong>{profile.star_participation_status}</strong>
               </div>
               <div className={profileStyles.infoItem}>

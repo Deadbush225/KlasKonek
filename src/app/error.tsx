@@ -12,7 +12,7 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     // Log to an external error reporting service when one is configured.
-    console.error('[STAR-LINK] Unhandled render error:', error);
+    console.error('[KlasKonek] Unhandled render error:', error);
   }, [error]);
 
   return (
@@ -48,7 +48,7 @@ export default function GlobalError({
       </div>
 
       <div style={{ maxWidth: '480px' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.75rem', color: '#1d4f91' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.75rem', color: 'var(--primary-blue)' }}>
           Something went wrong
         </h1>
         <p style={{ color: '#475569', lineHeight: '1.6', marginBottom: '0.5rem' }}>
@@ -67,7 +67,7 @@ export default function GlobalError({
           style={{
             padding: '0.6rem 1.25rem',
             borderRadius: '0.75rem',
-            background: '#1d4f91',
+            background: 'var(--primary-blue)',
             color: 'white',
             border: 'none',
             fontWeight: 600,
@@ -82,9 +82,9 @@ export default function GlobalError({
           style={{
             padding: '0.6rem 1.25rem',
             borderRadius: '0.75rem',
-            background: '#eef2f8',
-            color: '#1d4f91',
-            border: '1px solid rgba(29,79,145,0.15)',
+            background: 'var(--secondary-accent)',
+            color: 'var(--primary-blue)',
+            border: '1px solid rgba(21, 69, 151, 0.2)',
             fontWeight: 600,
             fontSize: '0.95rem',
             textDecoration: 'none',

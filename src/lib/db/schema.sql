@@ -1,11 +1,11 @@
--- STAR-LINK Neon schema
+-- KlasKonek Neon schema
 
 create extension if not exists pgcrypto;
 create extension if not exists vector;
 
 create table if not exists profiles (
   id uuid primary key default gen_random_uuid(),
-  star_id text not null unique default ('STAR-' || to_char(timezone('utc'::text, now()), 'YYYY') || '-' || upper(encode(gen_random_bytes(3), 'hex'))),
+  star_id text not null unique default ('KK-' || to_char(timezone('utc'::text, now()), 'YYYY') || '-' || upper(encode(gen_random_bytes(3), 'hex'))),
   full_name text not null,
   email text not null unique,
   password_hash text not null,
@@ -44,9 +44,9 @@ create index if not exists auth_sessions_user_id_idx on auth_sessions(user_id);
 
 alter table profiles add column if not exists star_id text;
 update profiles
-set star_id = 'STAR-LEGACY-' || upper(substring(replace(id::text, '-', '') for 8))
+set star_id = 'KK-LEGACY-' || upper(substring(replace(id::text, '-', '') for 8))
 where star_id is null;
-alter table profiles alter column star_id set default ('STAR-' || to_char(timezone('utc'::text, now()), 'YYYY') || '-' || upper(encode(gen_random_bytes(3), 'hex')));
+alter table profiles alter column star_id set default ('KK-' || to_char(timezone('utc'::text, now()), 'YYYY') || '-' || upper(encode(gen_random_bytes(3), 'hex')));
 alter table profiles alter column star_id set not null;
 create unique index if not exists profiles_star_id_idx on profiles(star_id);
 

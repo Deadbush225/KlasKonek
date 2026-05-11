@@ -358,7 +358,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
                 <h3>{index + 1}. {REGION_DISPLAY_NAMES[item.region] ?? item.region}</h3>
                 <span className={adminStyles.riskBadge}>Priority {item.priorityScore}</span>
               </div>
-              <p className={adminStyles.meta}>Teachers: {item.teacherCount} • STAR Access: {item.starAccessRate}% • Completeness: {item.completenessPercentage}%</p>
+              <p className={adminStyles.meta}>Teachers: {item.teacherCount} • Program Access: {item.starAccessRate}% • Completeness: {item.completenessPercentage}%</p>
               <p className={adminStyles.meta}>Avg Underserved Score: {item.averageUnderservedScore}</p>
               <p className={adminStyles.description}>Drivers: {item.reasons.join(', ')}</p>
             </article>
@@ -474,7 +474,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
       <section className={adminStyles.section}>
         <h2 className={adminStyles.sectionTitle}>Underserved Area Detection</h2>
         <p className={adminStyles.meta} style={{ marginBottom: '0.8rem' }}>
-          Rule-based scoring flags low density, low qualification rates, low STAR access, and high out-of-field teaching.
+          Rule-based scoring flags low density, low qualification rates, low program access, and high out-of-field teaching.
         </p>
         {insights.underservedAreas.length === 0 ? (
           <div className="card">
@@ -618,7 +618,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
         <section className={adminStyles.section}>
           <h2 className={adminStyles.sectionTitle}>Program Delivery Scheduling</h2>
           <p className={adminStyles.meta} style={{ marginBottom: '0.8rem' }}>
-            Schedule STAR capacity-building programs for specific regions or nationally.
+            Schedule KlasKonek capacity-building programs for specific regions or nationally.
             Update status as programs progress from scheduled → ongoing → completed.
           </p>
           <DeliveryTabContent deliveries={deliveries} programTypes={[...PROGRAM_TYPES]} regions={['National', ...REGISTRATION_REGIONS]} />
@@ -674,7 +674,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
           <h2 className={adminStyles.sectionTitle}>Training Gap Analysis</h2>
           <p className={adminStyles.meta} style={{ marginBottom: '0.8rem' }}>
             Regions sorted by lowest training coverage. Teachers who have no structured training records
-            or no STAR-specific training are flagged for priority outreach.
+            or no program-specific training are flagged for priority outreach.
           </p>
           {trainingGaps.length === 0 ? (
             <div className="card">
@@ -692,7 +692,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
                   </div>
                   <p className={adminStyles.meta}>Total Teachers: {gap.totalTeachers}</p>
                   <p className={adminStyles.meta}>With any training: {gap.teachersWithTraining} ({gap.trainingCoverageRate}%)</p>
-                  <p className={adminStyles.meta}>With STAR training: {gap.teachersWithStarTraining} ({gap.starTrainingRate}%)</p>
+                  <p className={adminStyles.meta}>With program training: {gap.teachersWithStarTraining} ({gap.starTrainingRate}%)</p>
                   <p className={adminStyles.meta}>Avg training count: {gap.averageTrainingCount}</p>
                 </article>
               ))}

@@ -165,7 +165,7 @@ const TRAINING_POOL = [
   'Science Lab Safety and Inquiry Training',
   'Digital Learning and LMS Integration',
   'Assessment Design for STEM Classrooms',
-  'Regional STAR Mentor Training',
+  'Regional KlasKonek Mentor Training',
   'Project-Based Learning Facilitation',
   'Inclusive STEM Teaching Strategies',
   'Data-Driven School Improvement Seminar',
@@ -329,7 +329,7 @@ async function seedMockTeacherProfiles(totalCount = 1000) {
 
     await upsertProfile({
       fullName: `${pickOne(FIRST_NAMES)} ${pickOne(LAST_NAMES)}`,
-      email: `teacher${ordinal}@mock.starlink.local`,
+      email: `teacher${ordinal}@mock.klaskonek.local`,
       occupation: chooseOccupation(years),
       region,
       division,
@@ -572,7 +572,7 @@ const christineId = await upsertProfile({
   gender: 'Female',
   ageBracket: '45-54',
   subjects: ['General Science', 'Extension Work'],
-  trainingHistory: ['2023 Regional Science Leadership Summit', '2024 STAR Mentor Training'],
+  trainingHistory: ['2023 Regional Science Leadership Summit', '2024 KlasKonek Mentor Training'],
   starParticipationStatus: 'Alumni',
   dataQualityScore: 96,
   years: 9,
@@ -581,11 +581,11 @@ const christineId = await upsertProfile({
 
 const adminId = await upsertProfile({
   fullName: 'System Admin',
-  email: 'admin@starlink.local',
+  email: 'admin@klaskonek.local',
   occupation: 'Division Office Staff',
   region: 'NCR',
   division: 'Manila',
-  school: 'STAR-LINK HQ',
+  school: 'KlasKonek HQ',
   qualificationLevel: 'Doctoral Degree',
   gender: 'Prefer not to say',
   ageBracket: '45-54',
@@ -735,13 +735,13 @@ const MOCK_PROGRAMS = [
     notes: 'Annual convention featuring keynote speakers, parallel sessions on STEM pedagogy, and poster presentations from regional awardees.',
   },
   {
-    title: 'STAR Capacity-Building Workshop — Batch 12',
-    programType: 'STAR Capacity-Building Workshop',
+    title: 'KlasKonek Capacity-Building Workshop — Batch 12',
+    programType: 'KlasKonek Capacity-Building Workshop',
     targetRegion: 'NCR',
     targetDivision: 'Quezon City',
     scheduledDate: '2026-01-20',
     status: 'completed',
-    notes: 'Intensive 5-day in-person workshop at DOST-SEI covering action research design, data collection, and manuscript preparation.',
+    notes: 'Intensive 5-day in-person workshop covering action research design, data collection, and manuscript preparation.',
   },
   {
     title: 'Region IV-A STEM Summit 2026',
@@ -804,11 +804,11 @@ const MOCK_PROGRAMS = [
     targetDivision: 'Pampanga',
     scheduledDate: '2026-03-18',
     status: 'completed',
-    notes: 'Orientation program for newly hired science and math teachers. Covers STAR program objectives, classroom management, and professional development pathways.',
+    notes: 'Orientation program for newly hired science and math teachers. Covers program objectives, classroom management, and professional development pathways.',
   },
   {
-    title: 'STAR Capacity-Building Workshop — Mindanao Leg',
-    programType: 'STAR Capacity-Building Workshop',
+    title: 'KlasKonek Capacity-Building Workshop — Mindanao Leg',
+    programType: 'KlasKonek Capacity-Building Workshop',
     targetRegion: 'Region X',
     targetDivision: 'Bukidnon',
     scheduledDate: '2026-07-08',
@@ -883,7 +883,7 @@ await pool.query(`
 `);
 
 const TRAINING_TYPE_POOL = [
-  'STAR Capacity-Building',
+  'KlasKonek Capacity-Building',
   'Regional Workshop',
   'National Convention',
   'Online Course',
@@ -893,7 +893,7 @@ const TRAINING_TYPE_POOL = [
 ];
 
 const TRAINING_PROVIDER_POOL = [
-  'DOST-SEI',
+  'KlasKonek Secretariat',
   'DepEd Regional Office',
   'CHED',
   'Philippine Normal University',

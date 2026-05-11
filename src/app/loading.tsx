@@ -13,7 +13,7 @@ export default function Loading() {
         <div className="loadingBar">
           <div className="loadingBarFill" />
         </div>
-        <p className="loadingText">Loading STAR-LINK</p>
+        <p className="loadingText">Loading KlasKonek</p>
 
         <style>{`
           .loadingShell {

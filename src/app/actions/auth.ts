@@ -151,7 +151,7 @@ export async function registerAction(_state: AuthActionState, formData: FormData
   }
 
   if (!STAR_PARTICIPATION_STATUSES.includes(starParticipationStatus as (typeof STAR_PARTICIPATION_STATUSES)[number])) {
-    return { error: 'Please select a valid STAR participation status.' } satisfies AuthActionState;
+    return { error: 'Please select a valid program participation status.' } satisfies AuthActionState;
   }
 
   const divisionsForRegion = REGION_DIVISIONS_BY_REGION[region] ?? [];
@@ -319,7 +319,7 @@ export async function updateProfileAction(_state: AuthActionState, formData: For
   if (role === 'teacher') {
     if (!region || !division || !school || !qualificationLevel || !gender || !ageBracket || !starParticipationStatus) {
       return {
-        error: 'Region, division, school, qualification, gender, age bracket, and STAR participation are required for teaching profiles.',
+        error: 'Region, division, school, qualification, gender, age bracket, and program participation are required for teaching profiles.',
       } satisfies AuthActionState;
     }
 
@@ -349,7 +349,7 @@ export async function updateProfileAction(_state: AuthActionState, formData: For
     }
 
     if (!STAR_PARTICIPATION_STATUSES.includes(starParticipationStatus as (typeof STAR_PARTICIPATION_STATUSES)[number])) {
-      return { error: 'Please select a valid STAR participation status.' } satisfies AuthActionState;
+      return { error: 'Please select a valid program participation status.' } satisfies AuthActionState;
     }
   }
 

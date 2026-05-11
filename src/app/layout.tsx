@@ -5,8 +5,8 @@ import ThemeInit from '@/components/ThemeInit';
 import { getCurrentUser } from '@/lib/auth';
 
 export const metadata: Metadata = {
-  title: 'STAR-LINK | DOST-SEI STEM Educators Hub',
-  description: 'Community-driven collaboration hub for STEM educators enriching the e-STAR.ph resource portal. Share action research, discuss challenges, and form networks.',
+  title: 'KlasKonek | STEM Educators Hub',
+  description: 'Community-driven collaboration hub for STEM educators to share action research, discuss challenges, and form networks.',
   icons: {
     icon: '/img/favicon.png',
   },
@@ -49,7 +49,7 @@ export default async function RootLayout({
 
           <footer className={layoutStyles.footer}>
             <div className={layoutStyles.container}>
-              <p>&copy; {new Date().getFullYear()} DOST-SEI STAR-LINK. A collaborative space for STEM educators.</p>
+              <p>&copy; {new Date().getFullYear()} KlasKonek. A collaborative space for STEM educators.</p>
               <p style={{ marginTop: '0.4rem', fontSize: '0.85rem' }}>
                 <a href="/privacy" style={{ color: 'var(--primary-blue)', fontWeight: 600 }}>Privacy Policy</a>
                 <span style={{ margin: '0 0.5rem', opacity: 0.5 }}>·</span>

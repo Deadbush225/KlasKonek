@@ -45,5 +45,5 @@ export async function exportDataAction() {
   });
 
   // Return the data as a JSON string for the client to download
-  return { json: JSON.stringify(data, null, 2), fileName: `starlink-data-export-${user.star_id}.json` };
+  return { json: JSON.stringify(data, null, 2), fileName: `klaskonek-data-export-${user.star_id}.json` };
 }

@@ -50,6 +50,14 @@
   hyphens: none;
 }
 
+.logoKlas {
+  color: var(--primary-blue);
+}
+
+.logoKonek {
+  color: var(--accent-yellow);
+}
+
 .tagline {
   font-size: 0.85rem;
   font-weight: 500;

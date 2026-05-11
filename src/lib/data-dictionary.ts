@@ -29,8 +29,8 @@ export const REGIONAL_DATA_DICTIONARY: IndicatorDefinition[] = [
     updateFrequency: 'Real-time on profile updates',
   },
   {
-    indicator: 'STAR Access Rate',
-    definition: 'Share of teachers who have applied, are active participants, or are alumni in STAR.',
+    indicator: 'Program Access Rate',
+    definition: 'Share of teachers who have applied, are active participants, or are alumni in programs.',
     formula: '(Applied + Active Participant + Alumni) / teacher_count',
     source: 'profiles.star_participation_status',
     updateFrequency: 'Real-time on profile updates',
@@ -59,7 +59,7 @@ export const REGIONAL_DATA_DICTIONARY: IndicatorDefinition[] = [
   {
     indicator: 'Underserved Score',
     definition: 'Composite severity score indicating service gaps in a division.',
-    formula: 'weighted rules for density, qualification, STAR access, and out-of-field risk',
+    formula: 'weighted rules for density, qualification, program access, and out-of-field risk',
     source: 'computed from regional analytics engine',
     updateFrequency: 'Calculated on dashboard load',
   },

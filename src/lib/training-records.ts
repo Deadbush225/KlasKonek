@@ -110,7 +110,7 @@ export async function getTrainingGapsByRegion(): Promise<TrainingGapSummary[]> {
       p.id,
       p.region,
       count(tr.id)::int as training_count,
-      count(case when tr.training_type = 'STAR Capacity-Building' then 1 end)::int as star_count
+      count(case when tr.training_type = 'KlasKonek Capacity-Building' then 1 end)::int as star_count
     from profiles p
     left join training_records tr on tr.teacher_id = p.id
     where p.role = 'teacher'

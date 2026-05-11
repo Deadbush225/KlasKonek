@@ -23,8 +23,12 @@ export default function Navigation({ currentUser }: NavigationProps) {
       <div className={layoutStyles.container}>
         <div className={layoutStyles.logoArea}>
           <Link href="/" className={layoutStyles.logoText} onClick={closeMenu}>
-            <Image src="/img/favicon.png" alt="STAR-LINK Logo" width={36} height={36} style={{ objectFit: 'contain' }} priority unoptimized />
-            <strong>STAR-LINK</strong> <span className={layoutStyles.tagline}>by DOST-SEI</span>
+            <Image src="/img/favicon.png" alt="KlasKonek Logo" width={46} height={46} style={{ objectFit: 'contain' }} priority unoptimized />
+            <strong>
+              <span className={layoutStyles.logoKlas}>Klas</span>
+              <span className={layoutStyles.logoKonek}>Konek</span>
+            </strong>
+            <span className={layoutStyles.tagline}>collaboration hub</span>
           </Link>
         </div>
 
@@ -59,10 +63,6 @@ export default function Navigation({ currentUser }: NavigationProps) {
               ) : null}
             </>
           ) : null}
-          <a href="https://e-star.ph" target="_blank" rel="noopener noreferrer" className={`${layoutStyles.navLink} ${layoutStyles.externalLink}`} onClick={closeMenu}>
-            Back to e-STAR.ph ↗
-          </a>
-          
           {/* Mobile Auth Actions */}
           <div className={layoutStyles.mobileAuthActions}>
             <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>

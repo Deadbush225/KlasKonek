@@ -40,10 +40,10 @@ export default async function ProgramsPage() {
   return (
     <div className={programStyles.pageContainer}>
       <div className={programStyles.header}>
-        <h1 className={programStyles.title}>STAR Programs</h1>
+        <h1 className={programStyles.title}>KlasKonek Programs</h1>
         <p className={programStyles.subtitle}>
           Capacity-building programs available in your region and nationally. 
-          Submit feedback for programs you attended to help DOST-SEI improve future delivery.
+          Submit feedback for programs you attended to help improve future delivery.
         </p>
       </div>
 

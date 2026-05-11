@@ -106,7 +106,7 @@ export default async function AdminRegionProfilePage({ params, searchParams }: P
           )}
         </article>
         <article className="card">
-          <h3>STAR Participation Mix</h3>
+          <h3>Program Participation Mix</h3>
           {details.participationMix.length === 0 ? (
             <p className={regionStyles.empty}>No participation data available yet.</p>
           ) : (
@@ -135,13 +135,13 @@ export default async function AdminRegionProfilePage({ params, searchParams }: P
         <h2 className={regionStyles.sectionTitle}>Teacher Directory</h2>
         <div className={`${regionStyles.searchBar} card`}>
           <form method="get" className={regionStyles.searchForm}>
-            <label htmlFor="teacher-search" className={regionStyles.searchLabel}>Search by teacher name or STAR ID</label>
+            <label htmlFor="teacher-search" className={regionStyles.searchLabel}>Search by teacher name or KlasKonek ID</label>
             <div className={regionStyles.searchControls}>
               <input
                 id="teacher-search"
                 name="q"
                 type="search"
-                placeholder="e.g. Juana Cruz or STAR-2024-001"
+                placeholder="e.g. Juana Cruz or KK-2024-001"
                 defaultValue={teacherQuery}
               />
               <button type="submit" className="btn btn-secondary">Search</button>
@@ -168,7 +168,7 @@ export default async function AdminRegionProfilePage({ params, searchParams }: P
                   <h3>{teacher.fullName}</h3>
                   <span className={regionStyles.qualityBadge}>DQ {teacher.dataQualityScore}</span>
                 </div>
-                <p className={regionStyles.meta}><strong>STAR ID:</strong> {teacher.starId}</p>
+                <p className={regionStyles.meta}><strong>KlasKonek ID:</strong> {teacher.starId}</p>
                 <p className={regionStyles.meta}><strong>Occupation:</strong> {teacher.occupation}</p>
                 <p className={regionStyles.meta}><strong>Division:</strong> {teacher.division}</p>
                 <p className={regionStyles.meta}><strong>School:</strong> {teacher.school}</p>

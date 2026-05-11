@@ -2,8 +2,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | STAR-LINK',
-  description: 'STAR-LINK data privacy policy aligned with the Philippine Data Privacy Act of 2012 (RA 10173). Learn how your personal data is collected, used, retained, and protected.',
+  title: 'Privacy Policy | KlasKonek',
+  description: 'KlasKonek data privacy policy aligned with the Philippine Data Privacy Act of 2012 (RA 10173). Learn how your personal data is collected, used, retained, and protected.',
 };
 
 const sectionStyle = { marginBottom: '2.5rem' };
@@ -27,7 +27,7 @@ export default function PrivacyPolicyPage() {
         <section style={sectionStyle}>
           <h2 style={h2Style}>1. Data Controller</h2>
           <p>
-            STAR-LINK is operated in support of the DOST-SEI STEM Teachers Action Research (STAR) program.
+            KlasKonek is operated as a national STEM educator collaboration hub.
             The platform administrator acts as the Personal Information Controller (PIC) under
             Republic Act No. 10173, the <strong>Data Privacy Act of 2012</strong> (DPA).
           </p>
@@ -46,14 +46,14 @@ export default function PrivacyPolicyPage() {
           <h3 style={h3Style}>Account Information</h3>
           <ul style={listStyle}>
             <li>Full name, email address, and password (hashed)</li>
-            <li>STAR ID (system-generated unique identifier)</li>
+            <li>KlasKonek ID (system-generated unique identifier)</li>
           </ul>
 
           <h3 style={h3Style}>Professional Profile</h3>
           <ul style={listStyle}>
             <li>Occupation, school/institution, region, and division</li>
             <li>Highest qualification level, subjects taught, years of experience</li>
-            <li>STAR participation status, training history, and structured training records</li>
+            <li>Program participation status, training history, and structured training records</li>
           </ul>
 
           <h3 style={h3Style}>Demographic Information (Optional)</h3>
@@ -74,7 +74,7 @@ export default function PrivacyPolicyPage() {
           <p>Your data is processed for the following purposes, each grounded in a lawful basis under RA 10173:</p>
           <ul style={listStyle}>
             <li><strong>Account management</strong> — Consent (required at registration)</li>
-            <li><strong>Community facilitation</strong> — Legitimate interest of the STAR programme</li>
+            <li><strong>Community facilitation</strong> — Legitimate interest of the platform</li>
             <li><strong>Regional planning &amp; analytics</strong> — Processing consent (required)</li>
             <li><strong>Anonymized research reports</strong> — Research consent (voluntary, opt-in)</li>
             <li><strong>Platform security &amp; audit</strong> — Legitimate interest and legal obligation</li>
@@ -154,7 +154,7 @@ export default function PrivacyPolicyPage() {
           </ul>
           <p>
             We do not sell, rent, or share your personal data with third-party commercial entities.
-            Data is not transferred outside of the Philippines unless required by the STAR programme
+            Data is not transferred outside of the Philippines unless required by approved partner programs
             with appropriate safeguards in place.
           </p>
         </section>
@@ -209,7 +209,7 @@ export default function PrivacyPolicyPage() {
         <section style={sectionStyle}>
           <h2 style={h2Style}>10. Consent Management</h2>
           <p>
-            STAR-LINK uses a granular consent model. During registration, you are asked to provide:
+            KlasKonek uses a granular consent model. During registration, you are asked to provide:
           </p>
           <ul style={listStyle}>
             <li><strong>Data Processing Consent</strong> (required) — Permits the platform to process your data for operational and regional planning purposes</li>
@@ -238,7 +238,7 @@ export default function PrivacyPolicyPage() {
             </p>
           ) : (
             <p style={{ marginTop: '0.5rem', color: 'var(--text-muted)' }}>
-              Please use the contact information provided by your regional STAR programme coordinator.
+              Please use the contact information provided by your regional program coordinator.
             </p>
           )}
         </section>
@@ -256,7 +256,7 @@ export default function PrivacyPolicyPage() {
           <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
             This Privacy Policy is complementary to our{' '}
             <Link href="/terms" style={{ color: 'var(--primary-blue)', textDecoration: 'underline' }}>Terms and Conditions</Link>.
-            By using STAR-LINK, you acknowledge that you have read and understood this policy.
+            By using KlasKonek, you acknowledge that you have read and understood this policy.
           </p>
         </div>
       </div>

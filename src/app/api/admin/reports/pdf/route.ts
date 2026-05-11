@@ -56,7 +56,7 @@ export async function GET() {
   /* ── Page 1: Cover + National Summary ──────── */
   doc.setFontSize(24);
   doc.setFont('helvetica', 'bold');
-  doc.text('STAR-LINK', 20, 30);
+  doc.text('KlasKonek', 20, 30);
 
   doc.setFontSize(14);
   doc.setFont('helvetica', 'normal');
@@ -90,7 +90,7 @@ export async function GET() {
     body: [
       ['Total Teachers Profiled', `${totalTeachers}`],
       ['Regions with Data', `${regionsWithData} / ${insights.needsSegmentation.length}`],
-      ['National STAR Access Rate', `${avgStarAccess}%`],
+      ['National Program Access Rate', `${avgStarAccess}%`],
       ['Underserved Divisions Flagged', `${underservedDivisions}`],
       ['Average Data Completeness', `${avgCompleteness}%`],
       ['Research-Consented Teachers', `${insights.anonymizedResearchSummary.totalConsentedTeachers}`],
@@ -109,7 +109,7 @@ export async function GET() {
   doc.text('Regional Breakdown', 20, 20);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text('Teacher composition, STAR access, and priority indicators per region.', 20, 27);
+  doc.text('Teacher composition, program access, and priority indicators per region.', 20, 27);
 
   const coverageByRegion = new Map(insights.coverageGaps.map((item) => [item.region, item]));
 
@@ -133,7 +133,7 @@ export async function GET() {
   autoTable(doc, {
     startY: 32,
     margin: { left: 12, right: 12 },
-    head: [['Region', 'Teachers', 'New', 'Mid', 'Vet', 'STEM Gap', 'STAR%', 'Complete%', 'Coverage%', 'Priority']],
+    head: [['Region', 'Teachers', 'New', 'Mid', 'Vet', 'STEM Gap', 'Program%', 'Complete%', 'Coverage%', 'Priority']],
     body: regionalRows,
     theme: 'grid',
     headStyles: { fillColor: [29, 79, 145], fontSize: 7.5, fontStyle: 'bold', halign: 'center' },
@@ -297,7 +297,7 @@ export async function GET() {
     doc.setFontSize(7);
     doc.setTextColor(150, 150, 150);
     doc.text(
-      `STAR-LINK Regional Teacher Profile Report • Page ${i} of ${totalPages} • Generated ${formatDate(now)}`,
+      `KlasKonek Regional Teacher Profile Report • Page ${i} of ${totalPages} • Generated ${formatDate(now)}`,
       pageWidth / 2,
       doc.internal.pageSize.getHeight() - 8,
       { align: 'center' },
@@ -306,7 +306,7 @@ export async function GET() {
   }
 
   const pdfBuffer = doc.output('arraybuffer');
-  const fileName = `STAR-LINK-Regional-Report-${timeStampForFile()}.pdf`;
+  const fileName = `KlasKonek-Regional-Report-${timeStampForFile()}.pdf`;
 
   return new Response(pdfBuffer, {
     headers: {

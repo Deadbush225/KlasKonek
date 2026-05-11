@@ -429,11 +429,11 @@ export const MOCK_SEED_EMAILS = [
   'gem@example.org',
   'marti@example.org',
   'christine@example.org',
-  'admin@starlink.local',
+  'admin@klaskonek.local',
 ];
 
 export const TRAINING_TYPES = [
-  'STAR Capacity-Building',
+  'KlasKonek Capacity-Building',
   'Regional Workshop',
   'National Convention',
   'Online Course',

@@ -2,7 +2,7 @@ import { db } from './db';
 import { REGISTRATION_REGIONS } from './constants';
 
 export const PROGRAM_TYPES = [
-  'STAR Capacity-Building Workshop',
+  'KlasKonek Capacity-Building Workshop',
   'Regional STEM Summit',
   'Teacher Induction Program',
   'Action Research Mentoring',
