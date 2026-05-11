@@ -30,7 +30,7 @@ type PageProps = {
 
 type AdminTabId =
   | 'regional'
-  | 'twinning'
+
   | 'notifications'
   | 'privacy'
   | 'freshness'
@@ -50,7 +50,7 @@ type RegionalInsightsDashboard = Awaited<ReturnType<typeof getRegionalInsightsDa
 
 const ADMIN_TABS: AdminTabId[] = [
   'regional',
-  'twinning',
+
   'notifications',
   'privacy',
   'freshness',
@@ -69,7 +69,7 @@ const ADMIN_TABS: AdminTabId[] = [
 
 const INSIGHT_TAB_SET = new Set<AdminTabId>([
   'regional',
-  'twinning',
+
   'privacy',
   'freshness',
   'underserved',
@@ -86,7 +86,7 @@ function createEmptyInsights(): RegionalInsightsDashboard {
     topPriorityRegions: [],
     programRecommendations: [],
     schoolActivity: [],
-    twinningTargets: [],
+
     anonymizedResearchSummary: {
       totalConsentedTeachers: 0,
       anonymizedDatasetRows: 0,
@@ -114,15 +114,13 @@ export default async function AdminPage({ searchParams }: PageProps) {
   const activeTab = ADMIN_TABS.includes((tab ?? '') as AdminTabId) ? (tab as AdminTabId) : 'regional';
 
   const shouldLoadInsights = INSIGHT_TAB_SET.has(activeTab);
-  const shouldLoadRegionalAnalytics = shouldLoadInsights && activeTab !== 'twinning';
-  const shouldLoadSchoolActivity = activeTab === 'twinning';
+  const shouldLoadRegionalAnalytics = shouldLoadInsights;
   const shouldLoadDeliveries = activeTab === 'delivery' || activeTab === 'feedback';
 
   const [insights, pendingResources, pendingTopics, auditLogs, notifications, unreadNotifications, deliveries, trainingGaps, feedbackSummaries, aiFieldAlerts] = await Promise.all([
     shouldLoadInsights
       ? getRegionalInsightsDashboard({
         includeRegionalAnalytics: shouldLoadRegionalAnalytics,
-        includeSchoolActivity: shouldLoadSchoolActivity,
       })
       : Promise.resolve(createEmptyInsights()),
     activeTab === 'pending-documents' ? getPendingResources() : Promise.resolve([]),
@@ -141,7 +139,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
 
   const tabs: Array<{ id: AdminTabId; label: string }> = [
     { id: 'regional', label: 'Regional Dashboard' },
-    { id: 'twinning', label: 'Twinning Targets' },
+
     { id: 'notifications', label: 'Notifications' },
     { id: 'privacy', label: 'Privacy & Consent' },
     { id: 'freshness', label: 'Data Freshness' },
@@ -169,7 +167,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
         </div>
         <div className={adminStyles.exportActions}>
           <a href="/api/admin/reports?type=annual-planning" className="btn btn-primary">Export Annual Planning CSV</a>
-          <a href="/api/admin/reports?type=twinning-targets" className="btn btn-secondary">Export Twinning Targets CSV</a>
+
           <a href="/api/admin/reports?type=school-activity" className="btn btn-secondary">Export School Activity CSV</a>
           <Link href="/profile" className="btn btn-secondary" style={{ height: 'fit-content' }}>
             Back to Profile
@@ -233,63 +231,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
       </section>
       ) : null}
 
-      {activeTab === 'twinning' ? (
-      <section className={adminStyles.section}>
-        <h2 className={adminStyles.sectionTitle}>Isolated-School Twinning Intervention</h2>
-        <p className={adminStyles.meta} style={{ marginBottom: '0.8rem' }}>
-          Workflow uses approved forum topics, approved resource sharing, and forum comment activity to detect low-collaboration schools
-          and match them with higher-activity mentor schools.
-        </p>
 
-        {insights.twinningTargets.length === 0 ? (
-          <div className="card">
-            <p className={adminStyles.empty}>No twinning targets detected yet. Continue collecting school-level collaboration activity.</p>
-          </div>
-        ) : (
-          <div className={adminStyles.queue}>
-            {insights.twinningTargets.slice(0, 20).map((target) => (
-              <article key={`${target.region}:${target.targetSchool}`} className="card">
-                <div className={adminStyles.itemHeader}>
-                  <h3>{REGION_DISPLAY_NAMES[target.region] ?? target.region}</h3>
-                  <span className={adminStyles.riskBadge}>Priority {target.priorityScore}</span>
-                </div>
-                <p className={adminStyles.meta}>Target School: {target.targetSchool}</p>
-                <p className={adminStyles.meta}>Target Activity Score: {target.targetActivityScore} • Teachers: {target.targetTeacherCount}</p>
-                <p className={adminStyles.meta}>
-                  Mentor School: {target.mentorSchool ?? 'No high-activity mentor school yet'}
-                  {target.mentorSchool ? ` • Mentor Activity Score: ${target.mentorActivityScore}` : ''}
-                </p>
-                <p className={adminStyles.description}>{target.rationale}</p>
-              </article>
-            ))}
-          </div>
-        )}
-
-        <h3 className={adminStyles.subSectionTitle}>School Activity Snapshots</h3>
-        {insights.schoolActivity.length === 0 ? (
-          <div className="card">
-            <p className={adminStyles.empty}>No school activity snapshots available yet.</p>
-          </div>
-        ) : (
-          <div className={adminStyles.analyticsGrid}>
-            {insights.schoolActivity.slice(0, 24).map((school) => (
-              <article key={`${school.region}:${school.school}`} className="card">
-                <div className={adminStyles.itemHeader}>
-                  <h3>{school.school}</h3>
-                  <span className={school.isIsolated ? adminStyles.riskBadge : adminStyles.metricBadge}>
-                    {school.isIsolated ? 'ISOLATED' : 'ACTIVE'}
-                  </span>
-                </div>
-                <p className={adminStyles.meta}>Region: {REGION_DISPLAY_NAMES[school.region] ?? school.region}</p>
-                <p className={adminStyles.meta}>Teachers: {school.teacherCount}</p>
-                <p className={adminStyles.meta}>Topics: {school.forumTopicCount} • Comments: {school.forumCommentCount} • Shared Resources: {school.resourceShareCount}</p>
-                <p className={adminStyles.meta}>Activity Score: {school.activityScore} • Per Teacher: {school.activityPerTeacher}</p>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
-      ) : null}
 
       {activeTab === 'regional' ? (
       <section className={adminStyles.section}>

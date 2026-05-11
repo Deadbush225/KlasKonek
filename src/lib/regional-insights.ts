@@ -151,17 +151,7 @@ export type SchoolActivitySnapshot = {
   lastActivityAt: string | null;
 };
 
-export type TwinningRecommendation = {
-  region: string;
-  targetSchool: string;
-  mentorSchool: string | null;
-  targetTeacherCount: number;
-  mentorTeacherCount: number;
-  targetActivityScore: number;
-  mentorActivityScore: number;
-  priorityScore: number;
-  rationale: string;
-};
+
 
 const STEM_KEYWORDS = [
   'science',
@@ -212,7 +202,7 @@ type SchoolActivityCountRow = {
   last_activity_at: string | null;
 };
 
-async function buildSchoolActivityAndTwinningInsights() {
+async function buildSchoolActivityInsights() {
   const [teacherRowsRaw, topicRowsRaw, commentRowsRaw, resourceRowsRaw] = await Promise.all([
     db`
       select
@@ -320,48 +310,8 @@ async function buildSchoolActivityAndTwinningInsights() {
     schoolsByRegion.set(school.region, bucket);
   }
 
-  const allMentors = [...schoolActivity]
-    .filter((school) => school.activityPerTeacher >= 1.6 && school.activityScore >= 6)
-    .sort((a, b) => b.activityPerTeacher - a.activityPerTeacher || b.activityScore - a.activityScore);
-
-  const twinningTargets: TwinningRecommendation[] = [];
-
-  for (const region of REGISTRATION_REGIONS) {
-    const regionSchools = schoolsByRegion.get(region) ?? [];
-    const regionMentors = [...regionSchools]
-      .filter((school) => school.activityPerTeacher >= 1.6 && school.activityScore >= 6)
-      .sort((a, b) => b.activityPerTeacher - a.activityPerTeacher || b.activityScore - a.activityScore);
-
-    const regionTargets = [...regionSchools]
-      .filter((school) => school.isIsolated)
-      .sort((a, b) => b.interventionPriority - a.interventionPriority || b.teacherCount - a.teacherCount);
-
-    for (const target of regionTargets) {
-      const inRegionMentor = regionMentors.find((mentor) => mentor.school !== target.school);
-      const fallbackMentor = allMentors.find((mentor) => mentor.school !== target.school);
-      const mentor = inRegionMentor ?? fallbackMentor ?? null;
-
-      const rationale = mentor
-        ? `Low collaboration activity detected. Pair ${target.school} with ${mentor.school} for structured peer mentoring and resource co-development.`
-        : `Low collaboration activity detected. No high-activity mentor school is currently available; prioritize regional onboarding and facilitation support.`;
-
-      twinningTargets.push({
-        region,
-        targetSchool: target.school,
-        mentorSchool: mentor?.school ?? null,
-        targetTeacherCount: target.teacherCount,
-        mentorTeacherCount: mentor?.teacherCount ?? 0,
-        targetActivityScore: target.activityScore,
-        mentorActivityScore: mentor?.activityScore ?? 0,
-        priorityScore: round(Math.min(100, target.interventionPriority + (mentor ? 0 : 8))),
-        rationale,
-      });
-    }
-  }
-
   return {
     schoolActivity: schoolActivity.sort((a, b) => b.interventionPriority - a.interventionPriority),
-    twinningTargets: twinningTargets.sort((a, b) => b.priorityScore - a.priorityScore),
   };
 }
 
@@ -376,12 +326,11 @@ export async function getRegionalInsightsDashboard(options: RegionalInsightsOpti
 
   const emptySchoolInsights = {
     schoolActivity: [] as SchoolActivitySnapshot[],
-    twinningTargets: [] as TwinningRecommendation[],
   };
 
   if (!includeRegionalAnalytics) {
     const schoolInsights = includeSchoolActivity
-      ? await buildSchoolActivityAndTwinningInsights()
+      ? await buildSchoolActivityInsights()
       : emptySchoolInsights;
 
     return {
@@ -393,7 +342,6 @@ export async function getRegionalInsightsDashboard(options: RegionalInsightsOpti
       topPriorityRegions: [] as PriorityRegionInsight[],
       programRecommendations: [] as ProgramRecommendationCard[],
       schoolActivity: schoolInsights.schoolActivity,
-      twinningTargets: schoolInsights.twinningTargets,
       anonymizedResearchSummary: {
         totalConsentedTeachers: 0,
         anonymizedDatasetRows: 0,
@@ -441,7 +389,6 @@ export async function getRegionalInsightsDashboard(options: RegionalInsightsOpti
       topPriorityRegions: [] as PriorityRegionInsight[],
       programRecommendations: [] as ProgramRecommendationCard[],
       schoolActivity: emptySchoolInsights.schoolActivity,
-      twinningTargets: emptySchoolInsights.twinningTargets,
       anonymizedResearchSummary: {
         totalConsentedTeachers: 0,
         anonymizedDatasetRows: 0,
@@ -797,7 +744,7 @@ export async function getRegionalInsightsDashboard(options: RegionalInsightsOpti
   topPriorityRegions.sort((a, b) => b.priorityScore - a.priorityScore || a.teacherCount - b.teacherCount);
   programRecommendations.sort((a, b) => b.priorityScore - a.priorityScore || a.teacherCount - b.teacherCount);
   const schoolInsights = includeSchoolActivity
-    ? await buildSchoolActivityAndTwinningInsights()
+    ? await buildSchoolActivityInsights()
     : emptySchoolInsights;
 
   return {

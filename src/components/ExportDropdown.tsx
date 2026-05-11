@@ -103,16 +103,7 @@ export default function ExportDropdown() {
             <span style={dropdownStyles.label}>Annual Planning CSV</span>
             <span style={dropdownStyles.hint}>Priority regions, coverage, and recommendations</span>
           </a>
-          <a
-            href="/api/admin/reports?type=twinning-targets"
-            style={dropdownStyles.item}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(29,79,145,0.08)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-            onClick={() => setOpen(false)}
-          >
-            <span style={dropdownStyles.label}>Twinning Targets CSV</span>
-            <span style={dropdownStyles.hint}>School-pairing recommendations</span>
-          </a>
+
           <a
             href="/api/admin/reports?type=school-activity"
             style={dropdownStyles.item}

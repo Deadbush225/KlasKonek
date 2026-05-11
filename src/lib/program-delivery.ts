@@ -7,7 +7,6 @@ export const PROGRAM_TYPES = [
   'Teacher Induction Program',
   'Action Research Mentoring',
   'STEM Specialization Bridging',
-  'School Twinning Facilitation',
   'Division-Level LAC Session',
   'National Convention',
   'Online Learning Sprint',

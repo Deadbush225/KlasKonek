@@ -5,7 +5,7 @@ import { getRegionalInsightsDashboard } from '@/lib/regional-insights';
 
 export const dynamic = 'force-dynamic';
 
-type ReportType = 'annual-planning' | 'twinning-targets' | 'school-activity';
+type ReportType = 'annual-planning' | 'school-activity';
 
 function csvEscape(value: string | number | null | undefined) {
   const normalized = String(value ?? '');
@@ -42,7 +42,7 @@ function sanitizeFileName(value: string) {
 }
 
 function normalizeReportType(value: string | null): ReportType {
-  if (value === 'twinning-targets' || value === 'school-activity') {
+  if (value === 'school-activity') {
     return value;
   }
 
@@ -68,44 +68,7 @@ export async function GET(request: NextRequest) {
   const insights = await getRegionalInsightsDashboard();
   const timestamp = timeStampForFile();
 
-  if (type === 'twinning-targets') {
-    const rows = insights.twinningTargets.map((target) => [
-      REGION_DISPLAY_NAMES[target.region] ?? target.region,
-      target.targetSchool,
-      target.mentorSchool ?? 'No mentor school identified',
-      target.targetTeacherCount,
-      target.targetActivityScore,
-      target.mentorTeacherCount,
-      target.mentorActivityScore,
-      target.priorityScore,
-      target.rationale,
-    ]);
 
-    const csv = toCsv(
-      [
-        'Region',
-        'Target School',
-        'Mentor School',
-        'Target Teacher Count',
-        'Target Activity Score',
-        'Mentor Teacher Count',
-        'Mentor Activity Score',
-        'Priority Score',
-        'Rationale',
-      ],
-      rows,
-    );
-
-    const fileName = sanitizeFileName(`twinning-targets-${timestamp}.csv`);
-
-    return new Response(csv, {
-      headers: {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': `attachment; filename="${fileName}"`,
-        'Cache-Control': 'private, no-store, max-age=0',
-      },
-    });
-  }
 
   if (type === 'school-activity') {
     const rows = insights.schoolActivity.map((school) => [
@@ -152,10 +115,6 @@ export async function GET(request: NextRequest) {
 
   const coverageByRegion = new Map(insights.coverageGaps.map((item) => [item.region, item]));
   const recommendationsByRegion = new Map(insights.programRecommendations.map((item) => [item.region, item]));
-  const twinningCountByRegion = insights.twinningTargets.reduce((acc, item) => {
-    acc.set(item.region, (acc.get(item.region) ?? 0) + 1);
-    return acc;
-  }, new Map<string, number>());
 
   const rows = insights.topPriorityRegions.map((item) => {
     const coverage = coverageByRegion.get(item.region);
@@ -171,7 +130,6 @@ export async function GET(request: NextRequest) {
       coverage?.coveragePercentage ?? 0,
       coverage?.gapLevel ?? 'unknown',
       (coverage?.missingDivisions ?? []).join('; '),
-      twinningCountByRegion.get(item.region) ?? 0,
       (recommendations?.recommendedPrograms ?? []).join('; '),
       item.reasons.join('; '),
     ];
@@ -188,7 +146,6 @@ export async function GET(request: NextRequest) {
       'Division Coverage (%)',
       'Coverage Gap Level',
       'Missing Divisions',
-      'Twinning Targets',
       'Recommended Programs',
       'Priority Drivers',
     ],

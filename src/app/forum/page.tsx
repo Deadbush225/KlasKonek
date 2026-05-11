@@ -28,7 +28,7 @@ function getAvatarByName(name: string) {
   if (normalized.includes('marti')) return '/img/marti.jpeg';
   if (normalized.includes('christine')) return '/img/christine.jpeg';
 
-  return null;
+  return `https://i.pravatar.cc/150?u=${encodeURIComponent(name)}`;
 }
 
 function PinIcon() {
@@ -333,12 +333,10 @@ export default async function ForumPage({ searchParams }: PageProps) {
                   <div className={forumStyles.author}>
                     <div className={forumStyles.avatarMini}>
                       {getAvatarByName(topic.author_name) ? (
-                        <Image
+                        <img
                           src={getAvatarByName(topic.author_name) as string}
                           alt={topic.author_name}
-                          fill
-                          sizes="24px"
-                          style={{ objectFit: 'cover' }}
+                          style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                         />
                       ) : null}
                     </div>
