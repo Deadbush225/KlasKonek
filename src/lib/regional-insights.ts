@@ -756,7 +756,7 @@ export async function getRegionalInsightsDashboard(options: RegionalInsightsOpti
     topPriorityRegions,
     programRecommendations,
     schoolActivity: schoolInsights.schoolActivity,
-    twinningTargets: schoolInsights.twinningTargets,
+
     anonymizedResearchSummary: {
       totalConsentedTeachers: rows.filter((row) => row.consent_research).length,
       anonymizedDatasetRows,
