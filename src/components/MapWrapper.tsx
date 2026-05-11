@@ -235,7 +235,7 @@ export default function MapWrapper({
               <div className={mapStyles.popupContent}>
                 <h3 className={mapStyles.popupTitle}>{region.displayName}</h3>
                 <p className={mapStyles.popupMetric}><strong>Time Slice:</strong> {activeTimeLabel}</p>
-                <p className={mapStyles.popupMetric}><strong>Registered STEM Teachers:</strong> {region.teacherCount}</p>
+                <p className={mapStyles.popupMetric}><strong>Registered Teachers:</strong> {region.teacherCount}</p>
                 <p className={mapStyles.popupMetric}><strong>Teacher Density:</strong> {region.teacherDensity} teachers/division</p>
                 <p className={mapStyles.popupMetric}><strong>Avg. Teaching Experience:</strong> {region.averageExperience} yrs</p>
                 <p className={mapStyles.popupMetric}><strong>Underserved Score:</strong> {region.underservedScore}</p>

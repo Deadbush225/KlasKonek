@@ -27,7 +27,7 @@ export default function PrivacyPolicyPage() {
         <section style={sectionStyle}>
           <h2 style={h2Style}>1. Data Controller</h2>
           <p>
-            KlasKonek is operated as a national STEM educator collaboration hub.
+            KlasKonek is operated as a national educator collaboration hub.
             The platform administrator acts as the Personal Information Controller (PIC) under
             Republic Act No. 10173, the <strong>Data Privacy Act of 2012</strong> (DPA).
           </p>

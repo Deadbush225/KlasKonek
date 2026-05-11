@@ -25,7 +25,7 @@ function getAvatarByName(name: string) {
   if (normalized.includes('marti')) return '/img/marti.jpeg';
   if (normalized.includes('christine')) return '/img/christine.jpeg';
 
-  return null;
+  return `https://i.pravatar.cc/150?u=${encodeURIComponent(name)}`;
 }
 
 export default async function RepositoryPage({ searchParams }: PageProps) {
@@ -157,15 +157,11 @@ export default async function RepositoryPage({ searchParams }: PageProps) {
               <div className={repoStyles.cardFooter}>
                 <div className={repoStyles.authorInfo}>
                   <div className={repoStyles.avatar}>
-                    {getAvatarByName(project.author_name) ? (
-                      <Image
-                        src={getAvatarByName(project.author_name) as string}
-                        alt={project.author_name}
-                        fill
-                        sizes="36px"
-                        style={{ objectFit: 'cover' }}
-                      />
-                    ) : null}
+                    <img
+                      src={getAvatarByName(project.author_name) as string}
+                      alt={project.author_name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                    />
                   </div>
                   <div className={repoStyles.authorDetails}>
                     <Link href={`/profile/${project.author_id}`} className={repoStyles.authorProfileLink}>

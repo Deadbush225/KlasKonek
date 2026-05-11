@@ -84,7 +84,7 @@ export default function TermsModal() {
             }}
           />
           <span style={{ fontSize: '0.95rem' }}>
-            I agree to the Terms and Conditions and commit to using KlasKonek responsibly for the advancement of STEM education.
+            I agree to the Terms and Conditions and commit to using KlasKonek responsibly for the advancement of education.
           </span>
         </label>
 

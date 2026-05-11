@@ -60,7 +60,7 @@ export function DeliveryTabContent({ deliveries, programTypes, regions }: Props)
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', gridColumn: '1 / -1' }}>
                 <label style={{ fontSize: '0.85rem', fontWeight: 500 }}>Program Title *</label>
-                <input name="title" type="text" required maxLength={200} placeholder="e.g. STEM Teachers' Summit 2025" />
+                <input name="title" type="text" required maxLength={200} placeholder="e.g. Teachers' Summit 2025" />
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>

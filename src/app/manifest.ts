@@ -2,9 +2,9 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'KlasKonek STEM Educators Hub',
+    name: 'KlasKonek Educators Hub',
     short_name: 'KlasKonek',
-    description: 'Community-driven collaboration hub for STEM educators to share research, programs, and regional insights.',
+    description: 'Community-driven collaboration hub for educators to share research, programs, and regional insights.',
     start_url: '/',
     display: 'standalone',
     background_color: '#0a0a0a',

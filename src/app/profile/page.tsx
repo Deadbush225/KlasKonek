@@ -11,6 +11,7 @@ import { formatDateTimeNoSeconds } from '@/lib/date-format';
 import { getNotificationsForUser, getUnreadNotificationCount } from '@/lib/notifications';
 import { markAllNotificationsReadAction } from '@/app/actions/notifications';
 import { getTrainingRecordsForTeacher } from '@/lib/training-records';
+import { formatKlasKonekId } from '@/lib/id-format';
 
 function getAvatarByName(name: string, role: string) {
   if (role === 'admin') return '/img/favicon.png';
@@ -81,7 +82,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
           <h3>Professional Information</h3>
           <div className={profileStyles.infoItem}>
             <span>KlasKonek ID</span>
-            <strong>{profile.star_id}</strong>
+            <strong>{formatKlasKonekId(profile.star_id)}</strong>
           </div>
           <div className={profileStyles.infoItem}>
             <span>Email</span>

@@ -32,7 +32,7 @@ export function AddTrainingForm({ className }: Props) {
           type="text"
           required
           maxLength={200}
-          placeholder="e.g. 2025 Regional STEM Bootcamp"
+          placeholder="e.g. 2025 Regional Bootcamp"
         />
       </div>
 

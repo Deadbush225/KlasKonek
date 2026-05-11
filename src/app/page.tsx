@@ -47,7 +47,7 @@ export default function Home() {
           </h1>
           <p className={`${homeStyles.subtitle} ${homeStyles.fadeUp}`} style={{ animationDelay: '0.3s' }}>
             Connect, collaborate, and share impactful Action Research and Extension Projects 
-            with STEM educators across the Philippines. This platform blends a research 
+            with educators across the Philippines. This platform blends a research 
             repository, community forums, and real-time mapping into one hub.
           </p>
           <div className={`${homeStyles.ctaGroup} ${homeStyles.fadeUp}`} style={{ animationDelay: '0.4s' }}>
@@ -65,7 +65,7 @@ export default function Home() {
       <section className={homeStyles.featureSection}>
         <div className={homeStyles.fadeUp} style={{ animationDelay: '0.5s' }}>
           <h2 className={homeStyles.sectionTitle}>Platform Highlights</h2>
-          <p className={homeStyles.sectionSubtitle}>Everything you need to grow as a STEM educator, all in one place.</p>
+          <p className={homeStyles.sectionSubtitle}>Everything you need to grow as an educator, all in one place.</p>
         </div>
         
         <div className={homeStyles.featureGrid}>
@@ -85,7 +85,7 @@ export default function Home() {
           <div className={`card ${homeStyles.featureCard}`} style={{ animationDelay: '0.8s' }}>
             <div className={homeStyles.iconWrapper}><IconMap /></div>
             <h3>Teacher Heatmaps</h3>
-            <p>Analyze an integrated map generating accurate regional profiles of STEM teachers highlighting specializations, demographics, and identifying underserved areas.</p>
+            <p>Analyze an integrated map generating accurate regional profiles of teachers highlighting specializations, demographics, and identifying underserved areas.</p>
           </div>
           
         </div>

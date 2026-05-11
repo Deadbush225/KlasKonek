@@ -361,7 +361,7 @@ export default function RegionalMapPage() {
 
       if (underservedScore >= 60 || densityIndex < 1.0) {
         insightLevel = 'critical';
-        insightText = 'Severe shortage detected. Prioritize immediate deployment of STEM educators.';
+        insightText = 'Severe shortage detected. Prioritize immediate deployment of educators.';
       } else if (underservedScore >= 40) {
         insightLevel = 'warning';
         insightText = 'Approaching capacity limits. Consider targeted capacity-building programs.';

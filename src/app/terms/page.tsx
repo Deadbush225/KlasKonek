@@ -12,7 +12,7 @@ export default function TermsPage() {
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.3rem', marginBottom: '0.75rem', color: 'var(--primary-blue)' }}>1. Introduction</h2>
           <p>
-            KlasKonek is a community-driven collaboration hub for STEM educators in the Philippines.
+            KlasKonek is a community-driven collaboration hub for educators in the Philippines.
             By accessing and using this platform, you agree to be bound by these Terms and Conditions in full.
           </p>
         </section>

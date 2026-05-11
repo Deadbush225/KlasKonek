@@ -239,7 +239,7 @@ export default function RegisterPage() {
               name="trainingHistory"
               rows={3}
               placeholder={`One training per line, e.g.
-2025 Regional STEM Bootcamp
+2025 Regional Bootcamp
 2024 Action Research Workshop`}
             />
           </div>

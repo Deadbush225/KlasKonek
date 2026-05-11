@@ -7,6 +7,7 @@ import {
   getApprovedForumTopicsByAuthor,
   getApprovedResourcesByAuthor,
 } from '@/lib/community';
+import { formatKlasKonekId } from '@/lib/id-format';
 
 function getAvatarByName(name: string) {
   const normalized = name.toLowerCase();
@@ -70,7 +71,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
           <h3>Public Information</h3>
           <div className={profileStyles.infoItem}>
             <span>KlasKonek ID</span>
-            <strong>{profile.star_id}</strong>
+            <strong>{formatKlasKonekId(profile.star_id)}</strong>
           </div>
           <div className={profileStyles.infoItem}>
             <span>Occupation</span>
